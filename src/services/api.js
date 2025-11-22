@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
-export const API_URL = `${BACKEND_URL}/api`;
+const API_BASE_URL = 'https://fashion-plus-production.up.railway.app';
+/*export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";*/
+export const API_URL = `${API_BASE_URL}/api`;
 
 export const api = axios.create({
   baseURL: API_URL,
