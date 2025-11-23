@@ -15,12 +15,14 @@ const ProductCard = ({ product }) => {
     
     // Si es una ruta relativa del backend (/uploads/...)
     if (imagePath.startsWith('/uploads')) {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
+
+      /*const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';*/
       return `${backendUrl}${imagePath}`;
     }
     
     // Si es solo el nombre del archivo (caso antiguo)
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
     return `${backendUrl}/uploads/${imagePath}`;
   };
 

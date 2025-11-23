@@ -1,5 +1,5 @@
 // Constantes de la aplicación
-export const API_BASE_URL = 'http://localhost:5000/api';
+export const API_BASE_URL = "https://fashion-plus-production.up.railway.app";
 
 // Categorías de productos
 export const CATEGORIES = [
