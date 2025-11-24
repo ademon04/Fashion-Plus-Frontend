@@ -5,7 +5,7 @@ import { api } from './api';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
 
 
-/*const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";*/
+/*const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";*/
 
 export const productService = {
   async getProducts(filters = {}) {

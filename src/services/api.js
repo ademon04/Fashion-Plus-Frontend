@@ -1,52 +1,56 @@
 import axios from 'axios';
 
 const API_BASE_URL = 'https://fashion-plus-production.up.railway.app';
-/*export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";*/
 export const API_URL = `${API_BASE_URL}/api`;
 
 export const api = axios.create({
   baseURL: API_URL,
-  // REMOVER el header por defecto - se configurará dinámicamente
+  withCredentials: true,
+  timeout: 15000,
 });
 
+// Interceptor de request simplificado
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+  const token = localStorage.getItem('token');
+  
   if (token) {
-    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  // DETECCIÓN AUTOMÁTICA DE FORMDATA
-  if (config.data instanceof FormData) {
-    // Para FormData: DEJAR que axios configure automáticamente los headers
-    // Esto incluye el Content-Type con el boundary correcto
-    delete config.headers['Content-Type']; // Importante: eliminar cualquier header previo
-  } else {
-    // Para JSON: establecer el header normalmente
+  // No modificar headers para FormData - axios lo maneja automáticamente
+  if (!(config.data instanceof FormData)) {
     config.headers['Content-Type'] = 'application/json';
   }
 
-  console.log('🚀 Request config:', {
-    url: config.url,
-    method: config.method,
-    headers: config.headers,
-    hasFormData: config.data instanceof FormData
-  });
+  console.log('🔄 Enviando request a:', `${config.baseURL}${config.url}`);
+  return config;
+}, (error) => {
+  console.error('❌ Error en request:', error);
+  return Promise.reject(error);
+});
 
-  return config}, (error) => Promise.reject(error));
-
-// Interceptor de respuesta para mejor debugging
+// Interceptor de respuesta mejorado
 api.interceptors.response.use(
   (response) => {
-    console.log('✅ Response:', response.status, response.data);
+    console.log('✅ Response éxito:', response.status);
     return response;
   },
   (error) => {
-    console.error('❌ API Error:', {
+    const errorDetails = {
       status: error.response?.status,
-      data: error.response?.data,
-      message: error.message
-    });
+      url: error.config?.url,
+      method: error.config?.method,
+      data: error.response?.data
+    };
+    
+    console.error('❌ API Error:', errorDetails);
+    
+    // Manejo específico de errores de autenticación
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      console.warn('🔐 Token inválido, removido de localStorage');
+    }
+    
     return Promise.reject(error);
   }
 );

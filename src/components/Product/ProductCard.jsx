@@ -17,7 +17,7 @@ const ProductCard = ({ product }) => {
     if (imagePath.startsWith('/uploads')) {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
 
-      /*const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';*/
+      /*const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://fashion-plus-production.up.railway.app';*/
       return `${backendUrl}${imagePath}`;
     }
     
