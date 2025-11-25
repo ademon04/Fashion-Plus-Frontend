@@ -12,7 +12,28 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
+/* En tu App.css o components.css */
+.checkout-result {
+  padding: 2rem 0;
+  text-align: center;
+}
 
+.success-message, .error-message {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 8px;
+}
+
+.success-message {
+  background: #f0fff4;
+  border: 1px solid #68d391;
+}
+
+.error-message {
+  background: #fff5f5;
+  border: 1px solid #fc8181;
+}
 .App-header {
   background-color: #282c34;
   min-height: 100vh;

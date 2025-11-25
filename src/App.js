@@ -20,6 +20,8 @@ import ProductManagement from "./pages/admin/ProductManagement";
 import OrderManagement from "./pages/admin/OrderManagement";
 
 import CookieBanner from "./components/UI/CookieBanner";
+import CheckoutSuccess from './pages/CheckoutSuccess';
+import CheckoutFailure from './pages/CheckoutFailure';
 
 
 import "./styles/App.css";
@@ -51,6 +53,8 @@ function App() {
                   <Route path="/admin/dashboard" element={<AdminDashboard />} />
                   <Route path="/admin/productos" element={<ProductManagement />} />
                   <Route path="/admin/ordenes" element={<OrderManagement />} />
+                  <Route path="/checkout/success" element={<CheckoutSuccess />} />
+                  <Route path="/checkout/failure" element={<CheckoutFailure />} />
                 </Routes>
               </main>
 

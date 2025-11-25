@@ -37,30 +37,23 @@ const Checkout = () => {
 
     try {
       // Construcción correcta de items como lo espera el backend
-      const orderData = {
-        items: items.map((item) => ({
-product: item.product._id || item.product.id || item.product.productId,
-          size: item.size,
-          quantity: item.quantity,
-          price: item.product.price, // ← requerido por backend
-        })),
-        customer: {
-          name: customerData.name,
-          email: customerData.email,
-          phone: customerData.phone,
-          zipCode: customerData.zipCode,
-        },
-        shippingAddress: {
-          street: customerData.address,
-          city: customerData.city,
-          state: "N/A",
-          zipCode: customerData.zipCode,
-          country: "México",
-        },
-        total: getCartTotal(),
-        guest: true, // Es invitado
-      };
-
+     const orderData = {
+  items: items.map((item) => ({
+    product: item.product._id,
+    size: item.size,
+    quantity: item.quantity,
+    // ❌ ELIMINAR: price: item.product.price
+  })),
+  customer: {
+    name: customerData.name,
+    email: customerData.email,
+    phone: customerData.phone,
+    zipCode: customerData.zipCode,
+  },
+  // ✅ CAMBIAR a string:
+  shippingAddress: `${customerData.address}, ${customerData.city}, ${customerData.zipCode}, México`,
+  guest: true,
+};
       // Crear orden
       const order = await orderService.createOrder(orderData);
 
