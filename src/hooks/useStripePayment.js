@@ -1,23 +1,30 @@
 // src/hooks/useStripePayment.js
 import { useState } from 'react';
-import { stripeService } from '../services/stripe';
+import { api } from '../services/api'; // ✅ Usar api que SÍ existe
 
 export const useStripePayment = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // 🔥 AGREGAR ESTA FUNCIÓN QUE FALTA
-  const createCheckoutSession = async (orderData) => {
+ const createCheckoutSession = async (orderData) => {
     setLoading(true);
     setError(null);
     
     try {
       console.log('🛒 Creando sesión de checkout con:', orderData);
-      const sessionData = await stripeService.createCheckoutSession(orderData);
       
-      // Redirigir a Stripe Checkout
-      if (sessionData.sessionId) {
-        await stripeService.redirectToCheckout(sessionData.sessionId);
+      // ✅ LLAMAR DIRECTAMENTE al endpoint del backend
+      const response = await api.post('/payments/create-checkout-session', orderData);
+      const sessionData = response.data;
+      
+      console.log('✅ Sesión creada, redirigiendo a:', sessionData.url);
+      
+      // ✅ Redirigir directamente
+      if (sessionData.url) {
+        window.location.href = sessionData.url;
+      } else {
+        throw new Error('No se recibió URL de Stripe');
       }
       
       return sessionData;
@@ -30,40 +37,8 @@ export const useStripePayment = () => {
     }
   };
 
-  const createPayment = async (orderData) => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const paymentData = await stripeService.createPaymentIntent(orderData);
-      return paymentData;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const confirmPayment = async (clientSecret, paymentMethodId) => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const result = await stripeService.confirmPayment(clientSecret, paymentMethodId);
-      return result;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return {
-    createCheckoutSession, 
-    createPayment,
-    confirmPayment,
+    createCheckoutSession,
     loading,
     error,
     clearError: () => setError(null)
