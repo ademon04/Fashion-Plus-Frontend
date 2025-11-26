@@ -6,6 +6,30 @@ export const useStripePayment = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // 🔥 AGREGAR ESTA FUNCIÓN QUE FALTA
+  const createCheckoutSession = async (orderData) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      console.log('🛒 Creando sesión de checkout con:', orderData);
+      const sessionData = await stripeService.createCheckoutSession(orderData);
+      
+      // Redirigir a Stripe Checkout
+      if (sessionData.sessionId) {
+        await stripeService.redirectToCheckout(sessionData.sessionId);
+      }
+      
+      return sessionData;
+    } catch (err) {
+      console.error('❌ Error en createCheckoutSession:', err);
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const createPayment = async (orderData) => {
     setLoading(true);
     setError(null);
@@ -37,6 +61,7 @@ export const useStripePayment = () => {
   };
 
   return {
+    createCheckoutSession, 
     createPayment,
     confirmPayment,
     loading,

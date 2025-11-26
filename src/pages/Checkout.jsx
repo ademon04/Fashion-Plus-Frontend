@@ -11,6 +11,10 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState("stripe"); // "stripe" o "mercadopago"
   
   const { createCheckoutSession, loading: stripeLoading, error: stripeError } = useStripePayment();
+  console.log('🔍 Hook cargado:', {
+  createCheckoutSession: typeof createCheckoutSession,
+  exists: !!createCheckoutSession
+});
 
   const [customerData, setCustomerData] = useState({
     name: "",
