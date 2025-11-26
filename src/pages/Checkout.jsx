@@ -63,8 +63,8 @@ const Checkout = () => {
         city: customerData.city || '',
         zipCode: customerData.zipCode || '',
       },
-      successUrl: `${window.location.origin}/payment-success`,
-      cancelUrl: `${window.location.origin}/checkout`
+      successUrl: `${window.location.origin}/checkout/success`,
+      cancelUrl: `${window.location.origin}/checkout/failure`
     };
 
     // Validar que el email esté presente
