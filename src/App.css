@@ -24,7 +24,351 @@
   padding: 2rem;
   border-radius: 8px;
 }
+/* src/styles/checkout-results.css */
+.success-page, .failure-page {
+  min-height: 100vh;
+  padding: 2rem 0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
 
+.success-content, .failure-content {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  padding: 3rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Header común */
+.success-header, .failure-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.success-icon, .failure-icon {
+  margin-bottom: 1.5rem;
+}
+
+.success-header h1, .failure-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.success-message, .failure-message {
+  font-size: 1.2rem;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+/* Loading */
+.loading-spinner {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Detalles de la orden */
+.order-details {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.order-details h2 {
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+}
+
+.details-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.detail-icon {
+  color: #007bff;
+}
+
+.detail-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.detail-value {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Próximos pasos */
+.next-steps {
+  margin-bottom: 3rem;
+}
+
+.next-steps h3 {
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+}
+
+.steps-timeline {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.step-number {
+  width: 32px;
+  height: 32px;
+  background: #007bff;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #1f2937;
+}
+
+.step-content p {
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Problemas comunes */
+.common-issues {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #fef2f2;
+  border-radius: 8px;
+  border-left: 4px solid #ef4444;
+}
+
+.common-issues h3 {
+  margin-bottom: 1rem;
+  color: #dc2626;
+}
+
+.issues-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.issues-list li {
+  padding: 0.5rem 0;
+  color: #7f1d1d;
+}
+
+/* Soluciones */
+.solutions {
+  margin-bottom: 3rem;
+}
+
+.solutions h3 {
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+}
+
+.solutions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.solution-card {
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+}
+
+.solution-icon {
+  margin-bottom: 1rem;
+  color: #007bff;
+}
+
+.solution-content h4 {
+  margin-bottom: 0.5rem;
+  color: #1f2937;
+}
+
+.solution-content p {
+  color: #6b7280;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Información adicional */
+.additional-info, .support-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.info-card, .support-card {
+  padding: 1.5rem;
+  background: #f0f9ff;
+  border-radius: 8px;
+  border: 1px solid #bae6fd;
+}
+
+.info-card h4, .support-card h4 {
+  margin-bottom: 0.5rem;
+  color: #0369a1;
+}
+
+.info-card p, .support-card p {
+  color: #0c4a6e;
+  margin-bottom: 1rem;
+}
+
+.contact-info p {
+  margin-bottom: 0.5rem;
+}
+
+.contact-info a {
+  color: #0369a1;
+  text-decoration: none;
+}
+
+.contact-info a:hover {
+  text-decoration: underline;
+}
+
+/* Debug info */
+.debug-info {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f3f4f6;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.debug-info small {
+  color: #6b7280;
+  font-family: monospace;
+}
+
+/* Acciones */
+.success-actions, .failure-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 2rem 0;
+}
+
+.btn-primary, .btn-secondary, .btn-outline {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #545b62;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #007bff;
+  border: 2px solid #007bff;
+}
+
+.btn-outline:hover {
+  background: #007bff;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .success-content, .failure-content {
+    padding: 2rem 1rem;
+    margin: 1rem;
+  }
+
+  .success-header h1, .failure-header h1 {
+    font-size: 2rem;
+  }
+
+  .solutions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .success-actions, .failure-actions {
+    flex-direction: column;
+  }
+
+  .btn-primary, .btn-secondary, .btn-outline {
+    width: 100%;
+  }
+}
 .success-message {
   background: #f0fff4;
   border: 1px solid #68d391;

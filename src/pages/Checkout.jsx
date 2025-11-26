@@ -2,12 +2,15 @@
 import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
-import { orderService } from "../services/orders";
+import { useStripePayment } from "../hooks/useStripePayment";
 
 const Checkout = () => {
   const { items, getCartTotal, clearCart } = useCart();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("stripe"); // "stripe" o "mercadopago"
+  
+  const { createCheckoutSession, loading: stripeLoading, error: stripeError } = useStripePayment();
 
   const [customerData, setCustomerData] = useState({
     name: "",
@@ -24,7 +27,89 @@ const Checkout = () => {
     setCustomerData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Enviar la orden al backend
+  // Manejar cambio de método de pago
+  const handlePaymentMethodChange = (method) => {
+    setPaymentMethod(method);
+  };
+
+  // Procesar pago con Stripe
+  const handleStripePayment = async () => {
+    try {
+      // Preparar datos para Stripe
+      const stripeOrderData = {
+        items: items.map(item => ({
+          product: item.product._id,
+          size: item.size,
+          quantity: item.quantity,
+          price: item.product.price
+        })),
+        customer: {
+          name: customerData.name,
+          email: customerData.email,
+          phone: customerData.phone,
+          address: customerData.address,
+          city: customerData.city,
+          zipCode: customerData.zipCode,
+        },
+        successUrl: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${window.location.origin}/checkout`
+      };
+
+      // Crear sesión de Checkout de Stripe y redirigir
+      await createCheckoutSession(stripeOrderData);
+      
+      // NO limpiar carrito aquí - el webhook se encargará cuando se confirme el pago
+      
+    } catch (error) {
+      console.error('Error en checkout de Stripe:', error);
+      alert('Error al procesar el pago con Stripe: ' + error.message);
+    }
+  };
+
+  // Procesar pago con Mercado Pago (lógica original)
+  const handleMercadoPagoPayment = async () => {
+    try {
+      const orderData = {
+        items: items.map((item) => ({
+          product: item.product._id,
+          size: item.size,
+          quantity: item.quantity,
+        })),
+        customer: {
+          name: customerData.name,
+          email: customerData.email,
+          phone: customerData.phone,
+          zipCode: customerData.zipCode,
+        },
+        shippingAddress: `${customerData.address}, ${customerData.city}, ${customerData.zipCode}, México`,
+        guest: true,
+      };
+
+      const response = await fetch('https://fashion-plus-production.up.railway.app/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error creando la orden');
+      }
+
+      const order = await response.json();
+      
+      // Vaciar carrito y redirigir a Mercado Pago
+      clearCart();
+      window.location.href = order.paymentUrl || order.payment_url;
+
+    } catch (error) {
+      console.error("Error procesando pago con Mercado Pago:", error);
+      alert("Error al procesar el pago con Mercado Pago: " + error.message);
+    }
+  };
+
+  // Enviar la orden
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -33,45 +118,23 @@ const Checkout = () => {
       return;
     }
 
+    // Validar campos requeridos
+    if (!customerData.name || !customerData.email || !customerData.phone || 
+        !customerData.address || !customerData.city || !customerData.zipCode) {
+      alert("Por favor completa todos los campos requeridos");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Construcción correcta de items como lo espera el backend
-     const orderData = {
-  items: items.map((item) => ({
-    product: item.product._id,
-    size: item.size,
-    quantity: item.quantity,
-    // ❌ ELIMINAR: price: item.product.price
-  })),
-  customer: {
-    name: customerData.name,
-    email: customerData.email,
-    phone: customerData.phone,
-    zipCode: customerData.zipCode,
-  },
-  // ✅ CAMBIAR a string:
-  shippingAddress: `${customerData.address}, ${customerData.city}, ${customerData.zipCode}, México`,
-  guest: true,
-};
-      // Crear orden
-      const order = await orderService.createOrder(orderData);
-
-      // Vaciar carrito
-      clearCart();
-
-      // Redirigir a Mercado Pago
-      window.location.href = order.paymentUrl || order.payment_url;
-
-    } catch (error) {
-      console.error("Error creando la orden:", error);
-
-      if (error.response?.data?.error) {
-        alert("Error: " + error.response.data.error);
+      if (paymentMethod === "stripe") {
+        await handleStripePayment();
       } else {
-        alert("Error al procesar la orden. Intenta de nuevo.");
+        await handleMercadoPagoPayment();
       }
-
+    } catch (error) {
+      console.error("Error en el proceso de pago:", error);
     } finally {
       setLoading(false);
     }
@@ -93,6 +156,8 @@ const Checkout = () => {
     );
   }
 
+  const isLoading = loading || stripeLoading;
+
   return (
     <div className="checkout-page">
       <div className="container">
@@ -101,6 +166,7 @@ const Checkout = () => {
         <div className="checkout-content">
           {/* FORMULARIO */}
           <form onSubmit={handleSubmit} className="checkout-form">
+            {/* Información del Cliente */}
             <div className="form-section">
               <h2>Información de Contacto</h2>
 
@@ -140,7 +206,7 @@ const Checkout = () => {
               </div>
             </div>
 
-            {/* DIRECCIÓN */}
+            {/* Dirección de Envío */}
             <div className="form-section">
               <h2>Dirección de Envío</h2>
 
@@ -180,12 +246,57 @@ const Checkout = () => {
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary">
-              {loading ? "Procesando..." : "Pagar Ahora"}
+            {/* Método de Pago */}
+            <div className="form-section">
+              <h2>Método de Pago</h2>
+              
+              <div className="payment-methods">
+                <label className="payment-method">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="stripe"
+                    checked={paymentMethod === "stripe"}
+                    onChange={() => handlePaymentMethodChange("stripe")}
+                  />
+                  <span className="payment-method-info">
+                    <strong>Tarjeta de Crédito/Débito (Stripe)</strong>
+                    <span>Pago seguro con Stripe</span>
+                  </span>
+                </label>
+
+                <label className="payment-method">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="mercadopago"
+                    checked={paymentMethod === "mercadopago"}
+                    onChange={() => handlePaymentMethodChange("mercadopago")}
+                  />
+                  <span className="payment-method-info">
+                    <strong>Mercado Pago</strong>
+                    <span>Tarjetas, efectivo y más</span>
+                  </span>
+                </label>
+              </div>
+
+              {stripeError && (
+                <div className="error-message">
+                  ❌ {stripeError}
+                </div>
+              )}
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={isLoading} 
+              className={`btn-primary ${isLoading ? 'loading' : ''}`}
+            >
+              {isLoading ? "Procesando..." : `Pagar con ${paymentMethod === 'stripe' ? 'Stripe' : 'Mercado Pago'}`}
             </button>
           </form>
 
-          {/* RESUMEN */}
+          {/* RESUMEN DEL PEDIDO */}
           <div className="order-summary">
             <h2>Resumen del Pedido</h2>
 
@@ -211,6 +322,21 @@ const Checkout = () => {
               <span>Total:</span>
               <span>${getCartTotal().toFixed(2)}</span>
             </div>
+
+            <div className="security-info">
+              <div className="security-item">
+                <span>🔒</span>
+                <span>Pago 100% seguro</span>
+              </div>
+              <div className="security-item">
+                <span>🛡️</span>
+                <span>Datos protegidos</span>
+              </div>
+              <div className="security-item">
+                <span>↩️</span>
+                <span>Devoluciones fáciles</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -219,6 +345,3 @@ const Checkout = () => {
 };
 
 export default Checkout;
-
-
-
