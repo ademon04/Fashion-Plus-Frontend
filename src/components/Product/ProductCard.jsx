@@ -12,7 +12,6 @@ const ProductCard = ({ product }) => {
   const [currentImage, setCurrentImage] = useState(PLACEHOLDER_BASE64);
   const { addToCart } = useCart();
 
-  // 🔥 CORRECCIÓN: Evitar bucle infinito en onError
   useEffect(() => {
     if (product.images && product.images.length > 0) {
       const imageUrl = getImageUrl(product.images[0]);
@@ -33,19 +32,17 @@ const ProductCard = ({ product }) => {
         console.warn('❌ Error precargando imagen, usando placeholder:', imageUrl);
         setImageLoading(false);
         setImageError(true);
-        setCurrentImage(PLACEHOLDER_BASE64);
+        // No establecemos currentImage a PLACEHOLDER_BASE64 aquí, porque lo manejamos en el render
       };
       img.src = imageUrl;
     } else {
       // Si no hay imágenes, usar placeholder directamente
       console.log('📦 Producto sin imágenes, usando placeholder');
-      setCurrentImage(PLACEHOLDER_BASE64);
       setImageLoading(false);
       setImageError(true);
     }
   }, [product.images]);
 
-  // 🔥 CORRECCIÓN: Función mejorada para URLs
   const getImageUrl = (imagePath) => {
     if (!imagePath) return PLACEHOLDER_BASE64;
     
@@ -70,21 +67,17 @@ const ProductCard = ({ product }) => {
     return fullUrl;
   };
 
-  // 🔥 CORRECCIÓN: Manejo de errores SIN BUCLE
   const handleImageError = (e) => {
-    // Si ya estamos mostrando el placeholder, no hacer nada
-    if (e.target.src === PLACEHOLDER_BASE64) {
-      console.log('🛑 Placeholder ya está en uso, evitando bucle');
-      return;
-    }
-    
-    console.warn('❌ Error cargando imagen, cambiando a placeholder:', e.target.src);
-    setImageError(true);
-    setImageLoading(false);
-    
-    // Cambiar src SOLO si no es ya el placeholder
+    // Solo manejar error si no es el placeholder base64
     if (e.target.src !== PLACEHOLDER_BASE64) {
+      console.warn('❌ Error cargando imagen, cambiando a placeholder:', e.target.src);
+      setImageError(true);
+      setImageLoading(false);
       e.target.src = PLACEHOLDER_BASE64;
+    } else {
+      // Si el placeholder base64 falla, no hacemos nada para evitar bucle
+      console.error('🚨 Error cargando el placeholder base64');
+      // Podríamos intentar usar un div en lugar de una imagen, pero eso lo manejamos en el render
     }
   };
 
@@ -154,31 +147,28 @@ const ProductCard = ({ product }) => {
 
   return (
     <div className="product-card">
-      {/* 🔥 CORRECCIÓN: Contenedor de imagen más robusto */}
       <div className="product-image-container">
-        {imageLoading && (
+        {imageLoading && !imageError && (
           <div className="image-loading-placeholder">
             <div className="loading-spinner"></div>
             <span>Cargando imagen...</span>
           </div>
         )}
         
-        <img
-          src={currentImage}
-          alt={product.name}
-          onError={handleImageError}
-          onLoad={handleImageLoad}
-          className={`product-image ${imageLoading ? 'loading' : ''} ${imageError ? 'error' : ''}`}
-          style={{ 
-            display: imageLoading ? 'none' : 'block',
-            opacity: imageLoading ? 0 : 1 
-          }}
-        />
-
-        {imageError && !imageLoading && (
+        {/* Si hay error, mostramos un div con mensaje. Si no, mostramos la imagen. */}
+        {imageError ? (
           <div className="image-fallback">
             <span>📷 Imagen no disponible</span>
           </div>
+        ) : (
+          <img
+            src={currentImage}
+            alt={product.name}
+            onError={handleImageError}
+            onLoad={handleImageLoad}
+            className="product-image"
+            style={{ display: imageLoading ? 'none' : 'block' }}
+          />
         )}
 
         {product.onSale && <span className="sale-badge">OFERTA</span>}
@@ -212,7 +202,6 @@ const ProductCard = ({ product }) => {
 
         {product.sizes?.some(size => size.stock > 0 && size.stock <= 5) && (
           <div className="low-stock-warning">
-            ⚠️ Últimas unidades disponibles
           </div>
         )}
       </div>
