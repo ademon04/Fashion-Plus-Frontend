@@ -10,7 +10,7 @@ export const useStripePayment = () => {
  const createCheckoutSession = async (orderData) => {
     setLoading(true);
     setError(null);
-    
+    /// despues 5000 envio gratis
     try {
       console.log('🛒 Creando sesión de checkout con:', orderData);
       
