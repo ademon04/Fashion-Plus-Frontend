@@ -38,38 +38,87 @@ const Checkout = () => {
 
   // Procesar pago con Stripe
   const handleStripePayment = async () => {
-    try {
-      // Preparar datos para Stripe
-      const stripeOrderData = {
-        items: items.map(item => ({
+  try {
+    // Preparar datos para Stripe - CON VALIDACIÓN
+    const stripeOrderData = {
+      items: items.map(item => {
+        // 🔥 Validar que el producto y el precio existan
+        if (!item.product || typeof item.product.price === 'undefined') {
+          console.error('❌ Item sin precio:', item);
+          throw new Error(`El producto "${item.product?.name}" no tiene precio definido.`);
+        }
+
+        return {
           product: item.product._id,
           size: item.size,
           quantity: item.quantity,
-          price: item.product.price
-        })),
-        customer: {
-          name: customerData.name,
-          email: customerData.email,
-          phone: customerData.phone,
-          address: customerData.address,
-          city: customerData.city,
-          zipCode: customerData.zipCode,
-        },
-        successUrl: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${window.location.origin}/checkout`
-      };
+          price: item.product.price // ✅ Ahora asegurados de que existe
+        };
+      }),
+      customer: {
+        name: customerData.name || 'Cliente',
+        email: customerData.email, // ✅ ESTE ES OBLIGATORIO
+        phone: customerData.phone || '',
+        address: customerData.address || '',
+        city: customerData.city || '',
+        zipCode: customerData.zipCode || '',
+      },
+      successUrl: `${window.location.origin}/payment-success`,
+      cancelUrl: `${window.location.origin}/checkout`
+    };
 
-      // Crear sesión de Checkout de Stripe y redirigir
-      await createCheckoutSession(stripeOrderData);
-      
-      // NO limpiar carrito aquí - el webhook se encargará cuando se confirme el pago
-      
-    } catch (error) {
-      console.error('Error en checkout de Stripe:', error);
-      alert('Error al procesar el pago con Stripe: ' + error.message);
+    // Validar que el email esté presente
+    if (!stripeOrderData.customer.email) {
+      alert('Por favor ingresa tu email para continuar con el pago');
+      return;
     }
-  };
 
+    console.log('📤 Enviando datos a Stripe:', stripeOrderData);
+    
+    // Crear sesión de Checkout de Stripe y redirigir
+    await createCheckoutSession(stripeOrderData);
+    
+  } catch (error) {
+    console.error('Error en checkout de Stripe:', error);
+    alert('Error al procesar el pago con Stripe: ' + error.message);
+  }
+};
+
+// Función de diagnóstico - ejecútala temporalmente
+const diagnoseCartItems = () => {
+  console.log('🔍 DIAGNÓSTICO DEL CARRITO:');
+  
+  items.forEach((item, index) => {
+    console.log(`Item ${index + 1}:`, {
+      productName: item.product?.name,
+      productId: item.product?._id,
+      hasProduct: !!item.product,
+      hasPrice: typeof item.product?.price !== 'undefined',
+      priceValue: item.product?.price,
+      priceType: typeof item.product?.price,
+      priceValid: !isNaN(parseFloat(item.product?.price)) && parseFloat(item.product?.price) > 0
+    });
+  });
+
+  const problematicItems = items.filter(item => 
+    !item.product || 
+    typeof item.product.price === 'undefined' || 
+    isNaN(parseFloat(item.product.price)) || 
+    parseFloat(item.product.price) <= 0
+  );
+
+  if (problematicItems.length > 0) {
+    console.error('❌ ITEMS PROBLEMÁTICOS:', problematicItems);
+    alert(`Se encontraron ${problematicItems.length} productos con precios inválidos. Por favor, recarga la página.`);
+  } else {
+    console.log('✅ Todos los items tienen precios válidos');
+  }
+};
+
+// Ejecuta esta función temporalmente en tu componente
+// useEffect(() => {
+//   diagnoseCartItems();
+// }, [items]);
   // Procesar pago con Mercado Pago (lógica original)
   const handleMercadoPagoPayment = async () => {
     try {
