@@ -2,89 +2,97 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import SizeSelector from './SizeSelector';
 
-// 🔥 SOLUCIÓN: Placeholder en Base64 que SIEMPRE funcionará
-const PLACEHOLDER_BASE64 = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM2Yzc1N2QiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCI+SW1hZ2VuIG5vIGRpc3BvbmlibGU8L3RleHQ+Cjwvc3ZnPg==";
+// 🔥 SOLUCIÓN: Placeholder 100% garantizado que NUNCA fallará
+const PLACEHOLDER_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><rect width="100%" height="100%" fill="%23f8f9fa"/><text x="50%" y="50%" font-family="Arial" font-size="14" fill="%236c757d" text-anchor="middle" dominant-baseline="middle">${encodeURIComponent('Imagen no disponible')}</text></svg>`;
 
 const ProductCard = ({ product }) => {
   const [selectedSize, setSelectedSize] = useState('');
-  const [imageLoading, setImageLoading] = useState(true);
-  const [imageError, setImageError] = useState(false);
-  const [currentImage, setCurrentImage] = useState(PLACEHOLDER_BASE64);
+  const [currentImage, setCurrentImage] = useState(PLACEHOLDER_SVG);
   const { addToCart } = useCart();
 
+  // 🔥 SOLUCIÓN RADICAL: Usar SOLO placeholder hasta que el backend funcione
   useEffect(() => {
+    console.log('🔄 Producto:', product.name);
+    console.log('📸 Imágenes disponibles:', product.images);
+    
+    // Por ahora, usar SIEMPRE el placeholder hasta que las imágenes del backend funcionen
+    setCurrentImage(PLACEHOLDER_SVG);
+    
+    // 🔥 TEMPORAL: Comentar todo el código de carga de imágenes
+    /*
     if (product.images && product.images.length > 0) {
       const imageUrl = getImageUrl(product.images[0]);
       console.log('🔄 Intentando cargar imagen:', imageUrl);
       
-      setCurrentImage(imageUrl);
-      setImageLoading(true);
-      setImageError(false);
-
-      // Precargar imagen para verificar si existe
-      const img = new Image();
-      img.onload = () => {
-        console.log('✅ Imagen precargada correctamente:', imageUrl);
-        setImageLoading(false);
-        setImageError(false);
-      };
-      img.onerror = () => {
-        console.warn('❌ Error precargando imagen, usando placeholder:', imageUrl);
-        setImageLoading(false);
-        setImageError(true);
-        // No establecemos currentImage a PLACEHOLDER_BASE64 aquí, porque lo manejamos en el render
-      };
-      img.src = imageUrl;
+      // Verificar si la imagen existe ANTES de intentar cargarla
+      checkImageExists(imageUrl).then(exists => {
+        if (exists) {
+          console.log('✅ Imagen existe, cargando:', imageUrl);
+          setCurrentImage(imageUrl);
+        } else {
+          console.log('❌ Imagen NO existe, usando placeholder');
+          setCurrentImage(PLACEHOLDER_SVG);
+        }
+      }).catch(() => {
+        setCurrentImage(PLACEHOLDER_SVG);
+      });
     } else {
-      // Si no hay imágenes, usar placeholder directamente
-      console.log('📦 Producto sin imágenes, usando placeholder');
-      setImageLoading(false);
-      setImageError(true);
+      setCurrentImage(PLACEHOLDER_SVG);
     }
-  }, [product.images]);
+    */
+  }, [product.images, product.name]);
 
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return PLACEHOLDER_BASE64;
-    
-    // Si ya es una URL completa
-    if (imagePath.startsWith('http')) return imagePath;
-    
-    // Si es una ruta de Cloudinary
-    if (imagePath.includes('res.cloudinary.com')) return imagePath;
-    
-    // Si es una ruta relativa del backend
-    if (imagePath.startsWith('/uploads')) {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
-      const fullUrl = `${backendUrl}${imagePath}`;
-      console.log('🔗 Convirtiendo ruta relativa a:', fullUrl);
-      return fullUrl;
-    }
-    
-    // Si es solo el nombre del archivo
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
-    const fullUrl = `${backendUrl}/uploads/${imagePath}`;
-    console.log('🔗 Convirtiendo nombre archivo a:', fullUrl);
-    return fullUrl;
+  // 🔥 SOLUCIÓN: Función para verificar existencia (NO USAR POR AHORA)
+  const checkImageExists = (url) => {
+    return new Promise((resolve) => {
+      // Si es el placeholder, siempre existe
+      if (url === PLACEHOLDER_SVG) {
+        resolve(true);
+        return;
+      }
+
+      const img = new Image();
+      const timeout = setTimeout(() => {
+        console.log('⏰ Timeout verificando imagen');
+        resolve(false);
+      }, 3000);
+
+      img.onload = () => {
+        clearTimeout(timeout);
+        resolve(true);
+      };
+      
+      img.onerror = () => {
+        clearTimeout(timeout);
+        resolve(false);
+      };
+      
+      img.src = url;
+    });
   };
 
-  const handleImageError = (e) => {
-    // Solo manejar error si no es el placeholder base64
-    if (e.target.src !== PLACEHOLDER_BASE64) {
-      console.warn('❌ Error cargando imagen, cambiando a placeholder:', e.target.src);
-      setImageError(true);
-      setImageLoading(false);
-      e.target.src = PLACEHOLDER_BASE64;
-    } else {
-      // Si el placeholder base64 falla, no hacemos nada para evitar bucle
-      console.error('🚨 Error cargando el placeholder base64');
-      // Podríamos intentar usar un div en lugar de una imagen, pero eso lo manejamos en el render
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return PLACEHOLDER_SVG;
+    
+    if (imagePath.startsWith('http')) return imagePath;
+    if (imagePath.includes('res.cloudinary.com')) return imagePath;
+    if (imagePath.startsWith('/uploads')) {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
+      return `${backendUrl}${imagePath}`;
     }
+    
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
+    return `${backendUrl}/uploads/${imagePath}`;
+  };
+
+  // 🔥 SOLUCIÓN: onError MUY simple - solo log, no cambiar estado
+  const handleImageError = (e) => {
+    console.log('⚠️ Error de imagen (pero ya estamos usando placeholder)');
+    // NO cambiar el src para evitar bucles
   };
 
   const handleImageLoad = () => {
-    console.log('✅ Imagen cargada exitosamente:', currentImage);
-    setImageLoading(false);
-    setImageError(false);
+    console.log('✅ Imagen cargada exitosamente');
   };
 
   const formatPrice = (price) => {
@@ -100,7 +108,6 @@ const ProductCard = ({ product }) => {
     }
     
     if (isNaN(numericPrice)) {
-      console.warn('⚠️ Precio inválido:', price);
       return '$0.00';
     }
     
@@ -129,47 +136,21 @@ const ProductCard = ({ product }) => {
       alert('✅ Producto agregado al carrito');
       setSelectedSize('');
     } catch (error) {
-      console.error('❌ Error al agregar al carrito:', error);
       alert(error.message || 'Error al agregar al carrito');
     }
   };
 
-  // Debug solo en desarrollo
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔍 ProductCard - Estado:', {
-      nombre: product.name,
-      tieneImagenes: !!product.images?.length,
-      imagenActual: currentImage,
-      cargando: imageLoading,
-      error: imageError
-    });
-  }
-
   return (
     <div className="product-card">
       <div className="product-image-container">
-        {imageLoading && !imageError && (
-          <div className="image-loading-placeholder">
-            <div className="loading-spinner"></div>
-            <span>Cargando imagen...</span>
-          </div>
-        )}
-        
-        {/* Si hay error, mostramos un div con mensaje. Si no, mostramos la imagen. */}
-        {imageError ? (
-          <div className="image-fallback">
-            <span>📷 Imagen no disponible</span>
-          </div>
-        ) : (
-          <img
-            src={currentImage}
-            alt={product.name}
-            onError={handleImageError}
-            onLoad={handleImageLoad}
-            className="product-image"
-            style={{ display: imageLoading ? 'none' : 'block' }}
-          />
-        )}
+        {/* 🔥 SOLUCIÓN: Imagen SIMPLE con placeholder garantizado */}
+        <img
+          src={currentImage}
+          alt={product.name}
+          className="product-image"
+          onError={handleImageError}
+          onLoad={handleImageLoad}
+        />
 
         {product.onSale && <span className="sale-badge">OFERTA</span>}
       </div>
@@ -195,13 +176,13 @@ const ProductCard = ({ product }) => {
           className={`add-to-cart-btn ${!selectedSize ? 'disabled' : ''}`}
           onClick={handleAddToCart}
           disabled={!selectedSize}
-          title={!selectedSize ? 'Selecciona una talla para agregar al carrito' : ''}
         >
           {!selectedSize ? 'Selecciona Talla' : 'Agregar al Carrito'}
         </button>
 
         {product.sizes?.some(size => size.stock > 0 && size.stock <= 5) && (
           <div className="low-stock-warning">
+            ⚠️ Últimas unidades disponibles
           </div>
         )}
       </div>
