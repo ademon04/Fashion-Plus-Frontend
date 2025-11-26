@@ -2,45 +2,52 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import SizeSelector from './SizeSelector';
 
+// 🔥 SOLUCIÓN: Placeholder en Base64 que SIEMPRE funcionará
+const PLACEHOLDER_BASE64 = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM2Yzc1N2QiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCI+SW1hZ2VuIG5vIGRpc3BvbmlibGU8L3RleHQ+Cjwvc3ZnPg==";
+
 const ProductCard = ({ product }) => {
   const [selectedSize, setSelectedSize] = useState('');
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
-  const [currentImage, setCurrentImage] = useState('');
+  const [currentImage, setCurrentImage] = useState(PLACEHOLDER_BASE64);
   const { addToCart } = useCart();
 
-  // 🔥 MEJORA: Efecto para manejar cambios en las imágenes del producto
+  // 🔥 CORRECCIÓN: Evitar bucle infinito en onError
   useEffect(() => {
     if (product.images && product.images.length > 0) {
       const imageUrl = getImageUrl(product.images[0]);
+      console.log('🔄 Intentando cargar imagen:', imageUrl);
+      
       setCurrentImage(imageUrl);
       setImageLoading(true);
       setImageError(false);
-      
-      // Precargar imagen
+
+      // Precargar imagen para verificar si existe
       const img = new Image();
       img.onload = () => {
+        console.log('✅ Imagen precargada correctamente:', imageUrl);
         setImageLoading(false);
         setImageError(false);
       };
       img.onerror = () => {
-        console.warn('❌ Error precargando imagen:', imageUrl);
+        console.warn('❌ Error precargando imagen, usando placeholder:', imageUrl);
         setImageLoading(false);
         setImageError(true);
-        setCurrentImage('/images/placeholder-product.jpg');
+        setCurrentImage(PLACEHOLDER_BASE64);
       };
       img.src = imageUrl;
     } else {
-      // Si no hay imágenes, usar placeholder
-      setCurrentImage('/images/placeholder-product.jpg');
+      // Si no hay imágenes, usar placeholder directamente
+      console.log('📦 Producto sin imágenes, usando placeholder');
+      setCurrentImage(PLACEHOLDER_BASE64);
       setImageLoading(false);
       setImageError(true);
     }
   }, [product.images]);
 
-  // 🔥 MEJORA: Función optimizada para URLs de imagen
+  // 🔥 CORRECCIÓN: Función mejorada para URLs
   const getImageUrl = (imagePath) => {
-    if (!imagePath) return '/images/placeholder-product.jpg';
+    if (!imagePath) return PLACEHOLDER_BASE64;
     
     // Si ya es una URL completa
     if (imagePath.startsWith('http')) return imagePath;
@@ -51,30 +58,54 @@ const ProductCard = ({ product }) => {
     // Si es una ruta relativa del backend
     if (imagePath.startsWith('/uploads')) {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
-      return `${backendUrl}${imagePath}`;
+      const fullUrl = `${backendUrl}${imagePath}`;
+      console.log('🔗 Convirtiendo ruta relativa a:', fullUrl);
+      return fullUrl;
     }
     
-    // Si es solo el nombre del archivo (caso antiguo)
+    // Si es solo el nombre del archivo
     const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
-    return `${backendUrl}/uploads/${imagePath}`;
+    const fullUrl = `${backendUrl}/uploads/${imagePath}`;
+    console.log('🔗 Convirtiendo nombre archivo a:', fullUrl);
+    return fullUrl;
   };
 
-  // 🔥 MEJORA: Función de formateo de precio más robusta
+  // 🔥 CORRECCIÓN: Manejo de errores SIN BUCLE
+  const handleImageError = (e) => {
+    // Si ya estamos mostrando el placeholder, no hacer nada
+    if (e.target.src === PLACEHOLDER_BASE64) {
+      console.log('🛑 Placeholder ya está en uso, evitando bucle');
+      return;
+    }
+    
+    console.warn('❌ Error cargando imagen, cambiando a placeholder:', e.target.src);
+    setImageError(true);
+    setImageLoading(false);
+    
+    // Cambiar src SOLO si no es ya el placeholder
+    if (e.target.src !== PLACEHOLDER_BASE64) {
+      e.target.src = PLACEHOLDER_BASE64;
+    }
+  };
+
+  const handleImageLoad = () => {
+    console.log('✅ Imagen cargada exitosamente:', currentImage);
+    setImageLoading(false);
+    setImageError(false);
+  };
+
   const formatPrice = (price) => {
-    // Validaciones más estrictas
     if (price === null || price === undefined || price === '') return '$0.00';
     
     let numericPrice;
     
     if (typeof price === 'string') {
-      // Remover caracteres no numéricos excepto punto decimal
       const cleanPrice = price.replace(/[^\d.]/g, '');
       numericPrice = parseFloat(cleanPrice);
     } else {
       numericPrice = Number(price);
     }
     
-    // Validar que sea un número válido
     if (isNaN(numericPrice)) {
       console.warn('⚠️ Precio inválido:', price);
       return '$0.00';
@@ -88,27 +119,12 @@ const ProductCard = ({ product }) => {
     }).format(numericPrice);
   };
 
-  // 🔥 MEJORA: Manejo de errores de imagen
-  const handleImageError = (e) => {
-    console.warn('❌ Error cargando imagen en img tag:', currentImage);
-    setImageError(true);
-    setImageLoading(false);
-    e.target.src = '/images/placeholder-product.jpg';
-  };
-
-  const handleImageLoad = () => {
-    setImageLoading(false);
-    setImageError(false);
-  };
-
-  // 🔥 MEJORA: Manejo de agregar al carrito con mejor feedback
   const handleAddToCart = async () => {
     if (!selectedSize) {
       alert('Por favor selecciona una talla');
       return;
     }
 
-    // Verificar stock disponible para la talla seleccionada
     const selectedSizeObj = product.sizes?.find(s => s.size === selectedSize);
     if (selectedSizeObj && selectedSizeObj.stock < 1) {
       alert('Lo sentimos, esta talla está agotada');
@@ -117,13 +133,7 @@ const ProductCard = ({ product }) => {
 
     try {
       await addToCart(product, selectedSize);
-      // Feedback visual podría ser mejor que alert
-      console.log('✅ Producto agregado:', product.name, selectedSize);
-      
-      // Opcional: Podrías agregar un toast notification aquí
       alert('✅ Producto agregado al carrito');
-      
-      // Resetear selección de talla después de agregar
       setSelectedSize('');
     } catch (error) {
       console.error('❌ Error al agregar al carrito:', error);
@@ -131,22 +141,20 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  // 🔥 MEJORA: Debug condicional solo en desarrollo
+  // Debug solo en desarrollo
   if (process.env.NODE_ENV === 'development') {
-    console.log('🔍 ProductCard - Producto:', {
-      id: product._id,
-      name: product.name,
-      price: product.price,
-      priceType: typeof product.price,
-      images: product.images,
-      currentImage: currentImage,
-      sizes: product.sizes
+    console.log('🔍 ProductCard - Estado:', {
+      nombre: product.name,
+      tieneImagenes: !!product.images?.length,
+      imagenActual: currentImage,
+      cargando: imageLoading,
+      error: imageError
     });
   }
 
   return (
     <div className="product-card">
-      {/* ---------- IMAGEN CON MEJORES ESTADOS ---------- */}
+      {/* 🔥 CORRECCIÓN: Contenedor de imagen más robusto */}
       <div className="product-image-container">
         {imageLoading && (
           <div className="image-loading-placeholder">
@@ -161,10 +169,13 @@ const ProductCard = ({ product }) => {
           onError={handleImageError}
           onLoad={handleImageLoad}
           className={`product-image ${imageLoading ? 'loading' : ''} ${imageError ? 'error' : ''}`}
-          style={{ display: imageLoading ? 'none' : 'block' }}
+          style={{ 
+            display: imageLoading ? 'none' : 'block',
+            opacity: imageLoading ? 0 : 1 
+          }}
         />
 
-        {imageError && (
+        {imageError && !imageLoading && (
           <div className="image-fallback">
             <span>📷 Imagen no disponible</span>
           </div>
@@ -173,12 +184,10 @@ const ProductCard = ({ product }) => {
         {product.onSale && <span className="sale-badge">OFERTA</span>}
       </div>
 
-      {/* ---------- INFO DEL PRODUCTO ---------- */}
       <div className="product-info">
         <h3 className="product-name">{product.name}</h3>
         <p className="product-category">{product.category}</p>
 
-        {/* ---------- PRECIO ---------- */}
         <div className="product-price">
           {product.originalPrice > product.price && (
             <span className="original-price">{formatPrice(product.originalPrice)}</span>
@@ -186,14 +195,12 @@ const ProductCard = ({ product }) => {
           <span className="current-price">{formatPrice(product.price)}</span>
         </div>
 
-        {/* ---------- TALLAS ---------- */}
         <SizeSelector
           sizes={product.sizes}
           selectedSize={selectedSize}
           onSizeSelect={setSelectedSize}
         />
 
-        {/* ---------- BOTÓN MEJORADO ---------- */}
         <button
           className={`add-to-cart-btn ${!selectedSize ? 'disabled' : ''}`}
           onClick={handleAddToCart}
@@ -203,7 +210,6 @@ const ProductCard = ({ product }) => {
           {!selectedSize ? 'Selecciona Talla' : 'Agregar al Carrito'}
         </button>
 
-        {/* 🔥 NUEVO: Indicador de stock bajo */}
         {product.sizes?.some(size => size.stock > 0 && size.stock <= 5) && (
           <div className="low-stock-warning">
             ⚠️ Últimas unidades disponibles
