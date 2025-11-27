@@ -1,58 +1,61 @@
+// 📁 frontend/components/Product/ProductCard.jsx
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import SizeSelector from './SizeSelector';
 
-// 🔥 SOLUCIÓN: Placeholder 100% garantizado que NUNCA fallará
-const PLACEHOLDER_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><rect width="100%" height="100%" fill="%23f8f9fa"/><text x="50%" y="50%" font-family="Arial" font-size="14" fill="%236c757d" text-anchor="middle" dominant-baseline="middle">${encodeURIComponent('Imagen no disponible')}</text></svg>`;
-
 const ProductCard = ({ product }) => {
   const [selectedSize, setSelectedSize] = useState('');
-  const [currentImage, setCurrentImage] = useState(PLACEHOLDER_SVG);
+  const [currentImage, setCurrentImage] = useState('');
+  const [imageStatus, setImageStatus] = useState('checking'); // checking, loading, success, error
   const { addToCart } = useCart();
 
-  // 🔥 SOLUCIÓN RADICAL: Usar SOLO placeholder hasta que el backend funcione
   useEffect(() => {
-    console.log('🔄 Producto:', product.name);
-    console.log('📸 Imágenes disponibles:', product.images);
-    
-    // Por ahora, usar SIEMPRE el placeholder hasta que las imágenes del backend funcionen
-    setCurrentImage(PLACEHOLDER_SVG);
-    
-    // 🔥 TEMPORAL: Comentar todo el código de carga de imágenes
-    /*
-    if (product.images && product.images.length > 0) {
+    const verifyAndLoadImage = async () => {
+      if (!product.images || product.images.length === 0) {
+        console.log('📦 Producto sin imágenes:', product.name);
+        setImageStatus('error');
+        setCurrentImage(generatePlaceholder(product.name));
+        return;
+      }
+
       const imageUrl = getImageUrl(product.images[0]);
-      console.log('🔄 Intentando cargar imagen:', imageUrl);
+      console.log('🔄 Verificando imagen:', imageUrl);
+
+      setImageStatus('checking');
       
-      // Verificar si la imagen existe ANTES de intentar cargarla
-      checkImageExists(imageUrl).then(exists => {
+      try {
+        // Verificar si la imagen existe
+        const exists = await checkImageExists(imageUrl);
+        
         if (exists) {
-          console.log('✅ Imagen existe, cargando:', imageUrl);
+          console.log('✅ Imagen existe, procediendo a cargar:', imageUrl);
           setCurrentImage(imageUrl);
+          setImageStatus('loading');
         } else {
-          console.log('❌ Imagen NO existe, usando placeholder');
-          setCurrentImage(PLACEHOLDER_SVG);
+          console.log('❌ Imagen NO existe en servidor:', imageUrl);
+          setImageStatus('error');
+          setCurrentImage(generatePlaceholder(product.name));
         }
-      }).catch(() => {
-        setCurrentImage(PLACEHOLDER_SVG);
-      });
-    } else {
-      setCurrentImage(PLACEHOLDER_SVG);
-    }
-    */
+      } catch (error) {
+        console.log('⚠️ Error en verificación:', error);
+        setImageStatus('error');
+        setCurrentImage(generatePlaceholder(product.name));
+      }
+    };
+
+    verifyAndLoadImage();
   }, [product.images, product.name]);
 
-  // 🔥 SOLUCIÓN: Función para verificar existencia (NO USAR POR AHORA)
   const checkImageExists = (url) => {
     return new Promise((resolve) => {
-      // Si es el placeholder, siempre existe
-      if (url === PLACEHOLDER_SVG) {
+      // Si es una URL de Cloudinary, probablemente existe
+      if (url.includes('res.cloudinary.com')) {
         resolve(true);
         return;
       }
 
       const img = new Image();
-      const timeout = setTimeout(() => {
+      let timeout = setTimeout(() => {
         console.log('⏰ Timeout verificando imagen');
         resolve(false);
       }, 3000);
@@ -72,27 +75,50 @@ const ProductCard = ({ product }) => {
   };
 
   const getImageUrl = (imagePath) => {
-    if (!imagePath) return PLACEHOLDER_SVG;
+    if (!imagePath) return '';
     
+    // Si ya es una URL completa
     if (imagePath.startsWith('http')) return imagePath;
-    if (imagePath.includes('res.cloudinary.com')) return imagePath;
+    
+    // Si es una ruta de Cloudinary (sin http)
+    if (imagePath.includes('cloudinary.com')) {
+      return `https://${imagePath}`;
+    }
+    
+    // Si es una ruta local del backend
     if (imagePath.startsWith('/uploads')) {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
       return `${backendUrl}${imagePath}`;
     }
     
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
-    return `${backendUrl}/uploads/${imagePath}`;
+    return imagePath;
   };
 
-  // 🔥 SOLUCIÓN: onError MUY simple - solo log, no cambiar estado
-  const handleImageError = (e) => {
-    console.log('⚠️ Error de imagen (pero ya estamos usando placeholder)');
-    // NO cambiar el src para evitar bucles
+  const generatePlaceholder = (productName) => {
+    const colors = [
+      { bg: '#2c5530', text: '#ffffff' },
+      { bg: '#1e3a23', text: '#ffffff' }, 
+      { bg: '#3a6351', text: '#ffffff' },
+      { bg: '#2d4a3a', text: '#ffffff' }
+    ];
+    const color = colors[productName.length % colors.length];
+    
+    const encodedName = encodeURIComponent(productName.length > 20 ? productName.substring(0, 20) + '...' : productName);
+    
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><rect width="100%" height="100%" fill="${color.bg}"/><text x="50%" y="45%" font-family="Arial, sans-serif" font-size="16" fill="${color.text}" text-anchor="middle" dominant-baseline="middle">Fashion+</text><text x="50%" y="60%" font-family="Arial, sans-serif" font-size="12" fill="${color.text}" text-anchor="middle" dominant-baseline="middle">${encodedName}</text></svg>`;
+  };
+
+  const handleImageError = () => {
+    console.log('❌ Error cargando imagen en el navegador');
+    if (imageStatus !== 'error') {
+      setImageStatus('error');
+      setCurrentImage(generatePlaceholder(product.name));
+    }
   };
 
   const handleImageLoad = () => {
     console.log('✅ Imagen cargada exitosamente');
+    setImageStatus('success');
   };
 
   const formatPrice = (price) => {
@@ -143,14 +169,38 @@ const ProductCard = ({ product }) => {
   return (
     <div className="product-card">
       <div className="product-image-container">
-        {/* 🔥 SOLUCIÓN: Imagen SIMPLE con placeholder garantizado */}
-        <img
-          src={currentImage}
-          alt={product.name}
-          className="product-image"
-          onError={handleImageError}
-          onLoad={handleImageLoad}
-        />
+        {imageStatus === 'checking' && (
+          <div className="image-loading-placeholder">
+            <div className="loading-spinner"></div>
+            <span>Verificando imagen...</span>
+          </div>
+        )}
+        
+        {imageStatus === 'loading' && (
+          <div className="image-loading-placeholder">
+            <div className="loading-spinner"></div>
+            <span>Cargando imagen...</span>
+          </div>
+        )}
+        
+        {currentImage && (
+          <img
+            src={currentImage}
+            alt={product.name}
+            onError={handleImageError}
+            onLoad={handleImageLoad}
+            className="product-image"
+            style={{ 
+              display: (imageStatus === 'checking' || imageStatus === 'loading') ? 'none' : 'block' 
+            }}
+          />
+        )}
+        
+        {imageStatus === 'error' && (
+          <div className="image-fallback">
+            <span>📷 Imagen no disponible</span>
+          </div>
+        )}
 
         {product.onSale && <span className="sale-badge">OFERTA</span>}
       </div>
@@ -182,7 +232,6 @@ const ProductCard = ({ product }) => {
 
         {product.sizes?.some(size => size.stock > 0 && size.stock <= 5) && (
           <div className="low-stock-warning">
-            ⚠️ Últimas unidades disponibles
           </div>
         )}
       </div>
