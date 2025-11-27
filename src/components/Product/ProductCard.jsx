@@ -6,11 +6,11 @@ import SizeSelector from './SizeSelector';
 const ProductCard = ({ product }) => {
   const [selectedSize, setSelectedSize] = useState('');
   const [currentImage, setCurrentImage] = useState('');
-  const [imageStatus, setImageStatus] = useState('checking'); // checking, loading, success, error
+  const [imageStatus, setImageStatus] = useState('loading');
   const { addToCart } = useCart();
 
   useEffect(() => {
-    const verifyAndLoadImage = async () => {
+    const loadImage = () => {
       if (!product.images || product.images.length === 0) {
         console.log('📦 Producto sin imágenes:', product.name);
         setImageStatus('error');
@@ -18,83 +18,54 @@ const ProductCard = ({ product }) => {
         return;
       }
 
-      const imageUrl = getImageUrl(product.images[0]);
-      console.log('🔄 Verificando imagen:', imageUrl);
-
-      setImageStatus('checking');
+      // 🚨 SOLUCIÓN DEFINITIVA - Múltiples formatos de URL
+      const imageUrl = getCorrectImageUrl(product.images[0]);
+      console.log('🔄 Intentando cargar imagen:', imageUrl);
       
-      try {
-        // ✅ Cargar directamente sin verificación previa (más rápido)
-        console.log('✅ Cargando imagen directamente:', imageUrl);
-        setCurrentImage(imageUrl);
-        setImageStatus('loading');
-        
-        // La verificación real ocurre en onLoad/onError del img tag
-      } catch (error) {
-        console.log('⚠️ Error configurando imagen:', error);
-        setImageStatus('error');
-        setCurrentImage(generatePlaceholder(product.name));
-      }
+      setCurrentImage(imageUrl);
+      setImageStatus('loading');
     };
 
-    verifyAndLoadImage();
+    loadImage();
   }, [product.images, product.name]);
 
-  const checkImageExists = (url) => {
-    return new Promise((resolve) => {
-      // ✅ Para Cloudinary, asumimos que existe (99% de los casos)
-      if (url.includes('cloudinary.com')) {
-        resolve(true);
-        return;
-      }
+  // 🎯 FUNCIÓN CORREGIDA - Maneja todos los formatos posibles
+  const getCorrectImageUrl = (imagePath) => {
+    if (!imagePath) {
+      return generatePlaceholder(product.name);
+    }
 
-      // Solo verificar para otras URLs
-      const img = new Image();
-      let timeout = setTimeout(() => {
-        console.log('⏰ Timeout verificando imagen');
-        resolve(false);
-      }, 3000);
+    console.log('🔍 Imagen original en BD:', imagePath);
 
-      img.onload = () => {
-        clearTimeout(timeout);
-        resolve(true);
-      };
-      
-      img.onerror = () => {
-        clearTimeout(timeout);
-        resolve(false);
-      };
-      
-      img.src = url;
-    });
-  };
-
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return '';
-    
-    // Si ya es una URL completa de Cloudinary
+    // CASO 1: Ya es URL completa de Cloudinary
     if (imagePath.includes('res.cloudinary.com')) {
       return imagePath;
     }
-    
-    // Si es una ruta de Cloudinary (sin http)
-    if (imagePath.includes('cloudinary.com')) {
-      return `https://${imagePath}`;
-    }
-    
-    // 🚨 CORRECCIÓN CRÍTICA: Transformar rutas locales a URLs de Cloudinary
-    if (imagePath.startsWith('/uploads')) {
+
+    // CASO 2: Es Public ID con /uploads/ (como en tu BD)
+    if (imagePath.startsWith('/uploads/fashion-plus/')) {
       const publicId = imagePath.replace('/uploads/', '');
-      // ✅ Usar Cloudinary directamente en lugar del backend
-      return `https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${publicId}`;
+      return `https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill,q_auto,f_auto/${publicId}`;
     }
-    
-    // Si es solo el public_id (sin ruta)
-    if (imagePath.includes('fashion-plus/image-')) {
-      return `https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${imagePath}`;
+
+    // CASO 3: Es Public ID sin /uploads/
+    if (imagePath.startsWith('fashion-plus/')) {
+      return `https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill,q_auto,f_auto/${imagePath}`;
     }
-    
-    return imagePath;
+
+    // CASO 4: Solo el nombre del archivo
+    if (imagePath.includes('product-') || imagePath.includes('image-')) {
+      return `https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill,q_auto,f_auto/fashion-plus/${imagePath}`;
+    }
+
+    // CASO 5: Intentar con el backend como último recurso
+    if (imagePath.startsWith('/uploads')) {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
+      return `${backendUrl}${imagePath}`;
+    }
+
+    console.log('❌ No se pudo determinar formato para:', imagePath);
+    return generatePlaceholder(product.name);
   };
 
   const generatePlaceholder = (productName) => {
@@ -106,21 +77,21 @@ const ProductCard = ({ product }) => {
     ];
     const color = colors[productName.length % colors.length];
     
-    const encodedName = encodeURIComponent(productName.length > 20 ? productName.substring(0, 20) + '...' : productName);
+    const encodedName = encodeURIComponent(
+      productName.length > 20 ? productName.substring(0, 20) + '...' : productName
+    );
     
     return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><rect width="100%" height="100%" fill="${color.bg}"/><text x="50%" y="45%" font-family="Arial, sans-serif" font-size="16" fill="${color.text}" text-anchor="middle" dominant-baseline="middle">Fashion+</text><text x="50%" y="60%" font-family="Arial, sans-serif" font-size="12" fill="${color.text}" text-anchor="middle" dominant-baseline="middle">${encodedName}</text></svg>`;
   };
 
   const handleImageError = () => {
-    console.log('❌ Error cargando imagen en el navegador');
-    if (imageStatus !== 'error') {
-      setImageStatus('error');
-      setCurrentImage(generatePlaceholder(product.name));
-    }
+    console.log('❌ Error cargando imagen, usando placeholder');
+    setImageStatus('error');
+    setCurrentImage(generatePlaceholder(product.name));
   };
 
   const handleImageLoad = () => {
-    console.log('✅ Imagen cargada exitosamente');
+    console.log('✅ Imagen cargada exitosamente desde Cloudinary');
     setImageStatus('success');
   };
 
@@ -172,13 +143,6 @@ const ProductCard = ({ product }) => {
   return (
     <div className="product-card">
       <div className="product-image-container">
-        {imageStatus === 'checking' && (
-          <div className="image-loading-placeholder">
-            <div className="loading-spinner"></div>
-            <span>Verificando imagen...</span>
-          </div>
-        )}
-        
         {imageStatus === 'loading' && (
           <div className="image-loading-placeholder">
             <div className="loading-spinner"></div>
@@ -186,18 +150,16 @@ const ProductCard = ({ product }) => {
           </div>
         )}
         
-        {currentImage && (
-          <img
-            src={currentImage}
-            alt={product.name}
-            onError={handleImageError}
-            onLoad={handleImageLoad}
-            className="product-image"
-            style={{ 
-              display: (imageStatus === 'checking' || imageStatus === 'loading') ? 'none' : 'block' 
-            }}
-          />
-        )}
+        <img
+          src={currentImage}
+          alt={product.name}
+          onError={handleImageError}
+          onLoad={handleImageLoad}
+          className="product-image"
+          style={{ 
+            display: imageStatus === 'loading' ? 'none' : 'block' 
+          }}
+        />
         
         {imageStatus === 'error' && (
           <div className="image-fallback">
