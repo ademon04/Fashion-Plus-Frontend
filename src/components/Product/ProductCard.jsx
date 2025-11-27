@@ -1,4 +1,4 @@
-// 📁 frontend/components/Product/ProductCard.jsx
+// 📁 frontend/components/Product/ProductCard.jsx - VERSIÓN DEFINITIVA
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import SizeSelector from './SizeSelector';
@@ -10,67 +10,102 @@ const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    const loadImage = () => {
+    const loadBestImage = async () => {
       if (!product.images || product.images.length === 0) {
-        setImageStatus('error');
-        setCurrentImage(generatePlaceholder(product.name));
+        setFallback();
         return;
       }
 
-      const imageUrl = getCorrectImageUrl(product.images[0]);
-      setCurrentImage(imageUrl);
-      setImageStatus('loading');
+      console.log('🔍 PRODUCTO:', product.name);
+      console.log('📸 IMÁGENES EN BD:', product.images);
+
+      // Probar TODAS las imágenes guardadas en el producto
+      for (const imagePath of product.images) {
+        const urlsToTest = generateImageUrls(imagePath);
+        
+        for (const url of urlsToTest) {
+          console.log('🔄 Probando URL:', url);
+          const works = await testImageUrl(url);
+          if (works) {
+            console.log('✅ IMAGEN FUNCIONA:', url);
+            setCurrentImage(url);
+            setImageStatus('loading');
+            return;
+          }
+        }
+      }
+
+      setFallback();
     };
 
-    loadImage();
+    loadBestImage();
   }, [product.images, product.name]);
 
-  const getCorrectImageUrl = (imagePath) => {
-    if (!imagePath) return generatePlaceholder(product.name);
+  const generateImageUrls = (imagePath) => {
+    const urls = [];
+    
+    if (!imagePath) return urls;
 
-    if (imagePath.includes('res.cloudinary.com')) {
-      return imagePath;
+    // Si ya es URL completa
+    if (imagePath.startsWith('http')) {
+      urls.push(imagePath);
     }
 
+    // Si es ruta local (/uploads/...)
     if (imagePath.startsWith('/uploads/')) {
       const publicId = imagePath.replace('/uploads/', '');
-      return `https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${publicId}`;
+      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/${publicId}`);
+      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${publicId}`);
+      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/q_auto,f_auto/${publicId}`);
     }
 
-    if (imagePath.includes('/uploads/')) {
-      const publicId = imagePath.split('/uploads/')[1];
-      return `https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${publicId}`;
+    // Si es solo public_id
+    if (imagePath.includes('fashion-plus/') && !imagePath.startsWith('http')) {
+      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/${imagePath}`);
+      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${imagePath}`);
     }
 
-    return generatePlaceholder(product.name);
+    return urls;
+  };
+
+  const testImageUrl = (url) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      // Timeout de 5 segundos
+      setTimeout(() => resolve(false), 5000);
+      img.src = url;
+    });
+  };
+
+  const setFallback = () => {
+    console.log('❌ Todas las imágenes fallaron para:', product.name);
+    setImageStatus('error');
+    setCurrentImage(generatePlaceholder(product.name));
   };
 
   const generatePlaceholder = (productName) => {
-    const colors = [
-      { bg: '#2c5530', text: '#ffffff' },
-      { bg: '#1e3a23', text: '#ffffff' }, 
-      { bg: '#3a6351', text: '#ffffff' },
-      { bg: '#2d4a3a', text: '#ffffff' }
-    ];
+    const colors = [{ bg: '#2c5530', text: '#ffffff' }, { bg: '#1e3a23', text: '#ffffff' }];
     const color = colors[productName.length % colors.length];
     const encodedName = encodeURIComponent(productName.length > 20 ? productName.substring(0, 20) + '...' : productName);
     return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><rect width="100%" height="100%" fill="${color.bg}"/><text x="50%" y="45%" font-family="Arial, sans-serif" font-size="16" fill="${color.text}" text-anchor="middle" dominant-baseline="middle">Fashion+</text><text x="50%" y="60%" font-family="Arial, sans-serif" font-size="12" fill="${color.text}" text-anchor="middle" dominant-baseline="middle">${encodedName}</text></svg>`;
   };
 
   const handleImageError = () => {
-    setImageStatus('error');
-    setCurrentImage(generatePlaceholder(product.name));
+    console.log('❌ Error en tag img');
+    setFallback();
   };
 
   const handleImageLoad = () => {
+    console.log('✅ Imagen cargada en navegador');
     setImageStatus('success');
   };
 
   const formatPrice = (price) => {
     if (!price) return '$0.00';
     const numericPrice = typeof price === 'string' ? parseFloat(price.replace(/[^\d.]/g, '')) : Number(price);
-    if (isNaN(numericPrice)) return '$0.00';
-    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(numericPrice);
+    return isNaN(numericPrice) ? '$0.00' : new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(numericPrice);
   };
 
   const handleAddToCart = async () => {
@@ -101,19 +136,41 @@ const ProductCard = ({ product }) => {
             <span>Cargando imagen...</span>
           </div>
         )}
-        <img src={currentImage} alt={product.name} onError={handleImageError} onLoad={handleImageLoad} className="product-image" style={{ display: imageStatus === 'loading' ? 'none' : 'block' }} />
-        {imageStatus === 'error' && <div className="image-fallback"><span>📷 Imagen no disponible</span></div>}
+        <img 
+          src={currentImage} 
+          alt={product.name} 
+          onError={handleImageError} 
+          onLoad={handleImageLoad} 
+          className="product-image" 
+          style={{ display: imageStatus === 'loading' ? 'none' : 'block' }} 
+        />
+        {imageStatus === 'error' && (
+          <div className="image-fallback">
+            <span>📷 Imagen no disponible</span>
+          </div>
+        )}
         {product.onSale && <span className="sale-badge">OFERTA</span>}
       </div>
+
       <div className="product-info">
         <h3 className="product-name">{product.name}</h3>
         <p className="product-category">{product.category}</p>
         <div className="product-price">
-          {product.originalPrice > product.price && <span className="original-price">{formatPrice(product.originalPrice)}</span>}
+          {product.originalPrice > product.price && (
+            <span className="original-price">{formatPrice(product.originalPrice)}</span>
+          )}
           <span className="current-price">{formatPrice(product.price)}</span>
         </div>
-        <SizeSelector sizes={product.sizes} selectedSize={selectedSize} onSizeSelect={setSelectedSize} />
-        <button className={`add-to-cart-btn ${!selectedSize ? 'disabled' : ''}`} onClick={handleAddToCart} disabled={!selectedSize}>
+        <SizeSelector
+          sizes={product.sizes}
+          selectedSize={selectedSize}
+          onSizeSelect={setSelectedSize}
+        />
+        <button
+          className={`add-to-cart-btn ${!selectedSize ? 'disabled' : ''}`}
+          onClick={handleAddToCart}
+          disabled={!selectedSize}
+        >
           {!selectedSize ? 'Selecciona Talla' : 'Agregar al Carrito'}
         </button>
       </div>
