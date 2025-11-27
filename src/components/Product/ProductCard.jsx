@@ -24,20 +24,14 @@ const ProductCard = ({ product }) => {
       setImageStatus('checking');
       
       try {
-        // Verificar si la imagen existe
-        const exists = await checkImageExists(imageUrl);
+        // ✅ Cargar directamente sin verificación previa (más rápido)
+        console.log('✅ Cargando imagen directamente:', imageUrl);
+        setCurrentImage(imageUrl);
+        setImageStatus('loading');
         
-        if (exists) {
-          console.log('✅ Imagen existe, procediendo a cargar:', imageUrl);
-          setCurrentImage(imageUrl);
-          setImageStatus('loading');
-        } else {
-          console.log('❌ Imagen NO existe en servidor:', imageUrl);
-          setImageStatus('error');
-          setCurrentImage(generatePlaceholder(product.name));
-        }
+        // La verificación real ocurre en onLoad/onError del img tag
       } catch (error) {
-        console.log('⚠️ Error en verificación:', error);
+        console.log('⚠️ Error configurando imagen:', error);
         setImageStatus('error');
         setCurrentImage(generatePlaceholder(product.name));
       }
@@ -48,12 +42,13 @@ const ProductCard = ({ product }) => {
 
   const checkImageExists = (url) => {
     return new Promise((resolve) => {
-      // Si es una URL de Cloudinary, probablemente existe
-      if (url.includes('res.cloudinary.com')) {
+      // ✅ Para Cloudinary, asumimos que existe (99% de los casos)
+      if (url.includes('cloudinary.com')) {
         resolve(true);
         return;
       }
 
+      // Solo verificar para otras URLs
       const img = new Image();
       let timeout = setTimeout(() => {
         console.log('⏰ Timeout verificando imagen');
@@ -77,18 +72,26 @@ const ProductCard = ({ product }) => {
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '';
     
-    // Si ya es una URL completa
-    if (imagePath.startsWith('http')) return imagePath;
+    // Si ya es una URL completa de Cloudinary
+    if (imagePath.includes('res.cloudinary.com')) {
+      return imagePath;
+    }
     
     // Si es una ruta de Cloudinary (sin http)
     if (imagePath.includes('cloudinary.com')) {
       return `https://${imagePath}`;
     }
     
-    // Si es una ruta local del backend
+    // 🚨 CORRECCIÓN CRÍTICA: Transformar rutas locales a URLs de Cloudinary
     if (imagePath.startsWith('/uploads')) {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
-      return `${backendUrl}${imagePath}`;
+      const publicId = imagePath.replace('/uploads/', '');
+      // ✅ Usar Cloudinary directamente en lugar del backend
+      return `https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${publicId}`;
+    }
+    
+    // Si es solo el public_id (sin ruta)
+    if (imagePath.includes('fashion-plus/image-')) {
+      return `https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${imagePath}`;
     }
     
     return imagePath;
