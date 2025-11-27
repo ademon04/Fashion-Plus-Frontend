@@ -29,7 +29,7 @@ const ProductCard = ({ product }) => {
     loadImage();
   }, [product.images, product.name]);
 
-  // 🎯 FUNCIÓN CORREGIDA - Maneja todos los formatos posibles
+  // 🎯 FUNCIÓN CORREGIDA - Maneja TODOS los formatos de URL
   const getCorrectImageUrl = (imagePath) => {
     if (!imagePath) {
       return generatePlaceholder(product.name);
@@ -42,26 +42,39 @@ const ProductCard = ({ product }) => {
       return imagePath;
     }
 
-    // CASO 2: Es Public ID con /uploads/ (como en tu BD)
-    if (imagePath.startsWith('/uploads/fashion-plus/')) {
-      const publicId = imagePath.replace('/uploads/', '');
+    // 🚨 CASO 2: Si es URL completa de tu backend + uploads (EL PROBLEMA ACTUAL)
+    if (imagePath.includes('fashion-plus-production.up.railway.app/uploads/')) {
+      // Extraer SOLO el public_id: "fashion-plus/product-xxx"
+      const publicId = imagePath.split('/uploads/')[1];
+      console.log('🎯 Public ID extraído de URL backend:', publicId);
       return `https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill,q_auto,f_auto/${publicId}`;
     }
 
-    // CASO 3: Es Public ID sin /uploads/
+    // CASO 3: Es Public ID con /uploads/ (ruta local)
+    if (imagePath.startsWith('/uploads/fashion-plus/')) {
+      const publicId = imagePath.replace('/uploads/', '');
+      console.log('🎯 Public ID extraído de ruta local:', publicId);
+      return `https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill,q_auto,f_auto/${publicId}`;
+    }
+
+    // CASO 4: Es Public ID sin /uploads/
     if (imagePath.startsWith('fashion-plus/')) {
+      console.log('🎯 Public ID directo:', imagePath);
       return `https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill,q_auto,f_auto/${imagePath}`;
     }
 
-    // CASO 4: Solo el nombre del archivo
+    // CASO 5: Solo el nombre del archivo
     if (imagePath.includes('product-') || imagePath.includes('image-')) {
+      console.log('🎯 Solo nombre de archivo:', imagePath);
       return `https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill,q_auto,f_auto/fashion-plus/${imagePath}`;
     }
 
-    // CASO 5: Intentar con el backend como último recurso
+    // CASO 6: Intentar con el backend como último recurso
     if (imagePath.startsWith('/uploads')) {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
-      return `${backendUrl}${imagePath}`;
+      const finalUrl = `${backendUrl}${imagePath}`;
+      console.log('🔄 Intentando con backend:', finalUrl);
+      return finalUrl;
     }
 
     console.log('❌ No se pudo determinar formato para:', imagePath);
@@ -197,6 +210,7 @@ const ProductCard = ({ product }) => {
 
         {product.sizes?.some(size => size.stock > 0 && size.stock <= 5) && (
           <div className="low-stock-warning">
+            {/* Últimas unidades disponibles */}
           </div>
         )}
       </div>
