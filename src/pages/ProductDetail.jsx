@@ -12,29 +12,22 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [errorMessage, setErrorMessage] = useState(""); // Estado para mensajes de error
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // 🔥 CORRECCIÓN: Misma función de imágenes que en ProductCard
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/images/placeholder-product.jpg';
-    
     if (imagePath.startsWith('http')) return imagePath;
-    
     if (imagePath.startsWith('/uploads')) {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
       return `${backendUrl}${imagePath}`;
     }
-    
     const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
     return `${backendUrl}/uploads/${imagePath}`;
   };
 
-  // 🔥 CORRECCIÓN: Misma función de precios que en ProductCard
   const formatPrice = (price) => {
     if (!price && price !== 0) return '$0.00';
-    
     const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
-    
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
       currency: 'MXN',
@@ -44,31 +37,31 @@ const ProductDetail = () => {
   };
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const res = await api.get(`/products/${id}`);
-        setProduct(res.data);
-        
-        // 🔥 DEBUG CRÍTICO: Verificar stock de tallas
-        console.log('🔍 STOCK DEBUG - Producto:', {
-          name: res.data.name,
-          sizes: res.data.sizes,
-          stockBySize: res.data.sizes?.map(size => `${size.size}: ${size.stock} unidades`)
-        });
-        
-      } catch (error) {
-        console.error("Error al obtener producto:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchProduct = async () => {
+    try {
+      console.log('🔍 ProductDetail - Iniciando fetch para producto ID:', id);
+      
+      // 🔥 CORRECCIÓN FINAL: Solo /products/ porque baseURL ya incluye /api
+      const res = await api.get(`/products/${id}`);
+      console.log('🔍 ProductDetail - Respuesta completa de la API:', res);
+      
+      // 🔥 CORRECCIÓN: Acceder a data.product en lugar de data directamente
+      const productData = res.data.product;
+      console.log('🔍 ProductDetail - Datos del producto:', productData);
+      
+      setProduct(productData);
+      
+    } catch (error) {
+      console.error("Error al obtener producto:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchProduct();
-  }, [id]);
-
-  // 🔥 CORRECCIÓN: Función para manejar selección de talla con verificación de stock
+  fetchProduct();
+}, [id]);
+  // 🔥 CORRECCIÓN 3: Función mejorada para manejar selección de talla
   const handleSizeSelect = (size) => {
-    // Encontrar los datos de la talla seleccionada
     const sizeData = product.sizes.find(s => s.size === size);
     
     if (sizeData) {
@@ -76,6 +69,7 @@ const ProductDetail = () => {
         setErrorMessage(`Stock insuficiente. Solo hay 0 unidades disponibles en talla ${size}`);
       } else {
         setErrorMessage(""); // Limpiar mensaje si hay stock
+        console.log(`✅ Talla ${size} seleccionada - Stock disponible: ${sizeData.stock}`);
       }
     }
     
@@ -88,7 +82,7 @@ const ProductDetail = () => {
       return;
     }
 
-    // 🔥 VERIFICACIÓN DOBLE: Confirmar stock antes de agregar al carrito
+    // 🔥 VERIFICACIÓN: Confirmar stock antes de agregar al carrito
     const selectedSizeData = product.sizes.find(size => size.size === selectedSize);
     
     if (!selectedSizeData) {
@@ -98,11 +92,6 @@ const ProductDetail = () => {
 
     if (selectedSizeData.stock === 0) {
       alert(`Stock insuficiente. Solo hay 0 unidades disponibles en talla ${selectedSize}`);
-      return;
-    }
-
-    if (selectedSizeData.stock < 1) {
-      alert(`Stock insuficiente. Solo hay ${selectedSizeData.stock} unidades disponibles en talla ${selectedSize}`);
       return;
     }
 
@@ -119,23 +108,18 @@ const ProductDetail = () => {
 
   return (
     <div className="product-detail-container">
-      {/* 🔥 CORRECCIÓN: Galería de imágenes mejorada */}
       <div className="product-detail-images">
-        {/* Imagen principal */}
         <div className="main-image">
           <img
             src={getImageUrl(product.images?.[selectedImage])}
             alt={product.name}
             onError={(e) => {
-              console.log('❌ Error cargando imagen principal:', getImageUrl(product.images?.[selectedImage]));
               e.target.src = '/images/placeholder-product.jpg';
             }}
-            onLoad={() => console.log('✅ Imagen principal cargada')}
           />
           {product.onSale && <span className="sale-badge">OFERTA</span>}
         </div>
 
-        {/* Miniaturas */}
         {product.images && product.images.length > 1 && (
           <div className="image-thumbnails">
             {product.images.map((image, index) => (
@@ -154,12 +138,10 @@ const ProductDetail = () => {
         )}
       </div>
 
-      {/* INFORMACIÓN DEL PRODUCTO */}
       <div className="product-detail-info">
         <h1>{product.name}</h1>
         <p className="category">{product.category} / {product.subcategory}</p>
 
-        {/* 🔥 CORRECCIÓN: Precios formateados */}
         <div className="price-section">
           {product.originalPrice > 0 && (
             <span className="original-price">{formatPrice(product.originalPrice)}</span>
@@ -167,24 +149,20 @@ const ProductDetail = () => {
           <span className="current-price">{formatPrice(product.price)}</span>
         </div>
 
-        {/* DESCRIPCIÓN */}
         <p className="description">{product.description}</p>
 
-        {/* SELECTOR DE TALLAS */}
         <SizeSelector
           sizes={product.sizes}
           selectedSize={selectedSize}
-          onSizeSelect={handleSizeSelect} // 🔥 Usamos la nueva función con verificación
+          onSizeSelect={handleSizeSelect}
         />
 
-        {/* 🔥 MENSAJE DE ERROR DE STOCK */}
         {errorMessage && (
           <div className="error-message" style={{ color: 'red', margin: '10px 0' }}>
             {errorMessage}
           </div>
         )}
 
-        {/* BOTÓN AGREGAR AL CARRITO */}
         <button
           className="add-to-cart-btn"
           onClick={handleAddToCart}
