@@ -48,18 +48,19 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState(() => loadCartFromCookie());
 
   // 🔥 FUNCIÓN PARA VERIFICAR STOCK EN TIEMPO REAL
-const checkStock = async (productId, size, quantity) => {
+  const checkStock = async (productId, size, quantityToAdd = 0, currentInCart = 0) => {
   try {
     const product = await productService.getProductById(productId);
-    
-    // ✅ SOLUCIÓN: Verificar que product.sizes existe
     const sizes = product?.sizes || [];
     const sizeObj = sizes.find(s => s.size === size);
-    const sizeStock = sizeObj?.stock || 0;
-    
+    const availableStock = sizeObj?.stock || 0;
+
+    // 🔹 Calculamos el stock real considerando lo que ya hay en el carrito
+    const remainingStock = availableStock - currentInCart;
+
     return {
-      hasStock: sizeStock >= quantity,
-      availableStock: sizeStock,
+      hasStock: remainingStock >= quantityToAdd,
+      availableStock: remainingStock,
       product: product
     };
   } catch (error) {
@@ -69,60 +70,61 @@ const checkStock = async (productId, size, quantity) => {
 };
   // 🔥 AGREGAR PRODUCTO CON VALIDACIÓN DE STOCK
   const addToCart = async (product, size, quantity = 1) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        // Verificar stock disponible
-        const stockCheck = await checkStock(product._id, size, quantity);
-        
-        if (!stockCheck.hasStock) {
-          reject(new Error(`Stock insuficiente. Solo hay ${stockCheck.availableStock} unidades disponibles en talla ${size}`));
-          return;
+  return new Promise(async (resolve, reject) => {
+    try {
+      // 🔹 Cantidad actual en el carrito
+      const currentInCart = cart.find(
+        i => i.product._id === product._id && i.size === size
+      )?.quantity || 0;
+
+      // 🔹 Verificar stock real en DB
+      const stockCheck = await checkStock(product._id, size, quantity, currentInCart);
+
+      if (!stockCheck.hasStock) {
+        reject(
+          new Error(
+            `Stock insuficiente. Solo hay ${stockCheck.availableStock} unidades disponibles en talla ${size}`
+          )
+        );
+        return;
+      }
+
+      const cartItem = {
+        product: {
+          _id: product._id,
+          name: product.name,
+          price: Number(product.price),
+          images: product.images,
+          sizes: product.sizes,
+        },
+        size,
+        quantity: Number(quantity),
+        maxStock: stockCheck.availableStock,
+      };
+
+      setCart(prevCart => {
+        const index = prevCart.findIndex(
+          i => i.product._id === cartItem.product._id && i.size === cartItem.size
+        );
+
+        let updated;
+
+        if (index >= 0) {
+          updated = [...prevCart];
+          updated[index].quantity += cartItem.quantity;
+        } else {
+          updated = [...prevCart, cartItem];
         }
 
-        const cartItem = {
-          product: {
-            _id: product._id,
-            name: product.name,
-            price: Number(product.price),
-            images: product.images,
-            sizes: product.sizes, // 🔥 Guardamos las tallas para validaciones futuras
-          },
-          size,
-          quantity: Number(quantity),
-          maxStock: stockCheck.availableStock, // 🔥 Guardamos el stock máximo disponible
-        };
-
-        setCart((prevCart) => {
-          const index = prevCart.findIndex(
-            (i) => i.product._id === cartItem.product._id && i.size === cartItem.size
-          );
-
-          let updated;
-
-          if (index >= 0) {
-            updated = [...prevCart];
-            const newQty = updated[index].quantity + cartItem.quantity;
-
-            // 🔥 VALIDAR QUE NO EXCEDA EL STOCK MÁXIMO
-            if (newQty > updated[index].maxStock) {
-              reject(new Error(`No puedes agregar más de ${updated[index].maxStock} unidades de este producto`));
-              return prevCart;
-            }
-
-            updated[index].quantity = newQty;
-          } else {
-            updated = [...prevCart, cartItem];
-          }
-
-          saveCartToCookie(updated);
-          resolve({ success: true });
-          return updated;
-        });
-      } catch (error) {
-        reject(error);
-      }
-    });
-  };
+        saveCartToCookie(updated);
+        resolve({ success: true });
+        return updated;
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 
   // 🔥 ACTUALIZAR CANTIDAD CON VALIDACIÓN DE STOCK
   const updateQuantity = async (productId, size, newQuantity) => {
