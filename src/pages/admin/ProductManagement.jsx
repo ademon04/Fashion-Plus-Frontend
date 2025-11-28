@@ -13,27 +13,40 @@ const ProductManagement = () => {
     loadProducts();
   }, []);
 
- const loadProducts = async () => {
-  console.log("🔄 loadProducts() ejecutado");
-  try {
-    setLoading(true);
-    const response = await productService.getProducts();
-    console.log("📦 Respuesta completa:", response);
-    
-    // ✅ SOLUCIÓN EXACTA: Extraer el array de products
-    const productsArray = response.products || [];
-    console.log("🔄 Array de productos:", productsArray);
-    
-    setProducts(productsArray);
-    
-  } catch (error) {
-    console.error("❌ Error loading products:", error);
-    setProducts([]);
-  } finally {
-    setLoading(false);
-    console.log("✅ loadProducts() finalizado");
-  }
-};
+  const loadProducts = async () => {
+    console.log("🔄 loadProducts() ejecutado");
+    try {
+      setLoading(true);
+      const response = await productService.getProducts();
+      console.log("📦 Respuesta completa:", response);
+      console.log("📦 Respuesta length:", response?.length);
+
+      // 🔥 CORRECCIÓN BASADA EN DATOS: response es Array(8) según logs
+      let productsArray = [];
+      
+      if (Array.isArray(response)) {
+        productsArray = [...response]; // Crear nueva referencia
+      } else if (response && typeof response === 'object') {
+        // Si por alguna razón viene como objeto, extraer el array
+        const arrayProperties = Object.values(response).filter(Array.isArray);
+        productsArray = arrayProperties.length > 0 ? [...arrayProperties[0]] : [];
+      }
+      
+      console.log("🔄 Array de productos PROCESADO:", productsArray);
+      console.log("🔄 Array length:", productsArray.length);
+      
+      // 🔥 FORZAR ACTUALIZACIÓN con nueva referencia
+      setProducts(productsArray);
+      
+    } catch (error) {
+      console.error("❌ Error loading products:", error);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+      console.log("✅ loadProducts() finalizado");
+      console.log("🔍 Estado FINAL de products:", products); // Para debug
+    }
+  };
 
   const handleCreateProduct = async (productData) => {
     console.log("🆕 Abriendo formulario para crear producto");
@@ -106,7 +119,8 @@ const ProductManagement = () => {
     return <div className="loading">Cargando productos...</div>;
   }
 
-  console.log("📄 Render principal de ProductManagement");
+  console.log("📄 Render principal de ProductManagement - Products:", products);
+  console.log("📄 Products length:", products.length);
 
   return (
     <div className="product-management">
@@ -148,40 +162,53 @@ const ProductManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map(product => {
-              const totalStock = product.sizes.reduce((sum, size) => sum + size.stock, 0);
+            {products && products.length > 0 ? (
+              products.map(product => {
+                // 🔥 MANEJO SEGURO basado en datos reales
+                const mainImage = product.images?.[0] || '/images/placeholder-product.jpg';
+                const totalStock = product.sizes?.reduce((sum, size) => sum + (size.stock || 0), 0) || 0;
 
-              return (
-                <tr key={product._id}>
-                  <td className="product-info">
-                    <img src={product.images[0]} alt={product.name} />
-                    <span>{product.name}</span>
-                  </td>
-                  <td>{product.category}</td>
-                  <td>${product.price}</td>
-                  <td>{totalStock}</td>
-                  <td>
-                    <span className={`status ${totalStock > 0 ? "in-stock" : "out-of-stock"}`}>
-                      {totalStock > 0 ? "En Stock" : "Sin Stock"}
-                    </span>
-                  </td>
-                  <td className="actions">
-                    <button
-                      onClick={() => handleEditProduct(product)}
-                      className="btn-edit"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => handleDeleteProduct(product._id)}
-                      className="btn-delete"
-                    >
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
+                return (
+                  <tr key={product._id}>
+                    <td className="product-info">
+                      <img src={mainImage} alt={product.name} 
+                           onError={(e) => {
+                             e.target.src = '/images/placeholder-product.jpg';
+                           }} />
+                      <span>{product.name}</span>
+                    </td>
+                    <td>{product.category}</td>
+                    <td>${product.price}</td>
+                    <td>{totalStock}</td>
+                    <td>
+                      <span className={`status ${totalStock > 0 ? "in-stock" : "out-of-stock"}`}>
+                        {totalStock > 0 ? "En Stock" : "Sin Stock"}
+                      </span>
+                    </td>
+                    <td className="actions">
+                      <button
+                        onClick={() => handleEditProduct(product)}
+                        className="btn-edit"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProduct(product._id)}
+                        className="btn-delete"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
+                  {loading ? 'Cargando productos...' : 'No se encontraron productos'}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
