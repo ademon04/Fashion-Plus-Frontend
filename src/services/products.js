@@ -1,52 +1,62 @@
 import { api } from './api';
 
-
-
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
-
-
-/*const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";*/
 
 export const productService = {
   async getProducts(filters = {}) {
-    const params = new URLSearchParams();
-    
-    if (filters.category) params.append('category', filters.category);
-    if (filters.search) params.append('search', filters.search);
-    if (filters.minPrice) params.append('minPrice', filters.minPrice);
-    if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
-    if (filters.sort) params.append('sort', filters.sort);
-    
-    const response = await api.get(`/products?${params}`);
-    
-    // 🔥 PARCHE FINAL: Convertir rutas de imágenes a URLs completas
-    const products = response.data.map(product => ({
-      ...product,
-      images: product.images?.map(img => {
-        if (!img) return '/images/placeholder-product.jpg';
-        if (img.startsWith('http')) return img;
-        if (img.startsWith('/uploads')) return `${BACKEND_URL}${img}`;
-        return `${BACKEND_URL}/uploads/${img}`;
-      }) || []
-    }));
-    
-    return products;
+    try {
+      const params = new URLSearchParams();
+      
+      if (filters.category) params.append('category', filters.category);
+      if (filters.search) params.append('search', filters.search);
+      if (filters.minPrice) params.append('minPrice', filters.minPrice);
+      if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
+      if (filters.sort) params.append('sort', filters.sort);
+      
+      const response = await api.get(`/products?${params}`);
+      
+      // 🔥 CORRECCIÓN: Acceder a response.data.products en lugar de response.data
+      const productsData = response.data.products || response.data || [];
+      
+      // Procesar imágenes
+      const products = productsData.map(product => ({
+        ...product,
+        images: product.images?.map(img => {
+          if (!img) return '/images/placeholder-product.jpg';
+          if (img.startsWith('http')) return img;
+          if (img.startsWith('/uploads')) return `${BACKEND_URL}${img}`;
+          return `${BACKEND_URL}/uploads/${img}`;
+        }) || []
+      }));
+      
+      return products;
+    } catch (error) {
+      console.error('Error en getProducts:', error);
+      return [];
+    }
   },
 
   async getProductById(id) {
-    const response = await api.get(`/products/${id}`);
-    const product = response.data;
-    
-    // 🔥 PARCHE FINAL: Convertir rutas de imágenes a URLs completas
-    return {
-      ...product,
-      images: product.images?.map(img => {
-        if (!img) return '/images/placeholder-product.jpg';
-        if (img.startsWith('http')) return img;
-        if (img.startsWith('/uploads')) return `${BACKEND_URL}${img}`;
-        return `${BACKEND_URL}/uploads/${img}`;
-      }) || []
-    };
+    try {
+      const response = await api.get(`/products/${id}`);
+      
+      // 🔥 CORRECCIÓN: Acceder a response.data.product en lugar de response.data
+      const productData = response.data.product || response.data;
+      
+      // Procesar imágenes
+      return {
+        ...productData,
+        images: productData.images?.map(img => {
+          if (!img) return '/images/placeholder-product.jpg';
+          if (img.startsWith('http')) return img;
+          if (img.startsWith('/uploads')) return `${BACKEND_URL}${img}`;
+          return `${BACKEND_URL}/uploads/${img}`;
+        }) || []
+      };
+    } catch (error) {
+      console.error('Error en getProductById:', error);
+      throw error;
+    }
   },
 
   async createProduct(formData) {
@@ -69,15 +79,11 @@ export const getFeaturedProducts = async () => {
   try {
     const response = await api.get('/products/featured');
 
-    console.log("🔥 DEBUG respuesta getFeaturedProducts:", response.data);
-
-    // Validar que la API realmente envía products
-    const items = Array.isArray(response.data.products)
-      ? response.data.products
-      : [];
+    // 🔥 CORRECCIÓN: Acceder a response.data.products
+    const productsData = response.data.products || response.data || [];
 
     // Procesar imágenes
-    const products = items.map(product => ({
+    const products = productsData.map(product => ({
       ...product,
       images: product.images?.map(img => {
         if (!img) return '/images/placeholder-product.jpg';
@@ -89,7 +95,7 @@ export const getFeaturedProducts = async () => {
 
     return products;
   } catch (error) {
-    console.error("❌ Error en getFeaturedProducts:", error);
-    throw error;
+    console.error("Error en getFeaturedProducts:", error);
+    return [];
   }
 };
