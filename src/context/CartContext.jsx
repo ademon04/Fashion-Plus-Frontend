@@ -48,21 +48,25 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState(() => loadCartFromCookie());
 
   // 🔥 FUNCIÓN PARA VERIFICAR STOCK EN TIEMPO REAL
-  const checkStock = async (productId, size, quantity) => {
-    try {
-      const product = await productService.getProductById(productId);
-      const sizeStock = product.sizes.find(s => s.size === size)?.stock || 0;
-      return {
-        hasStock: sizeStock >= quantity,
-        availableStock: sizeStock,
-        product: product
-      };
-    } catch (error) {
-      console.error('Error verificando stock:', error);
-      return { hasStock: false, availableStock: 0, product: null };
-    }
-  };
-
+const checkStock = async (productId, size, quantity) => {
+  try {
+    const product = await productService.getProductById(productId);
+    
+    // ✅ SOLUCIÓN: Verificar que product.sizes existe
+    const sizes = product?.sizes || [];
+    const sizeObj = sizes.find(s => s.size === size);
+    const sizeStock = sizeObj?.stock || 0;
+    
+    return {
+      hasStock: sizeStock >= quantity,
+      availableStock: sizeStock,
+      product: product
+    };
+  } catch (error) {
+    console.error('Error verificando stock:', error);
+    return { hasStock: false, availableStock: 0, product: null };
+  }
+};
   // 🔥 AGREGAR PRODUCTO CON VALIDACIÓN DE STOCK
   const addToCart = async (product, size, quantity = 1) => {
     return new Promise(async (resolve, reject) => {
