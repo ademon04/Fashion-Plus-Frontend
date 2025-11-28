@@ -68,9 +68,16 @@ export const productService = {
 export const getFeaturedProducts = async () => {
   try {
     const response = await api.get('/products/featured');
-    
-    // ✅ NUEVO: Aplicar el mismo tratamiento de imágenes a los productos destacados
-    const products = response.data.map(product => ({
+
+    console.log("🔥 DEBUG respuesta getFeaturedProducts:", response.data);
+
+    // Validar que la API realmente envía products
+    const items = Array.isArray(response.data.products)
+      ? response.data.products
+      : [];
+
+    // Procesar imágenes
+    const products = items.map(product => ({
       ...product,
       images: product.images?.map(img => {
         if (!img) return '/images/placeholder-product.jpg';
@@ -79,9 +86,10 @@ export const getFeaturedProducts = async () => {
         return `${BACKEND_URL}/uploads/${img}`;
       }) || []
     }));
-    
+
     return products;
   } catch (error) {
+    console.error("❌ Error en getFeaturedProducts:", error);
     throw error;
   }
 };
