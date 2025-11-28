@@ -13,20 +13,27 @@ const ProductManagement = () => {
     loadProducts();
   }, []);
 
-  const loadProducts = async () => {
-    console.log("🔄 loadProducts() ejecutado");
-    try {
-      setLoading(true);
-      const productsData = await productService.getProducts();
-      console.log("📦 Productos recibidos:", productsData);
-      setProducts(productsData);
-    } catch (error) {
-      console.error("❌ Error loading products:", error);
-    } finally {
-      setLoading(false);
-      console.log("✅ loadProducts() finalizado");
-    }
-  };
+ const loadProducts = async () => {
+  console.log("🔄 loadProducts() ejecutado");
+  try {
+    setLoading(true);
+    const response = await productService.getProducts();
+    console.log("📦 Respuesta completa:", response);
+    
+    // ✅ SOLUCIÓN EXACTA: Extraer el array de products
+    const productsArray = response.products || [];
+    console.log("🔄 Array de productos:", productsArray);
+    
+    setProducts(productsArray);
+    
+  } catch (error) {
+    console.error("❌ Error loading products:", error);
+    setProducts([]);
+  } finally {
+    setLoading(false);
+    console.log("✅ loadProducts() finalizado");
+  }
+};
 
   const handleCreateProduct = async (productData) => {
     console.log("🆕 Abriendo formulario para crear producto");
