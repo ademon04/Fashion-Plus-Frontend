@@ -192,15 +192,15 @@ const checkStock = async (productId, size, quantity) => {
     );
 
   // 🔥 OBTENER STOCK DISPONIBLE PARA UN ITEM
- /* const getAvailableStock = (productId, size) => {
+  const getAvailableStock = (productId, size) => {
     const item = cart.find(item => 
       item.product._id === productId && item.size === size
     );
     return item ? item.maxStock : 0;
-  };*/
+  };
 
   // 🔥 ACTUALIZAR STOCK DE TODOS LOS ITEMS (para cuando cambie el stock)
-  /*const refreshCartStock = async () => {
+  const refreshCartStock = async () => {
     try {
       const updatedCart = await Promise.all(
         cart.map(async (item) => {
@@ -217,7 +217,7 @@ const checkStock = async (productId, size, quantity) => {
     } catch (error) {
       console.error('Error actualizando stock del carrito:', error);
     }
-  };*/
+  };
 
   return (
     <CartContext.Provider
@@ -229,7 +229,9 @@ const checkStock = async (productId, size, quantity) => {
         updateQuantity,
         getCartItemsCount,
         getCartTotal,
-        clearCart
+        clearCart,
+        getAvailableStock, // 🔥 Nueva función
+        refreshCartStock,  // 🔥 Nueva función
       }}
     >
       {children}
