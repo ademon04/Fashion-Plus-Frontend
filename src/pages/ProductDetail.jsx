@@ -12,6 +12,7 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [errorMessage, setErrorMessage] = useState(""); // Estado para mensajes de error
 
   // 🔥 CORRECCIÓN: Misma función de imágenes que en ProductCard
   const getImageUrl = (imagePath) => {
@@ -20,14 +21,11 @@ const ProductDetail = () => {
     if (imagePath.startsWith('http')) return imagePath;
     
     if (imagePath.startsWith('/uploads')) {
-            const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
-
-      /*const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://fashion-plus-production.up.railway.app';*/
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
       return `${backendUrl}${imagePath}`;
     }
-          const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
-
-    /*const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://fashion-plus-production.up.railway.app';*/
+    
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
     return `${backendUrl}/uploads/${imagePath}`;
   };
 
@@ -51,13 +49,13 @@ const ProductDetail = () => {
         const res = await api.get(`/products/${id}`);
         setProduct(res.data);
         
-        // 🔥 DEBUG: Verificar datos del producto
-        console.log('🔍 ProductDetail - Producto:', {
+        // 🔥 DEBUG CRÍTICO: Verificar stock de tallas
+        console.log('🔍 STOCK DEBUG - Producto:', {
           name: res.data.name,
-          price: res.data.price,
-          images: res.data.images,
-          imageUrls: res.data.images?.map(img => getImageUrl(img))
+          sizes: res.data.sizes,
+          stockBySize: res.data.sizes?.map(size => `${size.size}: ${size.stock} unidades`)
         });
+        
       } catch (error) {
         console.error("Error al obtener producto:", error);
       } finally {
@@ -68,9 +66,43 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id]);
 
+  // 🔥 CORRECCIÓN: Función para manejar selección de talla con verificación de stock
+  const handleSizeSelect = (size) => {
+    // Encontrar los datos de la talla seleccionada
+    const sizeData = product.sizes.find(s => s.size === size);
+    
+    if (sizeData) {
+      if (sizeData.stock === 0) {
+        setErrorMessage(`Stock insuficiente. Solo hay 0 unidades disponibles en talla ${size}`);
+      } else {
+        setErrorMessage(""); // Limpiar mensaje si hay stock
+      }
+    }
+    
+    setSelectedSize(size);
+  };
+
   const handleAddToCart = async () => {
     if (!selectedSize) {
       alert("Selecciona una talla antes de agregar al carrito");
+      return;
+    }
+
+    // 🔥 VERIFICACIÓN DOBLE: Confirmar stock antes de agregar al carrito
+    const selectedSizeData = product.sizes.find(size => size.size === selectedSize);
+    
+    if (!selectedSizeData) {
+      alert("Talla no válida");
+      return;
+    }
+
+    if (selectedSizeData.stock === 0) {
+      alert(`Stock insuficiente. Solo hay 0 unidades disponibles en talla ${selectedSize}`);
+      return;
+    }
+
+    if (selectedSizeData.stock < 1) {
+      alert(`Stock insuficiente. Solo hay ${selectedSizeData.stock} unidades disponibles en talla ${selectedSize}`);
       return;
     }
 
@@ -142,8 +174,15 @@ const ProductDetail = () => {
         <SizeSelector
           sizes={product.sizes}
           selectedSize={selectedSize}
-          onSizeSelect={setSelectedSize}
+          onSizeSelect={handleSizeSelect} // 🔥 Usamos la nueva función con verificación
         />
+
+        {/* 🔥 MENSAJE DE ERROR DE STOCK */}
+        {errorMessage && (
+          <div className="error-message" style={{ color: 'red', margin: '10px 0' }}>
+            {errorMessage}
+          </div>
+        )}
 
         {/* BOTÓN AGREGAR AL CARRITO */}
         <button
