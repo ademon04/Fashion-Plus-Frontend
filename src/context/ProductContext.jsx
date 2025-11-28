@@ -17,7 +17,7 @@ const productReducer = (state, action) => {
       return state;
   }
 };
-
+///cambio para commit
 const initialState = {
   products: [],
   categories: [],

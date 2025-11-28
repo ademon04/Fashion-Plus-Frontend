@@ -5,7 +5,6 @@ import { useCart } from '../../context/CartContext';
 const CartItem = ({ item }) => {
   const { updateQuantity, removeFromCart, getAvailableStock } = useCart();
 
-  // 🔥 OBTENER STOCK DISPONIBLE
   const availableStock = getAvailableStock(item.product._id, item.size);
 
   const handleDecrease = () => {

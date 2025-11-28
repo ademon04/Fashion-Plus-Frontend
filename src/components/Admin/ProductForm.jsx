@@ -9,7 +9,9 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     { size: 'M', stock: 0 },
     { size: 'L', stock: 0 },
     { size: 'XL', stock: 0 },
-    { size: 'XXL', stock: 0 }
+    { size: 'XXL', stock: 0 },
+    { size: 'XXXL', stock: 0 },
+
   ];
 
   const shoeSizes = [
