@@ -41,33 +41,34 @@ const ProductCard = ({ product }) => {
     loadBestImage();
   }, [product.images, product.name]);
 
-  const generateImageUrls = (imagePath) => {
-    const urls = [];
-    
-    if (!imagePath) return urls;
+const generateImageUrls = (imagePath) => {
+  const urls = [];
+  
+  if (!imagePath) return urls;
 
-    // Si ya es URL completa
-    if (imagePath.startsWith('http')) {
-      urls.push(imagePath);
-    }
-
-    // Si es ruta local (/uploads/...)
-    if (imagePath.startsWith('/uploads/')) {
-      const publicId = imagePath.replace('/uploads/', '');
-      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/${publicId}`);
-      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${publicId}`);
-      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/q_auto,f_auto/${publicId}`);
-    }
-
-    // Si es solo public_id
-    if (imagePath.includes('fashion-plus/') && !imagePath.startsWith('http')) {
-      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/${imagePath}`);
-      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${imagePath}`);
-    }
-
+  // ✅ Si ya es URL completa (como vienen de la API) - USARLA DIRECTAMENTE
+  if (imagePath.startsWith('http')) {
+    urls.push(imagePath);
+    // 🔥 CORRECCIÓN: Retornar inmediatamente para no generar URLs duplicadas incorrectas
     return urls;
-  };
+  }
 
+  // 🔥 CORRECCIÓN: Usar el Cloudinary CORRECTO (dk3bjsjpa)
+  if (imagePath.startsWith('/uploads/')) {
+    const publicId = imagePath.replace('/uploads/', '');
+    urls.push(`https://res.cloudinary.com/dk3bjsjpa/image/upload/${publicId}`);
+    urls.push(`https://res.cloudinary.com/dk3bjsjpa/image/upload/w_500,h_600,c_fill/${publicId}`);
+    urls.push(`https://res.cloudinary.com/dk3bjsjpa/image/upload/q_auto,f_auto/${publicId}`);
+  }
+
+  // Si es solo public_id
+  if (imagePath.includes('fashion-plus/') && !imagePath.startsWith('http')) {
+    urls.push(`https://res.cloudinary.com/dk3bjsjpa/image/upload/${imagePath}`);
+    urls.push(`https://res.cloudinary.com/dk3bjsjpa/image/upload/w_500,h_600,c_fill/${imagePath}`);
+  }
+
+  return urls;
+};
   const testImageUrl = (url) => {
     return new Promise((resolve) => {
       const img = new Image();

@@ -1283,10 +1283,9 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Botón de cerrar (tache) */
+/* En tu archivo CSS principal */
 .close-button {
-   position: absolute;
-  top: 45px; /* 🔥 30px más abajo que los 15px originales */
+  position: absolute;
   right: 20px;
   width: 32px;
   height: 32px;
@@ -1304,15 +1303,24 @@
   z-index: 10;
 }
 
-.close-button:hover {
-  background: #dc3545;
-  color: white;
-  border-color: #dc3545;
-  transform: scale(1.1);
+/* Para escritorio */
+@media (min-width: 768px) {
+  .close-button {
+    top: 25px;
+  }
 }
 
-.close-button:active {
-  transform: scale(0.95);
+/* Para móviles */
+@media (max-width: 767px) {
+  .close-button {
+    top: 80px;  /* 🔥 Mucho más abajo en móviles */
+  }
+}
+
+.close-button:hover {
+  background: #e9ecef;
+  color: #495057;
+  transform: scale(1.05);
 }
 
 /* Asegurar que el formulario tenga suficiente padding superior */
