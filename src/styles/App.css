@@ -1285,8 +1285,8 @@
 
 /* Botón de cerrar (tache) */
 .close-button {
-  position: absolute;
-  top: 15px;
+   position: absolute;
+  top: 45px; /* 🔥 30px más abajo que los 15px originales */
   right: 20px;
   width: 32px;
   height: 32px;
