@@ -19,29 +19,15 @@ const ProductCard = ({ product }) => {
       console.log('🔍 PRODUCTO:', product.name);
       console.log('📸 IMÁGENES EN BD:', product.images);
 
-      // 🔥 CORRECCIÓN 1: PRIMERO probar las URLs ORIGINALES directamente
-      for (const originalUrl of product.images) {
-        console.log('🔄 Probando URL ORIGINAL:', originalUrl);
-        const works = await testImageUrl(originalUrl);
-        if (works) {
-          console.log('✅ IMAGEN ORIGINAL FUNCIONA:', originalUrl);
-          setCurrentImage(originalUrl);
-          setImageStatus('loading');
-          return;
-        }
-      }
-
-      // 🔥 CORRECCIÓN 2: SOLO si fallan las originales, probar URLs alternativas
+      // Probar TODAS las imágenes guardadas en el producto
       for (const imagePath of product.images) {
         const urlsToTest = generateImageUrls(imagePath);
-        // 🔥 Filtrar URLs que ya probamos (las originales)
-        const uniqueUrls = urlsToTest.filter(url => !product.images.includes(url));
         
-        for (const url of uniqueUrls) {
-          console.log('🔄 Probando URL ALTERNATIVA:', url);
+        for (const url of urlsToTest) {
+          console.log('🔄 Probando URL:', url);
           const works = await testImageUrl(url);
           if (works) {
-            console.log('✅ IMAGEN ALTERNATIVA FUNCIONA:', url);
+            console.log('✅ IMAGEN FUNCIONA:', url);
             setCurrentImage(url);
             setImageStatus('loading');
             return;
@@ -49,7 +35,6 @@ const ProductCard = ({ product }) => {
         }
       }
 
-      // 🔥 CORRECCIÓN 3: SOLO si TODO falla, usar placeholder
       setFallback();
     };
 
@@ -61,41 +46,39 @@ const ProductCard = ({ product }) => {
     
     if (!imagePath) return urls;
 
-    // ✅ Si ya es URL completa - USARLA DIRECTAMENTE
+    // Si ya es URL completa
     if (imagePath.startsWith('http')) {
       urls.push(imagePath);
-      return urls;
     }
 
-    // 🔥 CORRECCIÓN: Usar SOLO el Cloudinary CORRECTO (dk3bjsjpa) y MENOS URLs alternativas
+    // Si es ruta local (/uploads/...)
     if (imagePath.startsWith('/uploads/')) {
       const publicId = imagePath.replace('/uploads/', '');
-      urls.push(`https://res.cloudinary.com/dk3bjsjpa/image/upload/${publicId}`);
-      // 🔥 Reducir URLs alternativas para mayor eficiencia
-      urls.push(`https://res.cloudinary.com/dk3bjsjpa/image/upload/w_500,h_600,c_fill/${publicId}`);
+      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/${publicId}`);
+      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${publicId}`);
+      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/q_auto,f_auto/${publicId}`);
     }
 
     // Si es solo public_id
     if (imagePath.includes('fashion-plus/') && !imagePath.startsWith('http')) {
-      urls.push(`https://res.cloudinary.com/dk3bjsjpa/image/upload/${imagePath}`);
+      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/${imagePath}`);
+      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${imagePath}`);
     }
 
     return urls;
   };
 
-  // 🔥 CORRECCIÓN: Reducir timeout de 5s a 3s para mejor UX
   const testImageUrl = (url) => {
     return new Promise((resolve) => {
       const img = new Image();
       img.onload = () => resolve(true);
       img.onerror = () => resolve(false);
-      // Timeout de 3 segundos
-      setTimeout(() => resolve(false), 3000);
+      // Timeout de 5 segundos
+      setTimeout(() => resolve(false), 5000);
       img.src = url;
     });
   };
 
-  // El resto del código se mantiene EXACTAMENTE IGUAL
   const setFallback = () => {
     console.log('❌ Todas las imágenes fallaron para:', product.name);
     setImageStatus('error');
