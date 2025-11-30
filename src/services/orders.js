@@ -1,4 +1,5 @@
 import { api } from './api';
+
 export const orderService = {
   // Crear una nueva orden
   async createOrder(orderData) {
@@ -16,6 +17,21 @@ export const orderService = {
   async getMyOrders() {
     const response = await api.get('/orders/my-orders');
     return response.data;
+  },
+
+  // 🆕 MÉTODO FALTANTE: Obtener todas las órdenes (ADMIN)
+  async getOrders(filters = {}) {
+    const response = await api.get('/orders', { 
+      params: filters 
+    });
+    return response.data.orders;
+  },
+
+  // 🆕 MÉTODO FALTANTE: Actualizar estado de orden (ADMIN)
+  async updateOrderStatus(orderId, status) {
+    const response = await api.put(`/orders/${orderId}/status`, { 
+      status 
+    });
+    return response.data;
   }
 };
-
