@@ -25,23 +25,22 @@ const Products = () => {
   }, [filters, products]);
 
   const loadProducts = async () => {
-    try {
-      setLoading(true);
-      console.log('🔄 Cargando todos los productos...');
-      
-      const productsData = await productService.getProducts();
-      console.log('📦 Productos cargados:', productsData.length);
-      
-      setProducts(productsData);
-      setFilteredProducts(productsData); // Inicialmente mostrar todos
-      
-    } catch (error) {
-      console.error('❌ Error loading products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  try {
+    setLoading(true);
+    console.log('🔄 Cargando todos los productos...');
+    
+    const productsData = await productService.getProducts();
+    console.log('🔍 DEBUG CRÍTICO - Imágenes después de getProducts:', productsData[0]?.images);
+    
+    setProducts(productsData);
+    setFilteredProducts(productsData);
+    
+  } catch (error) {
+    console.error('❌ Error loading products:', error);
+  } finally {
+    setLoading(false);
+  }
+};
   // 🔥 FUNCIÓN PARA APLICAR FILTROS EN EL FRONTEND
   const applyLocalFilters = () => {
     if (products.length === 0) return;
