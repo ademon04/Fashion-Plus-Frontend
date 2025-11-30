@@ -5,8 +5,12 @@ import { orderService } from '../../services/orders';
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // ✅ Estado actualizado con todos los filtros
   const [filters, setFilters] = useState({
-    status: ''
+    status: '',
+    paymentStatus: '',
+    paymentMethod: '',
   });
 
   useEffect(() => {
@@ -19,7 +23,7 @@ const OrderManagement = () => {
       const ordersData = await orderService.getOrders(filters);
       setOrders(ordersData);
     } catch (error) {
-      console.error('Error loading orders:', error);
+      console.error("Error loading orders:", error);
     } finally {
       setLoading(false);
     }
@@ -31,13 +35,14 @@ const OrderManagement = () => {
       await loadOrders();
       alert('Estado actualizado exitosamente');
     } catch (error) {
-      console.error('Error updating order status:', error);
-      alert('Error al actualizar el estado');
+      console.error("Error updating order status:", error);
+      alert("Error al actualizar el estado");
     }
   };
 
+  // 🔥 Mantiene los filtros acumulados (no reemplaza todo el objeto)
   const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
+    setFilters(prev => ({ ...prev, ...newFilters }));
   };
 
   if (loading) {
@@ -48,22 +53,49 @@ const OrderManagement = () => {
     <div className="order-management">
       <div className="page-header">
         <h1>Gestión de Órdenes</h1>
+
+        {/* 🔥 FILTROS COMPLETOS */}
         <div className="filters">
-          <select 
-            value={filters.status} 
-            onChange={(e) => handleFilterChange({ status: e.target.value })}
+
+          {/* Estado de orden */}
+          <select
+            value={filters.status}
+            onChange={e => handleFilterChange({ status: e.target.value })}
           >
             <option value="">Todas las órdenes</option>
             <option value="pending">Pendientes</option>
             <option value="processing">Procesando</option>
-            <option value="completed">Completadas</option>
+            <option value="shipped">Enviadas</option>
+            <option value="delivered">Entregadas</option>
             <option value="cancelled">Canceladas</option>
+          </select>
+
+          {/* Estado de pago */}
+          <select
+            value={filters.paymentStatus}
+            onChange={e => handleFilterChange({ paymentStatus: e.target.value })}
+          >
+            <option value="">Todos los pagos</option>
+            <option value="approved">Pagadas</option>
+            <option value="pending">Pendientes de pago</option>
+            <option value="rejected">Rechazadas</option>
+          </select>
+
+          {/* Método de pago */}
+          <select
+            value={filters.paymentMethod}
+            onChange={e => handleFilterChange({ paymentMethod: e.target.value })}
+          >
+            <option value="">Todos los métodos</option>
+            <option value="stripe">Stripe</option>
+            <option value="mercadopago">Mercado Pago</option>
+            <option value="cash">Efectivo</option>
           </select>
         </div>
       </div>
 
       <OrderTable 
-        orders={orders} 
+        orders={orders}
         onStatusUpdate={handleStatusUpdate}
       />
     </div>
@@ -71,3 +103,4 @@ const OrderManagement = () => {
 };
 
 export default OrderManagement;
+

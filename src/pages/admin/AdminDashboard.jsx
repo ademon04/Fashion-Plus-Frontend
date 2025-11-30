@@ -9,7 +9,8 @@ const AdminDashboard = () => {
     totalOrders: 0,
     totalProducts: 0,
     pendingOrders: 0,
-    totalRevenue: 0
+    totalRevenue: 0,
+    paidOrders: 0
   });
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,22 +22,85 @@ const AdminDashboard = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      // En una implementación real, aquí harías llamadas a la API para obtener los datos
-      // Por ahora usamos datos de ejemplo
+      
+      // Obtener datos reales de la API
+      const [orders, products] = await Promise.all([
+        orderService.getOrders({ limit: 100 }), // Más órdenes para calcular stats
+        productService.getProducts()
+      ]);
+
+      // Calcular estadísticas reales
+      const totalOrders = orders?.length || 0;
+      const paidOrders = orders?.filter(order => 
+        order.paymentStatus === 'approved' || order.status === 'paid'
+      ).length || 0;
+      const pendingOrders = orders?.filter(order => 
+        order.status === 'pending' || order.paymentStatus === 'pending'
+      ).length || 0;
+      const totalRevenue = orders?.filter(order => 
+        order.paymentStatus === 'approved' || order.status === 'paid'
+      ).reduce((sum, order) => sum + (order.total || 0), 0) || 0;
+
+      setStats({
+        totalOrders,
+        totalProducts: products?.length || 0,
+        pendingOrders,
+        totalRevenue,
+        paidOrders
+      });
+
+      // Órdenes más recientes (últimas 5)
+      const sortedOrders = orders?.sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      ).slice(0, 5) || [];
+      
+      setRecentOrders(sortedOrders);
+
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+      // Mantener datos de ejemplo en caso de error
       setStats({
         totalOrders: 150,
         totalProducts: 45,
         pendingOrders: 12,
-        totalRevenue: 12500
+        totalRevenue: 12500,
+        paidOrders: 138
       });
-
-      const orders = await orderService.getOrders({ limit: 5 });
-      setRecentOrders(orders);
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      setRecentOrders([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Función para formatear dirección
+  const formatAddress = (shippingAddress) => {
+    if (!shippingAddress || !shippingAddress.street) {
+      return 'Dirección no proporcionada';
+    }
+    
+    const { street, city, state } = shippingAddress;
+    return `${street}, ${city}`;
+  };
+
+  // Función para obtener badge de estado de pago
+  const getPaymentStatusBadge = (paymentStatus, status) => {
+    if (paymentStatus === 'approved' || status === 'paid') {
+      return <span className="payment-status paid">✅ Pagado</span>;
+    } else if (paymentStatus === 'pending') {
+      return <span className="payment-status pending">⏳ Pendiente</span>;
+    } else {
+      return <span className="payment-status rejected">❌ Rechazado</span>;
+    }
+  };
+
+  // Función para obtener método de pago
+  const getPaymentMethod = (paymentMethod) => {
+    const methods = {
+      stripe: '💳 Stripe',
+      mercadopago: '🟡 Mercado Pago',
+      cash: '💰 Efectivo'
+    };
+    return methods[paymentMethod] || paymentMethod;
   };
 
   if (loading) {
@@ -55,21 +119,25 @@ const AdminDashboard = () => {
           title="Órdenes Totales"
           value={stats.totalOrders}
           icon="📦"
+          description="Total de órdenes recibidas"
         />
         <StatsCard
           title="Productos"
           value={stats.totalProducts}
           icon="👕"
+          description="Productos en inventario"
         />
         <StatsCard
-          title="Órdenes Pendientes"
-          value={stats.pendingOrders}
-          icon="⏳"
+          title="Órdenes Pagadas"
+          value={stats.paidOrders}
+          icon="✅"
+          description="Órdenes con pago confirmado"
         />
         <StatsCard
           title="Ingresos Totales"
-          value={`$${stats.totalRevenue}`}
+          value={`$${stats.totalRevenue.toFixed(2)}`}
           icon="💰"
+          description="Ingresos por órdenes pagadas"
         />
       </div>
 
@@ -82,20 +150,62 @@ const AdminDashboard = () => {
             </Link>
           </div>
           <div className="orders-list">
-            {recentOrders.map(order => (
-              <div key={order._id} className="order-item">
-                <div className="order-info">
-                  <span className="order-id">#{order._id?.slice(-6)}</span>
-                  <span className="customer-name">{order.customer?.name}</span>
+            {recentOrders.length > 0 ? (
+              recentOrders.map(order => (
+                <div key={order._id} className="order-card">
+                  <div className="order-header">
+                    <span className="order-id">
+                      #{order.orderNumber || order._id?.slice(-6)}
+                    </span>
+                    {getPaymentStatusBadge(order.paymentStatus, order.status)}
+                  </div>
+                  
+                  <div className="order-customer">
+                    <div className="customer-name">{order.customer?.name}</div>
+                    <div className="customer-email">{order.customer?.email}</div>
+                    {order.customer?.phone && (
+                      <div className="customer-phone">{order.customer.phone}</div>
+                    )}
+                  </div>
+                  
+                  <div className="order-details">
+                    <div className="order-total">${order.total?.toFixed(2)}</div>
+                    <div className="order-method">
+                      {getPaymentMethod(order.paymentMethod)}
+                    </div>
+                  </div>
+                  
+                  <div className="shipping-info">
+                    <div className="shipping-address">
+                      <strong>Envío:</strong> {formatAddress(order.shippingAddress)}
+                    </div>
+                    {order.trackingNumber && (
+                      <div className="tracking-info">
+                        📦 Seguimiento: {order.trackingNumber}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="order-footer">
+                    <span className={`order-status ${order.status}`}>
+                      {order.status === 'paid' ? '✅ Pagado' :
+                       order.status === 'pending' ? '⏳ Pendiente' :
+                       order.status === 'processing' ? '🔄 Procesando' :
+                       order.status === 'shipped' ? '🚚 Enviado' :
+                       order.status === 'delivered' ? '📦 Entregado' :
+                       order.status}
+                    </span>
+                    <span className="order-date">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
-                <div className="order-details">
-                  <span className="order-total">${order.total?.toFixed(2)}</span>
-                  <span className={`order-status ${order.status}`}>
-                    {order.status}
-                  </span>
-                </div>
+              ))
+            ) : (
+              <div className="no-orders">
+                <p>No hay órdenes recientes</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
@@ -106,7 +216,10 @@ const AdminDashboard = () => {
               Gestionar Productos
             </Link>
             <Link to="/admin/ordenes" className="btn-secondary">
-              Ver Órdenes
+              Ver Todas las Órdenes
+            </Link>
+            <Link to="/admin/ordenes?paymentStatus=approved" className="btn-tertiary">
+              Ver Órdenes Pagadas
             </Link>
           </div>
         </div>
