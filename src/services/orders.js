@@ -19,19 +19,49 @@ export const orderService = {
     return response.data;
   },
 
-  // 🆕 MÉTODO FALTANTE: Obtener todas las órdenes (ADMIN)
+  // Obtener todas las órdenes (ADMIN)
   async getOrders(filters = {}) {
-    const response = await api.get('/orders', { 
-      params: filters 
-    });
-    return response.data.orders;
+    try {
+      // Verificar autenticación antes de hacer la petición
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.log('🔐 No hay token, redirigiendo a login...');
+        window.location.href = '/admin/login';
+        return []; // Retorna array vacío mientras redirige
+      }
+
+      const response = await api.get('/orders', { 
+        params: filters 
+      });
+      return response.data.orders;
+    } catch (error) {
+      // Si falla por autenticación, redirigir
+      if (error.response?.status === 401) {
+        console.log('🔐 Token inválido, redirigiendo a login...');
+        window.location.href = '/admin/login';
+      }
+      return []; // Retorna array vacío para evitar errores en componentes
+    }
   },
 
-  // 🆕 MÉTODO FALTANTE: Actualizar estado de orden (ADMIN)
+  // Actualizar estado de orden (ADMIN)
   async updateOrderStatus(orderId, status) {
-    const response = await api.put(`/orders/${orderId}/status`, { 
-      status 
-    });
-    return response.data;
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/admin/login';
+        return { success: false, error: 'No autenticado' };
+      }
+
+      const response = await api.put(`/orders/${orderId}/status`, { 
+        status 
+      });
+      return response.data;
+    } catch (error) {
+      if (error.response?.status === 401) {
+        window.location.href = '/admin/login';
+      }
+      return { success: false, error: error.message };
+    }
   }
 };
