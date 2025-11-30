@@ -1,21 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import OrderTable from '../../components/Admin/OrderTable';
 import { orderService } from '../../services/orders';
-import { useAuth } from '../../context/AuthContext';
 
 const OrderManagement = () => {
-  // 🔐 Protección de rutas - DEBE estar DENTRO del componente
-  const { isAuthenticated, isAdmin, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!authLoading && (!isAuthenticated || !isAdmin)) {
-      navigate('/admin/login');
-    }
-  }, [isAuthenticated, isAdmin, authLoading, navigate]);
-
-  // Estado del componente
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -23,20 +10,16 @@ const OrderManagement = () => {
   });
 
   useEffect(() => {
-    // Solo cargar órdenes si está autenticado como admin
-    if (isAuthenticated && isAdmin && !authLoading) {
-      loadOrders();
-    }
-  }, [filters, isAuthenticated, isAdmin, authLoading]);
+    loadOrders();
+  }, [filters]);
 
   const loadOrders = async () => {
     try {
       setLoading(true);
       const ordersData = await orderService.getOrders(filters);
-      setOrders(ordersData || []);
+      setOrders(ordersData);
     } catch (error) {
       console.error('Error loading orders:', error);
-      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -57,14 +40,8 @@ const OrderManagement = () => {
     setFilters(newFilters);
   };
 
-  // Mostrar loading durante verificación de auth o carga de datos
-  if (authLoading || loading) {
+  if (loading) {
     return <div className="loading">Cargando órdenes...</div>;
-  }
-
-  // Si no es admin, no renderizar (ya fue redirigido)
-  if (!isAuthenticated || !isAdmin) {
-    return null;
   }
 
   return (
