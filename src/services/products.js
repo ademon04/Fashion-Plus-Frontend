@@ -18,9 +18,12 @@ export const productService = {
       console.log('🔍 getProducts - response.data.products:', response.data.products);
       console.log('🔍 getProducts - typeof response.data.products:', typeof response.data.products);
       console.log('🔍 getProducts - Array.isArray:', Array.isArray(response.data.products));
+          console.log('🔍 DEBUG SERVICE - Respuesta cruda:', response.data);
+
       
       // 🔥 CORRECCIÓN DEFINITIVA: Extraer products correctamente
       let productsData = [];
+      
       
       if (response.data.products && Array.isArray(response.data.products)) {
         productsData = response.data.products;
@@ -109,6 +112,8 @@ export const getFeaturedProducts = async () => {
     // 🔥 CORRECCIÓN: Acceder a response.data.products
     const productsData = response.data.products || response.data || [];
     console.log('🔍 getFeaturedProducts - productsData:', productsData);
+        console.log('🔍 DEBUG SERVICE - Antes de procesar imágenes:', productsData[0]?.images);
+
 
     const products = productsData.map(product => ({
       ...product,
@@ -119,8 +124,10 @@ export const getFeaturedProducts = async () => {
         return `${BACKEND_URL}/uploads/${img}`;
       }) || []
     }));
+    console.log('🔍 DEBUG SERVICE - Después de procesar imágenes:', products[0]?.images);
 
     return products;
+
   } catch (error) {
     console.error("Error en getFeaturedProducts:", error);
     return [];

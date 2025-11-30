@@ -30,7 +30,15 @@ const Products = () => {
     console.log('🔄 Cargando todos los productos...');
     
     const productsData = await productService.getProducts();
-    console.log('🔍 DEBUG CRÍTICO - Imágenes después de getProducts:', productsData[0]?.images);
+    console.log('🔍 DEBUG INTERNO - Datos de productService:', {
+      length: productsData.length,
+      primerProducto: productsData[0] ? {
+        name: productsData[0].name,
+        images: productsData[0].images,
+        imageType: typeof productsData[0].images?.[0]
+      } : 'No hay productos'
+    });
+    
     
     setProducts(productsData);
     setFilteredProducts(productsData);
