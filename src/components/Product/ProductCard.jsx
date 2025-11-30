@@ -17,55 +17,37 @@ const ProductCard = ({ product }) => {
       }
 
       console.log('🔍 PRODUCTO:', product.name);
-      console.log('📸 IMÁGENES EN BD:', product.images);
+      console.log('📸 IMÁGENES RECIBIDAS:', product.images);
 
-      // Probar TODAS las imágenes guardadas en el producto
-      for (const imagePath of product.images) {
-        const urlsToTest = generateImageUrls(imagePath);
-        
-        for (const url of urlsToTest) {
-          console.log('🔄 Probando URL:', url);
-          const works = await testImageUrl(url);
-          if (works) {
-            console.log('✅ IMAGEN FUNCIONA:', url);
-            setCurrentImage(url);
-            setImageStatus('loading');
-            return;
-          }
-        }
+      // 🔥 SOLUCIÓN: LAS URLS YA SON VÁLIDAS - USARLAS DIRECTAMENTE
+      // Las imágenes YA vienen como URLs completas de Cloudinary que funcionan
+      const validUrls = product.images.filter(url => 
+        url && url.startsWith('http') && url.includes('cloudinary.com')
+      );
+
+      console.log('✅ URLs válidas encontradas:', validUrls);
+
+      if (validUrls.length > 0) {
+        // 🔥 USAR LA PRIMERA URL VÁLIDA DIRECTAMENTE
+        const imageUrl = validUrls[0];
+        console.log('🔄 Configurando URL directa:', imageUrl);
+        setCurrentImage(imageUrl);
+        setImageStatus('loading');
+        return;
       }
 
+      // 🔥 SOLO si no hay URLs válidas, usar placeholder
+      console.log('❌ No hay URLs válidas, usando fallback');
       setFallback();
     };
 
     loadBestImage();
   }, [product.images, product.name]);
 
+  // 🔥 SOLUCIÓN: Simplificar esta función - NO generar URLs alternativas innecesarias
   const generateImageUrls = (imagePath) => {
-    const urls = [];
-    
-    if (!imagePath) return urls;
-
-    // Si ya es URL completa
-    if (imagePath.startsWith('http')) {
-      urls.push(imagePath);
-    }
-
-    // Si es ruta local (/uploads/...)
-    if (imagePath.startsWith('/uploads/')) {
-      const publicId = imagePath.replace('/uploads/', '');
-      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/${publicId}`);
-      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${publicId}`);
-      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/q_auto,f_auto/${publicId}`);
-    }
-
-    // Si es solo public_id
-    if (imagePath.includes('fashion-plus/') && !imagePath.startsWith('http')) {
-      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/${imagePath}`);
-      urls.push(`https://res.cloudinary.com/dzxrcak6k/image/upload/w_500,h_600,c_fill/${imagePath}`);
-    }
-
-    return urls;
+    // Las URLs ya son correctas desde la API
+    return imagePath && imagePath.startsWith('http') ? [imagePath] : [];
   };
 
   const testImageUrl = (url) => {
