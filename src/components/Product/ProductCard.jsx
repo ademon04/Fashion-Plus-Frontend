@@ -11,31 +11,51 @@ const ProductCard = ({ product }) => {
 
   useEffect(() => {
     const loadBestImage = async () => {
-      if (!product.images || product.images.length === 0) {
-        setFallback();
+  if (!product.images || product.images.length === 0) {
+    setFallback();
+    return;
+  }
+
+  console.log('🔍 PRODUCTO:', product.name);
+  console.log('📸 IMÁGENES EN BD:', product.images);
+
+  // 🔥 CORRECCIÓN CRÍTICA: USAR LAS URLS ORIGINALES DIRECTAMENTE
+  // Las imágenes YA vienen como URLs completas de Cloudinary
+  const imageUrls = product.images.map(img => img); // Usar las URLs directamente
+  
+  console.log('🔄 URLs a probar:', imageUrls);
+
+  // Probar CADA imagen original
+  for (const url of imageUrls) {
+    console.log('🔄 Probando URL ORIGINAL:', url);
+    const works = await testImageUrl(url);
+    if (works) {
+      console.log('✅ IMAGEN ORIGINAL FUNCIONA:', url);
+      setCurrentImage(url);
+      setImageStatus('loading');
+      return;
+    }
+  }
+
+  // 🔥 SOLO si fallan TODAS las URLs originales, probar URLs alternativas
+  for (const imagePath of product.images) {
+    const urlsToTest = generateImageUrls(imagePath);
+    
+    for (const url of urlsToTest) {
+      console.log('🔄 Probando URL ALTERNATIVA:', url);
+      const works = await testImageUrl(url);
+      if (works) {
+        console.log('✅ IMAGEN ALTERNATIVA FUNCIONA:', url);
+        setCurrentImage(url);
+        setImageStatus('loading');
         return;
       }
+    }
+  }
 
-      console.log('🔍 PRODUCTO:', product.name);
-      console.log('📸 IMÁGENES EN BD:', product.images);
+  // 🔥 SOLO si TODO falla, usar placeholder
+  setFallback();
 
-      // Probar TODAS las imágenes guardadas en el producto
-      for (const imagePath of product.images) {
-        const urlsToTest = generateImageUrls(imagePath);
-        
-        for (const url of urlsToTest) {
-          console.log('🔄 Probando URL:', url);
-          const works = await testImageUrl(url);
-          if (works) {
-            console.log('✅ IMAGEN FUNCIONA:', url);
-            setCurrentImage(url);
-            setImageStatus('loading');
-            return;
-          }
-        }
-      }
-
-      setFallback();
     };
 
     loadBestImage();
