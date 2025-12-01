@@ -28,7 +28,7 @@ const Header = () => {
             alt="" 
             className="logo-image"
             style={{
-             height: '100px',
+             height: '80px',
               width: 'auto',
               display: 'block',
               maxWidth: '50%'

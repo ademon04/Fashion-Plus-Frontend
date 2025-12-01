@@ -1990,6 +1990,7 @@ body {
 }
 
 /* Header Styles */
+
 .header {
     height: 118px;         /* ← Tamaño fijo */
 
@@ -2065,6 +2066,32 @@ body {
 .cart-icon:hover {
   background: var(--bg-light);
 }
+/* 📱 Para pantallas de teléfono (menos de 600px) */
+@media (max-width: 600px) {
+  
+  .header {
+    height: 65px; /* Un poco más pequeña */
+    padding: 0;
+  }
+
+  .header-content {
+    padding: 0 1rem;
+  }
+
+  .logo-image {
+    height: 40px !important;   /* Reduce tamaño del logo */
+    margin-left: 0 !important; /* Quita el desplazamiento */
+  }
+
+  .logo-text {
+    font-size: 1rem;           /* Ajusta texto */
+  }
+
+  .nav-links {
+    gap: 1rem;                 /* Menos separación */
+  }
+}
+
 
 .cart-count {
   position: absolute;
