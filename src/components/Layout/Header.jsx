@@ -2,8 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import logoImage from '../Layout/images/fpp.jpg';
-
+const logoImage = '../Layout/fpp.jpg'; 
 
 const Header = () => {
   const location = useLocation();
