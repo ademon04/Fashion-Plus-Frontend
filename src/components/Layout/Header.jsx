@@ -20,11 +20,22 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header-content">
-         <Link to="/" className="logo">
+           <Link to="/" className="logo">
+          {/* Logo con estilos inline para asegurar que se vea */}
           <img 
             src={logoImage} 
-            alt="Fashion Plus Premium Logo" 
+            alt="" 
             className="logo-image"
+            style={{
+              height: '40px',
+              width: 'auto',
+              display: 'block',
+              maxWidth: '100%'
+            }}
+            onError={(e) => {
+              console.error('Error cargando imagen:', logoImage);
+              e.target.style.display = 'none';
+            }}
           />
           <span className="logo-text">Fashion Plus Premium</span>
         </Link>
