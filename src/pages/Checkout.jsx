@@ -134,6 +134,7 @@ const diagnoseCartItems = () => {
           phone: customerData.phone,
           zipCode: customerData.zipCode,
         },
+        
         shippingAddress: `${customerData.address}, ${customerData.city}, ${customerData.zipCode}, México`,
         guest: true,
       };

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import logoImage from '../Layout/images/fpp.jpg';
 
 
 const Header = () => {
@@ -20,11 +21,10 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header-content">
-        <Link to="/" className="logo">
-          {/* Logo de la empresa */}
+         <Link to="/" className="logo">
           <img 
-            src="7ec07e64-e383-47cb-9c3b-d23bc6db6f6f.jpeg" // 
-            alt="" 
+            src={logoImage} 
+            alt="Fashion Plus Premium Logo" 
             className="logo-image"
           />
           <span className="logo-text">Fashion Plus Premium</span>
