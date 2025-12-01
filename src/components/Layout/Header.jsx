@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import logoImage from '../../images/ffp.jpg';
+import logoImage from '../../images/FPP.jpeg'
 
 
 const Header = () => {
@@ -28,10 +28,10 @@ const Header = () => {
             alt="" 
             className="logo-image"
             style={{
-              height: '40px',
+             height: '100px',
               width: 'auto',
               display: 'block',
-              maxWidth: '100%'
+              maxWidth: '50%'
             }}
             onError={(e) => {
               console.error('Error cargando imagen:', logoImage);
