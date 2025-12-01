@@ -18,8 +18,10 @@ const ProductFilters = ({ onFilterChange }) => {
 
   const handleCategoryClick = (category) => {
     handleFilterChange('category', category);
-    // Cerrar sidebar después de seleccionar categoría (opcional)
-    // setIsSidebarOpen(false);
+    // Cerrar sidebar automáticamente en móviles
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
   };
 
   const clearFilters = () => {
@@ -69,6 +71,14 @@ const ProductFilters = ({ onFilterChange }) => {
       <div className={`filters-sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <h3>Filtros de Productos</h3>
+          {/* BOTÓN DE CERRAR AGREGADO AQUÍ */}
+          <button 
+            className="close-sidebar-btn"
+            onClick={() => setIsSidebarOpen(false)}
+            aria-label="Cerrar filtros"
+          >
+            ✕
+          </button>
         </div>
 
         {/* Búsqueda */}
