@@ -51,19 +51,30 @@ const OrderTable = ({ orders, onStatusUpdate }) => {
 
 // Función para formatear dirección - VERSIÓN CORREGIDA
 const formatAddress = (shippingAddress) => {
-  if (!shippingAddress) return 'Dirección no proporcionada';
+  if (!shippingAddress || Object.keys(shippingAddress).length === 0) {
+    return 'Dirección no proporcionada';
+  }
   
   const { street, city, state, zipCode, country } = shippingAddress;
   
-  // Si SOLO tiene país
-  if (country && !street && !city && !state && !zipCode) {
-    return `País: ${country} (dirección incompleta)`;
+  // Verificar si solo tiene país
+  const hasOnlyCountry = country && !street && !city && !state && !zipCode;
+  
+  if (hasOnlyCountry) {
+    return `📍 ${country} (Faltan: calle, ciudad, estado, CP)`;
   }
   
   // Si tiene más datos
-  const parts = [street, city, state, zipCode, country].filter(Boolean);
-  return parts.length > 0 ? parts.join(', ') : 'Dirección no proporcionada';
+  const parts = [];
+  if (street) parts.push(street);
+  if (city) parts.push(city);
+  if (state) parts.push(state);
+  if (zipCode) parts.push(`CP: ${zipCode}`);
+  if (country) parts.push(country);
+  
+  return parts.length > 0 ? parts.join(', ') : 'Dirección incompleta';
 };
+
 
   // Función para mostrar método de pago
   const getPaymentMethod = (paymentMethod) => {
@@ -97,7 +108,7 @@ const formatAddress = (shippingAddress) => {
               <th>Método Pago</th>
               <th>Estado Pago</th>
               <th>Estado Orden</th>
-              <th>Dirección Envío</th>
+              <th>Envio/Dirección</th>
               <th>Fecha</th>
               <th>Acciones</th>
             </tr>
@@ -127,15 +138,25 @@ const formatAddress = (shippingAddress) => {
                 <td className="order-status">
                   {getStatusBadge(order.status)}
                 </td>
-                <td className="shipping-address">
-                  <div className="address-text">
-                    {formatAddress(order.shippingAddress)}
-                  </div>
-                  {order.trackingNumber && (
-                    <div className="tracking-info">
-                      📦 {order.trackingNumber}
-                    </div>
-                  )}
+                <td className="shipping-address" title={order.items?.map(item => 
+  `${item.productName} - ${item.size} x${item.quantity}`
+).join('\n') || 'Sin productos'}>
+  <div className="address-text">
+    {formatAddress(order.shippingAddress)}
+  </div>
+  {order.items && order.items.length > 0 && (
+    <div className="product-summary">
+      📦 {order.items.length} producto{order.items.length > 1 ? 's' : ''}
+      {order.items.slice(0, 2).map((item, idx) => (
+        <div key={idx} className="product-tooltip">
+          {item.productName} ({item.size})
+        </div>
+      ))}
+      {order.items.length > 2 && (
+        <div className="more-products">+{order.items.length - 2} más</div>
+      )}
+    </div>
+  )}
                 </td>
                 <td className="order-date">
                   {new Date(order.createdAt).toLocaleDateString()}
