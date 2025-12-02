@@ -18,17 +18,28 @@ const OrderManagement = () => {
   }, [filters]);
 
   const loadOrders = async () => {
-    try {
-      setLoading(true);
-      const ordersData = await orderService.getOrders(filters);
-      setOrders(ordersData);
-    } catch (error) {
-      console.error("Error loading orders:", error);
-    } finally {
-      setLoading(false);
+  try {
+    setLoading(true);
+    const ordersData = await orderService.getOrders(filters);
+    
+    // DEBUG: Busca tu orden específica
+    const targetOrder = ordersData.find(o => 
+      o.orderNumber === 'ORD-1764637018519-5U2EY'
+    );
+    
+    if (targetOrder) {
+      console.log('✅ Orden encontrada en frontend:');
+      console.log('- Teléfono en BD:', targetOrder.customer?.phone);
+      console.log('- Dirección en BD:', targetOrder.shippingAddress);
     }
-  };
-
+    
+    setOrders(ordersData);
+  } catch (error) {
+    console.error("Error loading orders:", error);
+  } finally {
+    setLoading(false);
+  }
+};
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
       await orderService.updateOrderStatus(orderId, newStatus);

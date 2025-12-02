@@ -51,25 +51,18 @@ const OrderTable = ({ orders, onStatusUpdate }) => {
 
 // Función para formatear dirección - VERSIÓN CORREGIDA
 const formatAddress = (shippingAddress) => {
-  if (!shippingAddress) {
-    return 'Dirección no proporcionada';
-  }
+  if (!shippingAddress) return 'Dirección no proporcionada';
   
   const { street, city, state, zipCode, country } = shippingAddress;
-  const parts = [street, city, state, zipCode, country].filter(Boolean);
   
-  // Si hay datos disponibles (aunque sea solo país)
-  if (parts.length > 0) {
-    // Caso especial: solo tiene país
-    if (country && !street && !city && !state && !zipCode) {
-      return `País: ${country} (dirección incompleta)`;
-    }
-    
-    // Caso normal: tiene múltiples datos
-    return parts.join(', ');
+  // Si SOLO tiene país
+  if (country && !street && !city && !state && !zipCode) {
+    return `País: ${country} (dirección incompleta)`;
   }
   
-  return 'Dirección no proporcionada';
+  // Si tiene más datos
+  const parts = [street, city, state, zipCode, country].filter(Boolean);
+  return parts.length > 0 ? parts.join(', ') : 'Dirección no proporcionada';
 };
 
   // Función para mostrar método de pago
