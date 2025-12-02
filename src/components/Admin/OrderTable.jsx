@@ -111,6 +111,7 @@ const formatAddress = (shippingAddress) => {
               <th>Envio/Dirección</th>
               <th>Fecha</th>
               <th>Acciones</th>
+              <th>Productos</th>
             </tr>
           </thead>
           <tbody>
@@ -126,6 +127,23 @@ const formatAddress = (shippingAddress) => {
                     {order.customer?.phone || 'Sin teléfono'}
                   </div>
                 </td>
+                <td className="order-products">
+  {order.items && order.items.length > 0 ? (
+    <div className="product-items">
+      {order.items.map((item, idx) => (
+        <div key={idx} className="product-item">
+          <div className="product-name">{item.productName}</div>
+          <div className="product-details">
+            <span className="product-size">Talla: {item.size}</span>
+            <span className="product-quantity"> ×{item.quantity}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div className="no-products">Sin productos</div>
+  )}
+</td>
                 <td className="order-total">
                   ${order.total?.toFixed(2)}
                 </td>
