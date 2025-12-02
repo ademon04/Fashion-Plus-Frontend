@@ -1176,7 +1176,7 @@
 
   .btn-text {
     font-size: 0.7rem;
-    margin-top: 2px;
+    margin-top: 5px;
     display: block;
   }
 
@@ -1372,8 +1372,8 @@
 
   /* Mejoras de accesibilidad para toques */
   .nav-links a, button:not(.hamburger-btn) {
-    min-height: 44px; /* Altura mínima para toque fácil */
-    min-width: 44px;  /* Ancho mínimo para toque fácil */
+    min-height: 65px; /* Altura mínima para toque fácil */
+    min-width: 65px;  /* Ancho mínimo para toque fácil */
     display: flex;
     align-items: center;
     justify-content: center;

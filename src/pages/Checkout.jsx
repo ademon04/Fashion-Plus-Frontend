@@ -37,53 +37,74 @@ const Checkout = () => {
   };
 
   // Procesar pago con Stripe
-  const handleStripePayment = async () => {
-  try {
-    // Preparar datos para Stripe - CON VALIDACIÓN
-    const stripeOrderData = {
-      items: items.map(item => {
-        // 🔥 Validar que el producto y el precio existan
-        if (!item.product || typeof item.product.price === 'undefined') {
-          console.error('❌ Item sin precio:', item);
-          throw new Error(`El producto "${item.product?.name}" no tiene precio definido.`);
-        }
+  // En Checkout.jsx - MODIFICAR handleStripePayment
 
-        return {
-          product: item.product._id,
-          size: item.size,
-          quantity: item.quantity,
-          price: item.product.price // ✅ Ahora asegurados de que existe
-        };
-      }),
+const handleStripePayment = async () => {
+  try {
+    // ✅ 1. CREAR ORDEN EN MONGODB (igual que Mercado Pago)
+    const orderData = {
+      items: items.map(item => ({
+        product: item.product._id,
+        size: item.size,
+        quantity: item.quantity,
+      })),
       customer: {
-        name: customerData.name || 'Cliente',
-        email: customerData.email, // ✅ ESTE ES OBLIGATORIO
-        phone: customerData.phone || '',
-        address: customerData.address || '',
-        city: customerData.city || '',
-        zipCode: customerData.zipCode || '',
+        name: customerData.name,
+        email: customerData.email,
+        phone: customerData.phone,
+        zipCode: customerData.zipCode,
+      },
+      shippingAddress: `${customerData.address}, ${customerData.city}, ${customerData.zipCode}, México`,
+      paymentMethod: 'stripe', // ✅ ESPECIFICAR QUE ES STRIPE
+      guest: true,
+    };
+
+    const response = await fetch('https://fashion-plus-production.up.railway.app/api/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Error creando la orden');
+    }
+
+    const orderResult = await response.json();
+    const orderId = orderResult.order.id;
+    console.log("✅ Orden Stripe creada en MongoDB:", orderId);
+
+    // ✅ 2. CREAR SESIÓN DE STRIPE CON orderId
+    const stripeOrderData = {
+      orderId: orderId, // ✅ ENVIAR orderId
+      items: items.map(item => ({
+        product: item.product._id,
+        name: item.product.name,
+        size: item.size,
+        quantity: item.quantity,
+        price: item.product.price,
+      })),
+      customer: {
+        name: customerData.name,
+        email: customerData.email,
+        phone: customerData.phone,
+        address: customerData.address,
+        city: customerData.city,
+        zipCode: customerData.zipCode,
       },
       successUrl: `${window.location.origin}/checkout/success`,
       cancelUrl: `${window.location.origin}/checkout/failure`
     };
 
-    // Validar que el email esté presente
-    if (!stripeOrderData.customer.email) {
-      alert('Por favor ingresa tu email para continuar con el pago');
-      return;
-    }
-
-    console.log('📤 Enviando datos a Stripe:', stripeOrderData);
-    
-    // Crear sesión de Checkout de Stripe y redirigir
+    console.log('📤 Creando sesión Stripe para orden:', orderId);
     await createCheckoutSession(stripeOrderData);
-    
+
   } catch (error) {
-    console.error('Error en checkout de Stripe:', error);
+    console.error('❌ Error en checkout de Stripe:', error);
     alert('Error al procesar el pago con Stripe: ' + error.message);
   }
 };
-
 // Función de diagnóstico - ejecútala temporalmente
 const diagnoseCartItems = () => {
   console.log('🔍 DIAGNÓSTICO DEL CARRITO:');
