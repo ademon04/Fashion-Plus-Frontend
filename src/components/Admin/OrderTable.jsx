@@ -49,16 +49,28 @@ const OrderTable = ({ orders, onStatusUpdate }) => {
     </span>;
   };
 
-  // Función para formatear dirección
-  const formatAddress = (shippingAddress) => {
-    if (!shippingAddress || !shippingAddress.street) {
-      return 'Dirección no proporcionada';
+// Función para formatear dirección - VERSIÓN CORREGIDA
+const formatAddress = (shippingAddress) => {
+  if (!shippingAddress) {
+    return 'Dirección no proporcionada';
+  }
+  
+  const { street, city, state, zipCode, country } = shippingAddress;
+  const parts = [street, city, state, zipCode, country].filter(Boolean);
+  
+  // Si hay datos disponibles (aunque sea solo país)
+  if (parts.length > 0) {
+    // Caso especial: solo tiene país
+    if (country && !street && !city && !state && !zipCode) {
+      return `País: ${country} (dirección incompleta)`;
     }
     
-    const { street, city, state, zipCode, country } = shippingAddress;
-    const parts = [street, city, state, zipCode, country].filter(Boolean);
+    // Caso normal: tiene múltiples datos
     return parts.join(', ');
-  };
+  }
+  
+  return 'Dirección no proporcionada';
+};
 
   // Función para mostrar método de pago
   const getPaymentMethod = (paymentMethod) => {
