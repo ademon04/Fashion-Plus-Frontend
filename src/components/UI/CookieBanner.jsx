@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom"; // Importa Link desde react-router-dom
 
 const CookieBanner = ({ darkMode = true, autoHide = false, autoHideTime = 10000 }) => {
   const [visible, setVisible] = useState(false);
@@ -53,14 +54,13 @@ const CookieBanner = ({ darkMode = true, autoHide = false, autoHideTime = 10000 
       </span>
 
       <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-        <a
-          href="/politica-de-cookies"
-          target="_blank"
-          rel="noopener noreferrer"
+        {/* Cambia el <a> por <Link> de react-router-dom */}
+        <Link
+          to="/politica-de-cookies"
           style={{ fontSize: "12px", color: darkMode ? "#fff" : "#111", textDecoration: "underline" }}
         >
           Política de Cookies
-        </a>
+        </Link>
 
         <button
           onClick={rejectCookies}
