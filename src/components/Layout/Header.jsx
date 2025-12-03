@@ -91,9 +91,7 @@ const Header = () => {
               </li>
             ) : (
               <li>
-                <Link to="/admin/login" className={isActive('/admin/login') ? 'active' : ''}>
-                  Admin
-                </Link>
+              
               </li>
             )}
           </ul>
