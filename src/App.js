@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
@@ -13,7 +13,6 @@ import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
-import CookiePolicy from "./pages/Legal/CookiePolicy"; // Nueva importación
 
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -24,13 +23,12 @@ import CookieBanner from "./components/UI/CookieBanner";
 import CheckoutSuccess from './pages/CheckoutSuccess';
 import CheckoutFailure from './pages/CheckoutFailure';
 
+
 import "./styles/App.css";
 import "./styles/components.css";
 import "./styles/responsive.css";
 
 function App() {
-  const location = useLocation();
-  
   return (
     <AuthProvider>
       <CartProvider>
@@ -48,7 +46,7 @@ function App() {
                   <Route path="/producto/:id" element={<ProductDetail />} />
                   <Route path="/carrito" element={<Cart />} />
                   <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/politica-de-cookies" element={<CookiePolicy />} /> {/* Cambiado a CookiePolicy */}
+                
 
                   {/* Rutas de administración */}
                   <Route path="/admin/login" element={<AdminLogin />} />
@@ -60,8 +58,8 @@ function App() {
                 </Routes>
               </main>
 
-              {/* Banner de cookies - oculto en la página de política */}
-              {location.pathname !== "/politica-de-cookies" && <CookieBanner />}
+              {/* Banner de cookies */}
+              <CookieBanner />
 
               <Footer />
             </div>
