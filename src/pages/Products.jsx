@@ -14,12 +14,10 @@ const Products = () => {
     maxPrice: ''
   });
 
-  // 🔥 CARGAR PRODUCTOS AL INICIAR
   useEffect(() => {
     loadProducts();
   }, []);
 
-  // 🔥 APLICAR FILTROS LOCALES cuando cambien los filtros O los productos
   useEffect(() => {
     applyLocalFilters();
   }, [filters, products]);
@@ -30,7 +28,7 @@ const Products = () => {
     console.log('🔄 Cargando todos los productos...');
     
     const productsData = await productService.getProducts();
-    console.log('🔍 DEBUG INTERNO - Datos de productService:', {
+    console.log('DEBUG INTERNO - Datos de productService:', {
       length: productsData.length,
       primerProducto: productsData[0] ? {
         name: productsData[0].name,
@@ -57,12 +55,12 @@ const Products = () => {
 
     console.log('🔍 Aplicando filtros:', filters);
 
-    // Filtro por categoría - 🔥 CORRECCIÓN: 'niños' en lugar de 'ninos'
+    // Filtro por categoría 
     if (filters.category) {
       const categoryMap = {
         'hombre': 'hombre',
         'mujer': 'mujer', 
-        'ninos': 'niños' // 🔥 CORREGIDO: el backend usa 'niños'
+        'ninos': 'niños' 
       };
       
       const backendCategory = categoryMap[filters.category] || filters.category;
@@ -70,7 +68,6 @@ const Products = () => {
       result = result.filter(product => 
         product.category?.toLowerCase() === backendCategory.toLowerCase()
       );
-      console.log('🔍 Filtrado por categoría:', backendCategory, 'Resultados:', result.length);
     }
 
     // Filtro por búsqueda
@@ -81,7 +78,6 @@ const Products = () => {
         product.description?.toLowerCase().includes(searchTerm) ||
         product.category?.toLowerCase().includes(searchTerm)
       );
-      console.log('🔍 Filtrado por búsqueda:', searchTerm, 'Resultados:', result.length);
     }
 
     // Filtro por precio mínimo
@@ -90,7 +86,6 @@ const Products = () => {
       result = result.filter(product => 
         product.price >= minPrice
       );
-      console.log('🔍 Filtrado por precio mínimo:', minPrice, 'Resultados:', result.length);
     }
 
     // Filtro por precio máximo
@@ -106,7 +101,7 @@ const Products = () => {
     console.log('✅ Filtros aplicados - Total:', result.length);
   };
 
-  // 🔥 MANEJADOR PARA CAMBIOS DE FILTROS
+  // MANEJADOR PARA CAMBIOS DE FILTROS
   const handleFilterChange = (newFilters) => {
     console.log('🔄 Filtros cambiados:', newFilters);
     setFilters(newFilters);
@@ -127,7 +122,7 @@ const Products = () => {
     <div className="products-page">
       <div className="products-header">
         <h1>Nuestra Colección</h1>
-        <p>Descubre nuestra selección exclusiva de moda</p>
+       
       </div>
 
       <div className="products-layout">

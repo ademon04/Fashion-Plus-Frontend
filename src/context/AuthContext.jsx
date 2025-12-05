@@ -22,14 +22,14 @@ export const AuthProvider = ({ children }) => {
   const restoreSession = async () => {
     const token = localStorage.getItem('token');
 
-    // 👉 Si NO hay token, no se verifica nada (usuarios normales navegan libremente)
+    //  Si NO hay token, no se verifica nada (usuarios normales navegan libremente)
     if (!token) {
       setUser(null);
       setLoading(false);
       return;
     }
 
-    // 👉 Si existe token, verificamos admin
+    //  Si existe token, verificamos admin
     try {
       const userData = await authService.verifyAuth();
       setUser(userData);

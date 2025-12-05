@@ -164,7 +164,6 @@ const ProductManagement = () => {
           <tbody>
             {products && products.length > 0 ? (
               products.map(product => {
-                // 🔥 MANEJO SEGURO basado en datos reales
                 const mainImage = product.images?.[0] || '/images/placeholder-product.jpg';
                 const totalStock = product.sizes?.reduce((sum, size) => sum + (size.stock || 0), 0) || 0;
 

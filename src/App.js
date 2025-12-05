@@ -22,6 +22,7 @@ import OrderManagement from "./pages/admin/OrderManagement";
 import CookieBanner from "./components/UI/CookieBanner";
 import CheckoutSuccess from './pages/CheckoutSuccess';
 import CheckoutFailure from './pages/CheckoutFailure';
+import AboutUs from './context/AboutUs'
 
 
 import "./styles/App.css";
@@ -55,6 +56,10 @@ function App() {
                   <Route path="/admin/ordenes" element={<OrderManagement />} />
                   <Route path="/checkout/success" element={<CheckoutSuccess />} />
                   <Route path="/checkout/failure" element={<CheckoutFailure />} />
+                  <Route path="/aboutUs" element={<AboutUs />} />
+                  <Route path="/aboutUs" element={<AboutUs />} />
+
+
                 </Routes>
               </main>
 

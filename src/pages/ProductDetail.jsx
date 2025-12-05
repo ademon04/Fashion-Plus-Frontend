@@ -13,6 +13,7 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
+  const [autoPlay, setAutoPlay] = useState(false);
 
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/images/placeholder-product.jpg';
@@ -37,30 +38,39 @@ const ProductDetail = () => {
   };
 
   useEffect(() => {
-  const fetchProduct = async () => {
-    try {
-      console.log('🔍 ProductDetail - Iniciando fetch para producto ID:', id);
-      
-      // 🔥 CORRECCIÓN FINAL: Solo /products/ porque baseURL ya incluye /api
-      const res = await api.get(`/products/${id}`);
-      console.log('🔍 ProductDetail - Respuesta completa de la API:', res);
-      
-      // 🔥 CORRECCIÓN: Acceder a data.product en lugar de data directamente
-      const productData = res.data.product;
-      console.log('🔍 ProductDetail - Datos del producto:', productData);
-      
-      setProduct(productData);
-      
-    } catch (error) {
-      console.error("Error al obtener producto:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchProduct = async () => {
+      try {
+        console.log('🔍 ProductDetail - Iniciando fetch para producto ID:', id);
+        
+        const res = await api.get(`/products/${id}`);
+        console.log('🔍 ProductDetail - Respuesta completa de la API:', res);
+        
+        const productData = res.data.product;
+        console.log('🔍 ProductDetail - Datos del producto:', productData);
+        
+        setProduct(productData);
+        
+      } catch (error) {
+        console.error("Error al obtener producto:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchProduct();
-}, [id]);
-  // 🔥 CORRECCIÓN 3: Función mejorada para manejar selección de talla
+    fetchProduct();
+  }, [id]);
+
+  // Autoplay para el carrusel
+  useEffect(() => {
+    if (!autoPlay || !product?.images || product.images.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setSelectedImage(prev => (prev + 1) % product.images.length);
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [autoPlay, product?.images]);
+
   const handleSizeSelect = (size) => {
     const sizeData = product.sizes.find(s => s.size === size);
     
@@ -68,7 +78,7 @@ const ProductDetail = () => {
       if (sizeData.stock === 0) {
         setErrorMessage(`Stock insuficiente. Solo hay 0 unidades disponibles en talla ${size}`);
       } else {
-        setErrorMessage(""); // Limpiar mensaje si hay stock
+        setErrorMessage("");
         console.log(`✅ Talla ${size} seleccionada - Stock disponible: ${sizeData.stock}`);
       }
     }
@@ -82,7 +92,6 @@ const ProductDetail = () => {
       return;
     }
 
-    // 🔥 VERIFICACIÓN: Confirmar stock antes de agregar al carrito
     const selectedSizeData = product.sizes.find(size => size.size === selectedSize);
     
     if (!selectedSizeData) {
@@ -106,38 +115,139 @@ const ProductDetail = () => {
   if (loading) return <p>Cargando producto...</p>;
   if (!product) return <p>Producto no encontrado</p>;
 
+  const images = product.images || [];
+  const hasMultipleImages = images.length > 1;
+  const trackId = `thumbnails-${id || 'default'}`;
+
   return (
     <div className="product-detail-container">
+      {/* CARRUSEL DE IMÁGENES */}
       <div className="product-detail-images">
-        <div className="main-image">
-          <img
-            src={getImageUrl(product.images?.[selectedImage])}
-            alt={product.name}
-            onError={(e) => {
-              e.target.src = '/images/placeholder-product.jpg';
-            }}
-          />
-          {product.onSale && <span className="sale-badge">OFERTA</span>}
+        <div className="main-image-container">
+          <div className="main-image-wrapper">
+            <img
+              src={getImageUrl(images[selectedImage])}
+              alt={product.name}
+              className="main-product-image"
+              onError={(e) => {
+                e.target.src = '/images/placeholder-product.jpg';
+              }}
+            />
+            {product.onSale && <span className="sale-badge">OFERTA</span>}
+            
+            {/* Controles de navegación */}
+            {hasMultipleImages && (
+              <>
+                <button 
+                  className="carousel-nav-btn prev-btn"
+                  onClick={() => setSelectedImage((prev) => 
+                    prev === 0 ? images.length - 1 : prev - 1
+                  )}
+                  aria-label="Imagen anterior"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                
+                <button 
+                  className="carousel-nav-btn next-btn"
+                  onClick={() => setSelectedImage((prev) => 
+                    prev === images.length - 1 ? 0 : prev + 1
+                  )}
+                  aria-label="Siguiente imagen"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </>
+            )}
+          </div>
+          
+          {/* Indicadores de posición */}
+          {hasMultipleImages && (
+            <div className="carousel-indicators">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  className={`indicator-dot ${selectedImage === index ? 'active' : ''}`}
+                  onClick={() => setSelectedImage(index)}
+                  aria-label={`Ver imagen ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
+          
+          {/* Controles de autoplay (opcional) */}
+          {hasMultipleImages && (
+            <div className="carousel-controls">
+              <button 
+                className={`autoplay-btn ${autoPlay ? 'active' : ''}`}
+                onClick={() => setAutoPlay(!autoPlay)}
+                title={autoPlay ? "Desactivar autoplay" : "Activar autoplay"}
+              >
+                {autoPlay ? "⏸️" : "▶️"}
+              </button>
+              <span className="image-counter">
+                {selectedImage + 1} / {images.length}
+              </span>
+            </div>
+          )}
         </div>
 
-        {product.images && product.images.length > 1 && (
-          <div className="image-thumbnails">
-            {product.images.map((image, index) => (
-              <img
-                key={index}
-                src={getImageUrl(image)}
-                alt={`${product.name} ${index + 1}`}
-                className={selectedImage === index ? 'active' : ''}
-                onClick={() => setSelectedImage(index)}
-                onError={(e) => {
-                  e.target.src = '/images/placeholder-product.jpg';
-                }}
-              />
-            ))}
+        {/* Miniaturas */}
+        {hasMultipleImages && (
+          <div className="thumbnails-carousel-container">
+            <div className="thumbnails-track" id={trackId}>
+              {images.map((image, index) => (
+                <div
+                  key={index}
+                  className={`thumbnail-item ${selectedImage === index ? 'active' : ''}`}
+                  onClick={() => setSelectedImage(index)}
+                >
+                  <img
+                    src={getImageUrl(image)}
+                    alt={`${product.name} vista ${index + 1}`}
+                    className="thumbnail-image"
+                    onError={(e) => {
+                      e.target.src = '/images/placeholder-product.jpg';
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+            
+            {/* Botones de scroll para muchas miniaturas */}
+            {images.length > 4 && (
+              <>
+                <button 
+                  className="thumb-scroll-btn left-scroll"
+                  onClick={() => {
+                    const track = document.getElementById(trackId);
+                    track.scrollBy({ left: -150, behavior: 'smooth' });
+                  }}
+                  aria-label="Desplazar miniaturas izquierda"
+                >
+                  ‹
+                </button>
+                <button 
+                  className="thumb-scroll-btn right-scroll"
+                  onClick={() => {
+                    const track = document.getElementById(trackId);
+                    track.scrollBy({ left: 150, behavior: 'smooth' });
+                  }}
+                  aria-label="Desplazar miniaturas derecha"
+                >
+                  ›
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>
 
+      {/* INFORMACIÓN DEL PRODUCTO */}
       <div className="product-detail-info">
         <h1>{product.name}</h1>
         <p className="category">{product.category} / {product.subcategory}</p>

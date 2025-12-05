@@ -54,6 +54,7 @@ const ProductFilters = ({ onFilterChange }) => {
         ) : (
           <>
             <span className="hamburger-icon">☰</span>
+            
             <span className="btn-text">Filtrar</span>
           </>
         )}

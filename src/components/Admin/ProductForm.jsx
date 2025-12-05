@@ -15,12 +15,7 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
   ];
 
   const shoeSizes = [
-    { size: '22', stock: 0 },
-    { size: '22.5', stock: 0 },
-    { size: '23', stock: 0 },
-    { size: '23.5', stock: 0 },
-    { size: '24', stock: 0 },
-    { size: '24.5', stock: 0 },
+   
     { size: '25', stock: 0 },
     { size: '25.5', stock: 0 },
     { size: '26', stock: 0 },
@@ -46,7 +41,7 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     category: '',
     subcategory: '',
     images: [],
-    sizes: clothingSizes, // Por defecto tallas de ropa
+    sizes: clothingSizes, 
     onSale: false,
     featured: false
   });
