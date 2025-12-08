@@ -142,55 +142,171 @@
     font-size: 1.75rem;
   }
 }
+/* ============================================= */
+/* RESPONSIVE - MÓVILES */
+/* ============================================= */
 
-/* Móviles muy pequeños (menos de 400px) */
-@media (max-width: 400px) {
-  .hamburger-btn {
-    bottom: 25px;
-    right: 15px;
-    width: 55px;
-    height: 55px;
+/* Tablets (768px o menos) */
+@media (max-width: 768px) {
+  /* Sidebar header - reorganizar en columna */
+  .sidebar-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    position: relative;
+    padding-right: 45px; /* Espacio para el botón de cerrar */
   }
-
-  .filters-sidebar {
-    padding: 1rem;
-    max-width: 100%;
-  }
-
+  
   .sidebar-header h3 {
-    font-size: 1.3rem;
+    width: 100%;
+    margin: 0;
   }
-
-  .filter-section h4 {
-    font-size: 1rem;
-  }
-
-  .category-btn {
-    padding: 0.85rem;
-    font-size: 0.95rem;
-  }
-
-  .filter-input, .price-input {
-    padding: 0.85rem;
-    font-size: 0.95rem;
+  
+  .sidebar-header .close-sidebar-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
   }
 }
 
-/* ============================================= */
-/* ORIENTACIÓN HORIZONTAL EN MÓVILES */
-/* ============================================= */
-@media (max-width: 768px) and (orientation: landscape) {
-  .filters-sidebar {
-    max-height: 80vh;
-    top: 10vh;
-    border-radius: 15px 0 0 15px;
-  }
-
+/* Móviles grandes (600px o menos) */
+@media (max-width: 600px) {
   .hamburger-btn {
-    bottom: 15px;
+    position: fixed;
+    bottom: 25px;
+    right: 20px;
+    z-index: 999;
+    margin-bottom: 0;
+  }
+  
+  .hamburger-btn .btn-text {
+    display: none; /* Oculta texto en móviles */
+  }
+  
+  .hamburger-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .hamburger-icon, .close-icon {
+    font-size: 1.5rem;
+    margin: 0;
+  }
+}
+
+/* Móviles medianos (480px o menos) */
+@media (max-width: 480px) {
+  .hamburger-btn {
+    bottom: 20px;
     right: 15px;
     width: 55px;
     height: 55px;
+  }
+  
+  .sidebar-header h3 {
+    font-size: 1.2rem;
+  }
+  
+  .filter-section h4 {
+    font-size: 1rem;
+  }
+}
+
+/* Móviles pequeños (400px o menos) - REEMPLAZA TU SECCIÓN ACTUAL */
+@media (max-width: 400px) {
+  .hamburger-btn {
+    bottom: 15px;
+    right: 10px;
+    width: 50px;
+    height: 50px;
+  }
+  
+  .filters-sidebar {
+    padding: 0.8rem;
+    max-width: 100%;
+  }
+  
+  .sidebar-header {
+    padding-right: 40px;
+    margin-bottom: 1.2rem;
+  }
+  
+  .sidebar-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .sidebar-header .close-sidebar-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+  }
+  
+  .filter-section h4 {
+    font-size: 0.95rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .category-btn {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+  }
+  
+  .filter-input, .price-input {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+  }
+  
+  .clear-filters-btn {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Móviles muy pequeños (350px o menos) */
+@media (max-width: 350px) {
+  .hamburger-btn {
+    width: 45px;
+    height: 45px;
+    bottom: 10px;
+    right: 10px;
+  }
+  
+  .hamburger-icon, .close-icon {
+    font-size: 1.3rem;
+  }
+  
+  .filters-sidebar {
+    padding: 0.7rem;
+  }
+  
+  .sidebar-header {
+    padding-right: 35px;
+  }
+  
+  .sidebar-header h3 {
+    font-size: 1rem;
+  }
+  
+  .sidebar-header .close-sidebar-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+  
+  .category-btn {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+  
+  .filter-input, .price-input {
+    padding: 0.6rem;
+    font-size: 0.85rem;
   }
 }
 

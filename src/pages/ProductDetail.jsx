@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // 🔥 useNavigate está aquí
 import { api } from "../services/api";
 import SizeSelector from "../components/Product/SizeSelector";
 import ProductImageCarousel from "../components/Product/ProductImageCarousel";
@@ -8,6 +8,7 @@ import "../styles/ProductDetail.css";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate(); // 🔥 DECLARACIÓN CORRECTA
   const { addToCart } = useCart();
 
   const [product, setProduct] = useState(null);
@@ -15,22 +16,23 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // FUNCIÓN PARA OBTENER URLS DE IMÁGENES
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return '/images/placeholder-product.jpg';
+    if (imagePath.startsWith('http')) return imagePath;
+    if (imagePath.startsWith('/uploads')) {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
+      return `${backendUrl}${imagePath}`;
+    }
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
+    return `${backendUrl}/uploads/${imagePath}`;
+  };
+
   const getImageUrls = () => {
     if (!product || !product.images || product.images.length === 0) {
       return ['/images/placeholder-product.jpg'];
     }
     
-    return product.images.map(image => {
-      if (!image) return '/images/placeholder-product.jpg';
-      if (image.startsWith('http')) return image;
-      if (image.startsWith('/uploads')) {
-        const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
-        return `${backendUrl}${image}`;
-      }
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
-      return `${backendUrl}/uploads/${image}`;
-    });
+    return product.images.map(image => getImageUrl(image));
   };
 
   const formatPrice = (price) => {
@@ -47,8 +49,12 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
+        console.log('🔍 ProductDetail - Iniciando fetch para producto ID:', id);
         const res = await api.get(`/products/${id}`);
-        setProduct(res.data.product);
+        console.log('🔍 ProductDetail - Respuesta completa de la API:', res);
+        const productData = res.data.product;
+        console.log('🔍 ProductDetail - Datos del producto:', productData);
+        setProduct(productData);
       } catch (error) {
         console.error("Error al obtener producto:", error);
       } finally {
@@ -69,6 +75,7 @@ const ProductDetail = () => {
         setErrorMessage(`Stock insuficiente. Solo hay 0 unidades disponibles en talla ${size}`);
       } else {
         setErrorMessage("");
+        console.log(`✅ Talla ${size} seleccionada - Stock disponible: ${sizeData.stock}`);
       }
     }
     
@@ -101,27 +108,37 @@ const ProductDetail = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Cargando producto...</p>
-      </div>
-    );
-  }
-  
-  if (!product) {
-    return (
-      <div className="not-found-container">
-        <h2>Producto no encontrado</h2>
-        <p>El producto que buscas no existe o ha sido eliminado.</p>
-      </div>
-    );
-  }
+  if (loading) return <p>Cargando producto...</p>;
+  if (!product) return <p>Producto no encontrado</p>;
 
   return (
     <div className="product-detail-container">
-      {/* SECCIÓN DEL CARRUSEL - ASÍ DE SIMPLE */}
+      
+      {/* Botón flotante de volver */}
+      <button 
+      onClick={() => navigate(-1)}
+      style={{
+        position: 'absolute',
+        top: '45px',
+        left: '15px',
+        width: '40px',
+        height: '40px',
+        borderRadius: '50%',
+        background: 'rgba(255, 255, 255, 0.9)',
+        border: '1px solid rgba(0, 0, 0, 0.1)',
+        cursor: 'pointer',
+        zIndex: 20,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '18px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+      }}
+      title="Volver"
+    >
+      ←
+    </button>
+
       <div className="product-image-section">
         <ProductImageCarousel
           images={getImageUrls()}
@@ -130,7 +147,6 @@ const ProductDetail = () => {
         />
       </div>
 
-      {/* SECCIÓN DE INFORMACIÓN */}
       <div className="product-detail-info">
         <h1>{product.name}</h1>
         <p className="category">{product.category} / {product.subcategory}</p>
@@ -169,5 +185,3 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
-
-

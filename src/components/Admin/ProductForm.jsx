@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 const ProductForm = ({ product, onSubmit, onCancel }) => {
-
   // Definir tallas para ropa y para tenis
   const clothingSizes = [
     { size: 'XS', stock: 0 },
@@ -11,11 +10,9 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     { size: 'XL', stock: 0 },
     { size: 'XXL', stock: 0 },
     { size: 'XXXL', stock: 0 },
-
   ];
 
   const shoeSizes = [
-   
     { size: '25', stock: 0 },
     { size: '25.5', stock: 0 },
     { size: '26', stock: 0 },
@@ -41,7 +38,7 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     category: '',
     subcategory: '',
     images: [],
-    sizes: clothingSizes, 
+    sizes: clothingSizes,
     onSale: false,
     featured: false
   });
@@ -49,13 +46,11 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
   // Efecto para cambiar las tallas cuando cambia la subcategoría
   useEffect(() => {
     if (formData.subcategory === 'tenis') {
-      // Si es tenis, usar tallas de calzado
       setFormData(prev => ({
         ...prev,
         sizes: shoeSizes
       }));
     } else {
-      // Para otras subcategorías, usar tallas de ropa
       setFormData(prev => ({
         ...prev,
         sizes: clothingSizes
@@ -63,33 +58,23 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     }
   }, [formData.subcategory]);
 
-  // LOG DE SUBCATEGORY
-  useEffect(() => {
-    console.log("🎯 Subcategory seleccionada:", `"${formData.subcategory}"`, {
-      raw: formData.subcategory,
-      length: formData.subcategory.length
-    });
-  }, [formData.subcategory]);
-
   // Cargar datos si estamos editando
   useEffect(() => {
     if (product) {
-      console.log("📌 CARGANDO PRODUCTO PARA EDITAR:", product);
-
-      // Determinar qué tallas usar basado en la subcategoría del producto
       const initialSizes = product.subcategory === 'tenis' ? shoeSizes : clothingSizes;
 
+      // IMPORTANTE: No aplicar trim aquí a name y description
       setFormData({
         name: product.name || '',
         description: product.description || '',
         price: product.price || '',
         originalPrice: product.originalPrice || '',
         category: product.category || '',
-        subcategory: product.subcategory?.trim() || '',
+        subcategory: product.subcategory || '',
         images: product.images || [],
-        sizes: product.sizes?.map(s => ({ 
-          size: s.size, 
-          stock: s.stock 
+        sizes: product.sizes?.map(s => ({
+          size: s.size,
+          stock: s.stock
         })) || initialSizes,
         onSale: product.onSale || false,
         featured: product.featured || false
@@ -98,25 +83,23 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
   }, [product]);
 
   /* ------------------------------
-        HANDLERS
+        HANDLERS CORREGIDOS
   ------------------------------ */
 
   const handleChange = e => {
     const { name, value, type, checked } = e.target;
 
-    // trim ALWAYS (evita espacios ocultos)
-    const finalValue = typeof value === "string" ? value.trim() : value;
+    // NUNCA aplicar trim durante la edición - permite espacios en todos los campos
+    const finalValue = type === "checkbox" ? checked : value;
 
     setFormData(prev => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : finalValue
+      [name]: finalValue
     }));
   };
 
   const handleLocalImage = e => {
     const files = Array.from(e.target.files);
-    console.log("📸 IMÁGENES CARGADAS:", files);
-
     setFormData(prev => ({
       ...prev,
       images: [...prev.images, ...files]
@@ -126,20 +109,15 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
   const handleSizeChange = (index, value) => {
     const newSizes = [...formData.sizes];
     newSizes[index].stock = parseInt(value) || 0;
-
-    console.log("📦 CAMBIO EN INVENTARIO:", newSizes);
-
     setFormData(prev => ({ ...prev, sizes: newSizes }));
   };
 
   /* ------------------------------
         ENVIAR FORMULARIO
   ------------------------------ */
-
- const handleSubmit = e => {
+const handleSubmit = e => {
   e.preventDefault();
 
-  // Validaciones básicas
   if (!formData.category || !formData.subcategory || !formData.price) {
     alert("Debes completar todos los campos obligatorios");
     return;
@@ -147,13 +125,14 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
 
   const fd = new FormData();
 
-  // TODOS los campos como string primero
+  // SIN .trim() - mantiene espacios incluso al enviar
   fd.append("name", String(formData.name || ""));
   fd.append("description", String(formData.description || ""));
   fd.append("price", String(formData.price || "0"));
   fd.append("originalPrice", String(formData.originalPrice || "0"));
-  fd.append("category", String(formData.category || ""));
-  fd.append("subcategory", String(formData.subcategory || ""));
+  // Solo categoría y subcategoría con trim (son selects)
+  fd.append("category", String(formData.category || "").trim());
+  fd.append("subcategory", String(formData.subcategory || "").trim());
   fd.append("onSale", String(formData.onSale));
   fd.append("featured", String(formData.featured));
   fd.append("sizes", JSON.stringify(formData.sizes));
@@ -164,27 +143,20 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     }
   });
 
-  console.log("📦 FORM DATA FINAL:");
-  for (let pair of fd.entries()) {
-    console.log("➡️", pair[0], ":", pair[1]);
-  }
-
   onSubmit(fd);
 };
-
   // Función para obtener el texto descriptivo de las tallas
   const getSizeDescription = () => {
     if (formData.subcategory === 'tenis') {
-      return "Tallas de Calzado (22-32)";
+      return "Tallas de Calzado (25-32)";
     }
-    return "Tallas de Ropa (XS-XXL)";
+    return "Tallas de Ropa (XS-XXXL)";
   };
 
   return (
     <div className="product-form-container">
-      {/* ✅ NUEVO: Botón de cerrar con tache */}
-      <button 
-        type="button" 
+      <button
+        type="button"
         className="close-button"
         onClick={onCancel}
         aria-label="Cerrar formulario"
@@ -193,27 +165,55 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
       </button>
 
       <form onSubmit={handleSubmit} className="product-form">
-
         <div className="form-group">
           <label>Nombre del Producto</label>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Ej: Camiseta de algodón premium"
+            required
+          />
         </div>
 
         <div className="form-group">
           <label>Descripción</label>
-          <textarea name="description" value={formData.description} onChange={handleChange} rows="4" />
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            rows="4"
+            placeholder="Describe el producto con detalles..."
+          />
         </div>
 
         <div className="form-row">
-
           <div className="form-group">
             <label>Precio</label>
-            <input type="number" name="price" value={formData.price} onChange={handleChange} min="0" step="0.01" required />
+            <input
+              type="number"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              required
+            />
           </div>
 
           <div className="form-group">
             <label>Precio Original</label>
-            <input type="number" name="originalPrice" value={formData.originalPrice} onChange={handleChange} min="0" step="0.01" />
+            <input
+              type="number"
+              name="originalPrice"
+              value={formData.originalPrice}
+              onChange={handleChange}
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+            />
           </div>
 
           <div className="form-group">
@@ -245,12 +245,21 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
               <option value="ropa-niños">Ropa Niños</option>
             </select>
           </div>
-
         </div>
 
         <div className="form-group">
           <label>Imágenes</label>
-          <input type="file" accept="image/*" multiple onChange={handleLocalImage} />
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleLocalImage}
+          />
+          {formData.images.length > 0 && (
+            <div className="image-preview">
+              <small>{formData.images.length} imagen(es) seleccionada(s)</small>
+            </div>
+          )}
         </div>
 
         <div className="form-group">
@@ -267,6 +276,7 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
                   value={size.stock}
                   min="0"
                   onChange={e => handleSizeChange(index, e.target.value)}
+                  placeholder="0"
                 />
               </div>
             ))}
@@ -276,14 +286,24 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
         <div className="form-checkboxes">
           <div className="form-group checkbox-group">
             <label>
-              <input type="checkbox" name="onSale" checked={formData.onSale} onChange={handleChange} />
+              <input
+                type="checkbox"
+                name="onSale"
+                checked={formData.onSale}
+                onChange={handleChange}
+              />
               Producto en oferta
             </label>
           </div>
 
           <div className="form-group checkbox-group">
             <label>
-              <input type="checkbox" name="featured" checked={formData.featured} onChange={handleChange} />
+              <input
+                type="checkbox"
+                name="featured"
+                checked={formData.featured}
+                onChange={handleChange}
+              />
               ⭐ Producto Destacado (aparecerá en la página principal)
             </label>
           </div>
@@ -298,7 +318,6 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
             Cancelar
           </button>
         </div>
-
       </form>
     </div>
   );
