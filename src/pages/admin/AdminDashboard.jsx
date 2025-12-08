@@ -23,13 +23,11 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       
-      // Obtener datos reales de la API
       const [orders, products] = await Promise.all([
-        orderService.getOrders({ limit: 100 }), // Más órdenes para calcular stats
+        orderService.getOrders({ limit: 100 }),
         productService.getProducts()
       ]);
 
-      // Calcular estadísticas reales
       const totalOrders = orders?.length || 0;
       const paidOrders = orders?.filter(order => 
         order.paymentStatus === 'approved' || order.status === 'paid'
@@ -49,16 +47,14 @@ const AdminDashboard = () => {
         paidOrders
       });
 
-      // Órdenes más recientes (últimas 5)
-      const sortedOrders = orders?.sort((a, b) => 
-        new Date(b.createdAt) - new Date(a.createdAt)
-      ).slice(0, 5) || [];
+      const sortedOrders = orders
+        ?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5) || [];
       
       setRecentOrders(sortedOrders);
 
     } catch (error) {
       console.error('Error loading dashboard data:', error);
-      // Mantener datos de ejemplo en caso de error
       setStats({
         totalOrders: 150,
         totalProducts: 45,
@@ -72,17 +68,15 @@ const AdminDashboard = () => {
     }
   };
 
-  // Función para formatear dirección
   const formatAddress = (shippingAddress) => {
     if (!shippingAddress || !shippingAddress.street) {
       return 'Dirección no proporcionada';
     }
     
-    const { street, city, state } = shippingAddress;
+    const { street, city } = shippingAddress;
     return `${street}, ${city}`;
   };
 
-  // Función para obtener badge de estado de pago
   const getPaymentStatusBadge = (paymentStatus, status) => {
     if (paymentStatus === 'approved' || status === 'paid') {
       return <span className="payment-status paid">✅ Pagado</span>;
@@ -93,7 +87,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Función para obtener método de pago
   const getPaymentMethod = (paymentMethod) => {
     const methods = {
       stripe: '💳 Stripe',
@@ -109,57 +102,67 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
+
+      {/* 🔥 Estilos para la foto (incluidos aquí mismo) */}
+      <style>
+        {`
+          .order-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+          }
+
+          .order-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        `}
+      </style>
+
       <div className="dashboard-header">
         <h1>Dashboard Administrativo</h1>
         <p>Resumen general del negocio</p>
       </div>
 
       <div className="stats-grid">
-        <StatsCard
-          title="Órdenes Totales"
-          value={stats.totalOrders}
-          icon="📦"
-          description="Total de órdenes recibidas"
-        />
-        <StatsCard
-          title="Productos"
-          value={stats.totalProducts}
-          icon="👕"
-          description="Productos en inventario"
-        />
-        <StatsCard
-          title="Órdenes Pagadas"
-          value={stats.paidOrders}
-          icon="✅"
-          description="Órdenes con pago confirmado"
-        />
-        <StatsCard
-          title="Ingresos Totales"
-          value={`$${stats.totalRevenue.toFixed(2)}`}
-          icon="💰"
-          description="Ingresos por órdenes pagadas"
-        />
+        <StatsCard title="Órdenes Totales" value={stats.totalOrders} icon="📦" description="Total de órdenes recibidas" />
+        <StatsCard title="Productos" value={stats.totalProducts} icon="👕" description="Productos en inventario" />
+        <StatsCard title="Órdenes Pagadas" value={stats.paidOrders} icon="✅" description="Órdenes con pago confirmado" />
+        <StatsCard title="Ingresos Totales" value={`$${stats.totalRevenue.toFixed(2)}`} icon="💰" description="Ingresos por órdenes pagadas" />
       </div>
 
       <div className="dashboard-content">
         <div className="recent-orders">
           <div className="section-header">
             <h2>Órdenes Recientes</h2>
-            <Link to="/admin/ordenes" className="btn-link">
-              Ver todas
-            </Link>
+            <Link to="/admin/ordenes" className="btn-link">Ver todas</Link>
           </div>
+
           <div className="orders-list">
             {recentOrders.length > 0 ? (
               recentOrders.map(order => (
                 <div key={order._id} className="order-card">
+
+                  {/* 🔥 FOTO DEL PRODUCTO */}
+                  {order?.items?.[0]?.images?.[0] && (
+                    <div className="order-image">
+                      <img 
+                        src={order.items[0].images[0]} 
+                        alt={order.items[0].name} 
+                      />
+                    </div>
+                  )}
+
                   <div className="order-header">
                     <span className="order-id">
                       #{order.orderNumber || order._id?.slice(-6)}
                     </span>
                     {getPaymentStatusBadge(order.paymentStatus, order.status)}
                   </div>
-                  
+
                   <div className="order-customer">
                     <div className="customer-name">{order.customer?.name}</div>
                     <div className="customer-email">{order.customer?.email}</div>
@@ -167,25 +170,18 @@ const AdminDashboard = () => {
                       <div className="customer-phone">{order.customer.phone}</div>
                     )}
                   </div>
-                  
+
                   <div className="order-details">
                     <div className="order-total">${order.total?.toFixed(2)}</div>
                     <div className="order-method">
                       {getPaymentMethod(order.paymentMethod)}
                     </div>
                   </div>
-                  
+
                   <div className="shipping-info">
-                    <div className="shipping-address">
-                      <strong>Envío:</strong> {formatAddress(order.shippingAddress)}
-                    </div>
-                    {order.trackingNumber && (
-                      <div className="tracking-info">
-                        📦 Seguimiento: {order.trackingNumber}
-                      </div>
-                    )}
+                    <strong>Envío:</strong> {formatAddress(order.shippingAddress)}
                   </div>
-                  
+
                   <div className="order-footer">
                     <span className={`order-status ${order.status}`}>
                       {order.status === 'paid' ? '✅ Pagado' :
@@ -199,6 +195,7 @@ const AdminDashboard = () => {
                       {new Date(order.createdAt).toLocaleDateString()}
                     </span>
                   </div>
+
                 </div>
               ))
             ) : (
@@ -212,17 +209,12 @@ const AdminDashboard = () => {
         <div className="quick-actions">
           <h2>Acciones Rápidas</h2>
           <div className="action-buttons">
-            <Link to="/admin/productos" className="btn-primary">
-              Gestionar Productos
-            </Link>
-            <Link to="/admin/ordenes" className="btn-secondary">
-              Ver Todas las Órdenes
-            </Link>
-            <Link to="/admin/ordenes?paymentStatus=approved" className="btn-tertiary">
-              Ver Órdenes Pagadas
-            </Link>
+            <Link to="/admin/productos" className="btn-primary">Gestionar Productos</Link>
+            <Link to="/admin/ordenes" className="btn-secondary">Ver Todas las Órdenes</Link>
+            <Link to="/admin/ordenes?paymentStatus=approved" className="btn-tertiary">Ver Órdenes Pagadas</Link>
           </div>
         </div>
+
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ const Home = () => {
       try {
         setLoading(true);
         const products = await getFeaturedProducts();
-            console.log('🔍 DEBUG HOME - Featured products:', products[0]?.images);
+        console.log('🔍 DEBUG HOME - Featured products:', products[0]?.images);
 
         setFeaturedProducts(products);
         setError(null);
@@ -76,6 +76,7 @@ const Home = () => {
                 <ProductCard 
                   key={product._id} 
                   product={product} 
+                  fromPage="home"
                 />
               ))}
             </div>

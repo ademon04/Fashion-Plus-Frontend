@@ -28,6 +28,9 @@ import AboutUs from './context/AboutUs'
 import "./styles/App.css";
 import "./styles/components.css";
 import "./styles/responsive.css";
+import "./styles/ProductDetail.css";
+import "./styles/ProductImageCarousel.css";
+
 
 function App() {
   return (

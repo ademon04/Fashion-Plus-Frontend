@@ -1,7 +1,11 @@
 import React from 'react';
 
 const OrderTable = ({ orders, onStatusUpdate }) => {
-  // Función para obtener badge de estado de orden
+
+  // DEBUG → Ver cómo llegan los productos realmente
+  console.log("🟦 ITEMS RECIBIDOS EN ORDERS:", orders?.[0]?.items);
+
+  // Badge estado orden
   const getStatusBadge = (status) => {
     const statusColors = {
       pending: 'status-pending',
@@ -12,7 +16,7 @@ const OrderTable = ({ orders, onStatusUpdate }) => {
       shipped: 'status-processing',
       delivered: 'status-completed'
     };
-    
+
     const statusLabels = {
       pending: 'Pendiente',
       completed: 'Completado',
@@ -23,12 +27,14 @@ const OrderTable = ({ orders, onStatusUpdate }) => {
       delivered: 'Entregado'
     };
 
-    return <span className={`status-badge ${statusColors[status] || 'status-pending'}`}>
-      {statusLabels[status] || status}
-    </span>;
+    return (
+      <span className={`status-badge ${statusColors[status] || 'status-pending'}`}>
+        {statusLabels[status] || status}
+      </span>
+    );
   };
 
-  // Función para obtener badge de estado de pago
+  // Badge estado pago
   const getPaymentStatusBadge = (paymentStatus) => {
     const paymentColors = {
       approved: 'status-completed',
@@ -36,7 +42,7 @@ const OrderTable = ({ orders, onStatusUpdate }) => {
       rejected: 'status-cancelled',
       refunded: 'status-cancelled'
     };
-    
+
     const paymentLabels = {
       approved: 'Pagado',
       pending: 'Pendiente',
@@ -44,39 +50,32 @@ const OrderTable = ({ orders, onStatusUpdate }) => {
       refunded: 'Reembolsado'
     };
 
-    return <span className={`status-badge ${paymentColors[paymentStatus] || 'status-pending'}`}>
-      {paymentLabels[paymentStatus] || paymentStatus}
-    </span>;
+    return (
+      <span className={`status-badge ${paymentColors[paymentStatus] || 'status-pending'}`}>
+        {paymentLabels[paymentStatus] || paymentStatus}
+      </span>
+    );
   };
 
-// Función para formatear dirección - VERSIÓN CORREGIDA
-const formatAddress = (shippingAddress) => {
-  if (!shippingAddress || Object.keys(shippingAddress).length === 0) {
-    return 'Dirección no proporcionada';
-  }
-  
-  const { street, city, state, zipCode, country } = shippingAddress;
-  
-  // Verificar si solo tiene país
-  const hasOnlyCountry = country && !street && !city && !state && !zipCode;
-  
-  if (hasOnlyCountry) {
-    return `📍 ${country} (Faltan: calle, ciudad, estado, CP)`;
-  }
-  
-  // Si tiene más datos
-  const parts = [];
-  if (street) parts.push(street);
-  if (city) parts.push(city);
-  if (state) parts.push(state);
-  if (zipCode) parts.push(`CP: ${zipCode}`);
-  if (country) parts.push(country);
-  
-  return parts.length > 0 ? parts.join(', ') : 'Dirección incompleta';
-};
+  // Dirección
+  const formatAddress = (shippingAddress) => {
+    if (!shippingAddress || Object.keys(shippingAddress).length === 0) {
+      return 'Dirección no proporcionada';
+    }
 
+    const { street, city, state, zipCode, country } = shippingAddress;
+    const parts = [];
 
-  // Función para mostrar método de pago
+    if (street) parts.push(street);
+    if (city) parts.push(city);
+    if (state) parts.push(state);
+    if (zipCode) parts.push(`CP: ${zipCode}`);
+    if (country) parts.push(country);
+
+    return parts.length > 0 ? parts.join(', ') : 'Dirección incompleta';
+  };
+
+  // Método pago
   const getPaymentMethod = (paymentMethod) => {
     const methods = {
       stripe: '💳 Stripe',
@@ -86,6 +85,7 @@ const formatAddress = (shippingAddress) => {
     return methods[paymentMethod] || paymentMethod;
   };
 
+  // Cambio de status
   const handleStatusChange = async (orderId, newStatus) => {
     if (onStatusUpdate) {
       await onStatusUpdate(orderId, newStatus);
@@ -108,7 +108,7 @@ const formatAddress = (shippingAddress) => {
               <th>Método Pago</th>
               <th>Estado Pago</th>
               <th>Estado Orden</th>
-              <th>Envio/Dirección</th>
+              <th>Envío/Dirección</th>
               <th>Fecha</th>
               <th>Acciones</th>
               <th>Productos</th>
@@ -117,9 +117,13 @@ const formatAddress = (shippingAddress) => {
           <tbody>
             {orders.map(order => (
               <tr key={order._id}>
+                
+                {/* ID */}
                 <td className="order-id">
                   #{order.orderNumber || order._id?.slice(-6)}
                 </td>
+
+                {/* CLIENTE */}
                 <td className="customer-info">
                   <div className="customer-name">{order.customer?.name}</div>
                   <div className="customer-email">{order.customer?.email}</div>
@@ -127,61 +131,86 @@ const formatAddress = (shippingAddress) => {
                     {order.customer?.phone || 'Sin teléfono'}
                   </div>
                 </td>
+
+                {/* PRODUCTOS (CON IMAGEN) */}
                 <td className="order-products">
-  {order.items && order.items.length > 0 ? (
-    <div className="product-items">
-      {order.items.map((item, idx) => (
-        <div key={idx} className="product-item">
-          <div className="product-name">{item.productName}</div>
-          <div className="product-details">
-            <span className="product-size">Talla: {item.size}</span>
-            <span className="product-quantity"> ×{item.quantity}</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  ) : (
-    <div className="no-products">Sin productos</div>
-  )}
-</td>
+                  {order.items && order.items.length > 0 ? (
+                    <div className="product-items">
+                      {order.items.map((item, idx) => {
+
+                        // ←–––––––––––––––––– MOSTRAR IMAGEN LÓGICA REAL ––––––––––––––––––→
+                        const backend = "https://fashion-plus-production.up.railway.app";
+
+                        let finalImage =
+                          item.imageUrl ? backend + item.imageUrl :
+                          item.images?.[0] ? backend + item.images[0] :
+                          "/images/placeholder-product.jpg";
+
+                        return (
+                          <div key={idx} className="product-item">
+                            <img
+                              src={finalImage}
+                              alt={item.productName}
+                              className="product-image"
+                              style={{
+                                width: '50px',
+                                height: '50px',
+                                objectFit: 'cover',
+                                borderRadius: '6px',
+                                marginRight: '8px'
+                              }}
+                            />
+
+                            <div className="product-info">
+                              <div className="product-name">{item.productName}</div>
+                              <div className="product-details">
+                                <span className="product-size">Talla: {item.size}</span>
+                                <span className="product-quantity"> ×{item.quantity}</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="no-products">Sin productos</div>
+                  )}
+                </td>
+
+                {/* TOTAL */}
                 <td className="order-total">
                   ${order.total?.toFixed(2)}
                 </td>
+
+                {/* MÉTODO PAGO */}
                 <td className="payment-method">
                   {getPaymentMethod(order.paymentMethod)}
                 </td>
+
+                {/* ESTADO PAGO */}
                 <td className="payment-status">
                   {getPaymentStatusBadge(order.paymentStatus)}
                 </td>
+
+                {/* ESTADO ORDEN */}
                 <td className="order-status">
                   {getStatusBadge(order.status)}
                 </td>
-                <td className="shipping-address" title={order.items?.map(item => 
-  `${item.productName} - ${item.size} x${item.quantity}`
-).join('\n') || 'Sin productos'}>
-  <div className="address-text">
-    {formatAddress(order.shippingAddress)}
-  </div>
-  {order.items && order.items.length > 0 && (
-    <div className="product-summary">
-      📦 {order.items.length} producto{order.items.length > 1 ? 's' : ''}
-      {order.items.slice(0, 2).map((item, idx) => (
-        <div key={idx} className="product-tooltip">
-          {item.productName} ({item.size})
-        </div>
-      ))}
-      {order.items.length > 2 && (
-        <div className="more-products">+{order.items.length - 2} más</div>
-      )}
-    </div>
-  )}
+
+                {/* DIRECCIÓN */}
+                <td className="shipping-address">
+                  {formatAddress(order.shippingAddress)}
                 </td>
+
+                {/* FECHA */}
                 <td className="order-date">
                   {new Date(order.createdAt).toLocaleDateString()}
                 </td>
+
+                {/* ACCIONES */}
                 <td className="order-actions">
-                  <select 
-                    value={order.status} 
+                  <select
+                    value={order.status}
                     onChange={(e) => handleStatusChange(order._id, e.target.value)}
                     className="status-select"
                   >
@@ -193,6 +222,7 @@ const formatAddress = (shippingAddress) => {
                     <option value="cancelled">Cancelado</option>
                   </select>
                 </td>
+
               </tr>
             ))}
           </tbody>

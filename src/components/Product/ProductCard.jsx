@@ -1,14 +1,19 @@
-// 📁 frontend/components/Product/ProductCard.jsx - VERSIÓN DEFINITIVA
+// src/components/Product/ProductCard.jsx - VERSIÓN COMPLETA
 import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import SizeSelector from './SizeSelector';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, fromPage = "home", category = "" }) => {
   const [selectedSize, setSelectedSize] = useState('');
   const [currentImage, setCurrentImage] = useState('');
   const [imageStatus, setImageStatus] = useState('loading');
   const { addToCart } = useCart();
+  const location = useLocation();
 
+  // Si no se especifica fromPage, detectar automáticamente
+  const detectedFromPage = fromPage || (location.pathname === '/' ? 'home' : 'productos');
+  
   useEffect(() => {
     const loadBestImage = async () => {
       if (!product.images || product.images.length === 0) {
@@ -16,53 +21,25 @@ const ProductCard = ({ product }) => {
         return;
       }
 
-      console.log('🔍 PRODUCTO:', product.name);
-      console.log('📸 IMÁGENES RECIBIDAS:', product.images);
-
-      // 🔥 SOLUCIÓN: LAS URLS YA SON VÁLIDAS - USARLAS DIRECTAMENTE
       // Las imágenes YA vienen como URLs completas de Cloudinary que funcionan
       const validUrls = product.images.filter(url => 
         url && url.startsWith('http') && url.includes('cloudinary.com')
       );
 
-      console.log('✅ URLs válidas encontradas:', validUrls);
-
       if (validUrls.length > 0) {
-        // 🔥 USAR LA PRIMERA URL VÁLIDA DIRECTAMENTE
         const imageUrl = validUrls[0];
-        console.log('🔄 Configurando URL directa:', imageUrl);
         setCurrentImage(imageUrl);
         setImageStatus('loading');
         return;
       }
 
-      // 🔥 SOLO si no hay URLs válidas, usar placeholder
-      console.log('❌ No hay URLs válidas, usando fallback');
       setFallback();
     };
 
     loadBestImage();
   }, [product.images, product.name]);
 
-  // 🔥 SOLUCIÓN: Simplificar esta función - NO generar URLs alternativas innecesarias
-  const generateImageUrls = (imagePath) => {
-    // Las URLs ya son correctas desde la API
-    return imagePath && imagePath.startsWith('http') ? [imagePath] : [];
-  };
-
-  const testImageUrl = (url) => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(false);
-      // Timeout de 5 segundos
-      setTimeout(() => resolve(false), 5000);
-      img.src = url;
-    });
-  };
-
   const setFallback = () => {
-    console.log('❌ Todas las imágenes fallaron para:', product.name);
     setImageStatus('error');
     setCurrentImage(generatePlaceholder(product.name));
   };
@@ -75,12 +52,10 @@ const ProductCard = ({ product }) => {
   };
 
   const handleImageError = () => {
-    console.log('❌ Error en tag img');
     setFallback();
   };
 
   const handleImageLoad = () => {
-    console.log('✅ Imagen cargada en navegador');
     setImageStatus('success');
   };
 
@@ -112,30 +87,50 @@ const ProductCard = ({ product }) => {
   return (
     <div className="product-card">
       <div className="product-image-container">
-        {imageStatus === 'loading' && (
-          <div className="image-loading-placeholder">
-            <div className="loading-spinner"></div>
-            <span>Cargando imagen...</span>
-          </div>
-        )}
-        <img 
-          src={currentImage} 
-          alt={product.name} 
-          onError={handleImageError} 
-          onLoad={handleImageLoad} 
-          className="product-image" 
-          style={{ display: imageStatus === 'loading' ? 'none' : 'block' }} 
-        />
-        {imageStatus === 'error' && (
-          <div className="image-fallback">
-            <span>📷 Imagen no disponible</span>
-          </div>
-        )}
+        {/* Link con información de origen */}
+        <Link 
+          to={`/producto/${product._id}`}
+          state={{ 
+            from: detectedFromPage,
+            category: category || product.category?.toLowerCase()
+          }}
+        >
+          {imageStatus === 'loading' && (
+            <div className="image-loading-placeholder">
+              <div className="loading-spinner"></div>
+              <span>Cargando imagen...</span>
+            </div>
+          )}
+          <img 
+            src={currentImage} 
+            alt={product.name} 
+            onError={handleImageError} 
+            onLoad={handleImageLoad} 
+            className="product-image" 
+            style={{ display: imageStatus === 'loading' ? 'none' : 'block' }} 
+          />
+          {imageStatus === 'error' && (
+            <div className="image-fallback">
+              <span>📷 Imagen no disponible</span>
+            </div>
+          )}
+        </Link>
         {product.onSale && <span className="sale-badge">OFERTA</span>}
       </div>
 
       <div className="product-info">
-        <h3 className="product-name">{product.name}</h3>
+        {/* También hacer clickeable el título */}
+        <Link 
+          to={`/producto/${product._id}`}
+          state={{ 
+            from: detectedFromPage,
+            category: category || product.category?.toLowerCase()
+          }}
+          className="product-name-link"
+        >
+          <h3 className="product-name">{product.name}</h3>
+        </Link>
+        
         <p className="product-category">{product.category}</p>
         <div className="product-price">
           {product.originalPrice > product.price && (
