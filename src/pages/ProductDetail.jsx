@@ -11,39 +11,48 @@ const ProductDetail = () => {
   const navigate = useNavigate(); 
   const { addToCart } = useCart();
 
-  // Estados principales
+  // ===== ESTADOS PRINCIPALES =====
   const [product, setProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState("");
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   
-  // Estados para lightbox
+  // ===== ESTADOS LIGHTBOX =====
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImageIndex, setLightboxImageIndex] = useState(0);
   
-  // Estados para zoom en lightbox
+  // ===== ESTADOS ZOOM (DESKTOP) =====
   const [lightboxZoom, setLightboxZoom] = useState(1);
   const [lightboxPosition, setLightboxPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   
-  // Refs
+  // ===== ESTADOS TOUCH (MÓVILES) =====
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const [touchDistance, setTouchDistance] = useState(0);
+  const [lastTouchDistance, setLastTouchDistance] = useState(0);
+  const [isTouching, setIsTouching] = useState(false);
+  const [lastTap, setLastTap] = useState(0);
+  const [swipeStart, setSwipeStart] = useState(null);
+  const [swipeEnd, setSwipeEnd] = useState(null);
+  
+  // ===== REFS =====
   const lightboxImageRef = useRef(null);
   const lightboxContainerRef = useRef(null);
 
-  // Función para obtener URL de imagen
+  // ===== FUNCIONES DE IMÁGENES =====
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/images/placeholder-product.jpg';
     if (imagePath.startsWith('http')) return imagePath;
     if (imagePath.startsWith('/uploads')) {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
       return `${backendUrl}${imagePath}`;
     }
-    const backendUrl = process.env.REACT_APP_BACKEND_URL;
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
     return `${backendUrl}/uploads/${imagePath}`;
   };
 
-  // Obtener todas las URLs de imágenes
   const getImageUrls = () => {
     if (!product || !product.images || product.images.length === 0) {
       return ['/images/placeholder-product.jpg'];
@@ -52,7 +61,7 @@ const ProductDetail = () => {
     return product.images.map(image => getImageUrl(image));
   };
 
-  // Formatear precio
+  // ===== FORMATO DE PRECIO =====
   const formatPrice = (price) => {
     if (!price && price !== 0) return '$0.00';
     const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
@@ -64,7 +73,7 @@ const ProductDetail = () => {
     }).format(numericPrice);
   };
 
-  // Fetch del producto
+  // ===== FETCH PRODUCTO =====
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -84,12 +93,12 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id]);
 
-  // ===== FUNCIONES LIGHTBOX =====
+  // ===== FUNCIONES LIGHTBOX BÁSICAS =====
   const openLightbox = (index) => {
     setLightboxImageIndex(index);
     setLightboxOpen(true);
-    setLightboxZoom(1); // Resetear zoom
-    setLightboxPosition({ x: 0, y: 0 }); // Resetear posición
+    setLightboxZoom(1);
+    setLightboxPosition({ x: 0, y: 0 });
     document.body.style.overflow = 'hidden';
   };
 
@@ -105,7 +114,7 @@ const ProductDetail = () => {
     setLightboxImageIndex(prev => 
       prev === product.images.length - 1 ? 0 : prev + 1
     );
-    setLightboxZoom(1); // Resetear zoom al cambiar imagen
+    setLightboxZoom(1);
     setLightboxPosition({ x: 0, y: 0 });
   };
 
@@ -114,11 +123,11 @@ const ProductDetail = () => {
     setLightboxImageIndex(prev => 
       prev === 0 ? product.images.length - 1 : prev - 1
     );
-    setLightboxZoom(1); // Resetear zoom al cambiar imagen
+    setLightboxZoom(1);
     setLightboxPosition({ x: 0, y: 0 });
   };
 
-  // ===== FUNCIONES ZOOM LIGHTBOX =====
+  // ===== ZOOM DESKTOP =====
   const handleLightboxWheel = (e) => {
     e.preventDefault();
     if (!lightboxOpen || !product?.images) return;
@@ -126,7 +135,6 @@ const ProductDetail = () => {
     const delta = e.deltaY > 0 ? -0.2 : 0.2;
     const newZoom = Math.max(1, Math.min(5, lightboxZoom + delta));
     
-    // Calcular punto de zoom basado en posición del mouse
     const container = lightboxContainerRef.current;
     if (!container) return;
     
@@ -135,7 +143,7 @@ const ProductDetail = () => {
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     
     setLightboxZoom(newZoom);
-    setLightboxPosition({ x: 0, y: 0 }); // Resetear posición al hacer zoom
+    setLightboxPosition({ x: 0, y: 0 });
   };
 
   const handleLightboxMouseDown = (e) => {
@@ -155,7 +163,6 @@ const ProductDetail = () => {
     const newX = e.clientX - dragStart.x;
     const newY = e.clientY - dragStart.y;
     
-    // Limitar el movimiento para que la imagen no salga de los bordes
     const maxX = (lightboxZoom - 1) * 100;
     const maxY = (lightboxZoom - 1) * 100;
     
@@ -180,6 +187,139 @@ const ProductDetail = () => {
 
   const zoomOutLightbox = () => {
     setLightboxZoom(prev => Math.max(1, prev - 0.5));
+  };
+
+  // ===== TOUCH GESTURES (MÓVILES) =====
+  const handleTouchStart = (e) => {
+    if (!lightboxOpen) return;
+    
+    const touches = e.touches;
+    
+    // Swipe detection (un dedo)
+    if (touches.length === 1) {
+      setIsTouching(true);
+      setSwipeStart({
+        x: touches[0].clientX,
+        y: touches[0].clientY,
+        time: Date.now()
+      });
+      setTouchStart({
+        x: touches[0].clientX - lightboxPosition.x,
+        y: touches[0].clientY - lightboxPosition.y
+      });
+    }
+    // Pinch zoom (dos dedos)
+    else if (touches.length === 2) {
+      setIsTouching(true);
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      setTouchDistance(distance);
+      setLastTouchDistance(distance);
+      
+      const centerX = (touches[0].clientX + touches[1].clientX) / 2;
+      const centerY = (touches[0].clientY + touches[1].clientY) / 2;
+      
+      const container = lightboxContainerRef.current;
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        setTouchStart({
+          x: centerX - rect.left,
+          y: centerY - rect.top
+        });
+      }
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (!lightboxOpen || !isTouching) return;
+    
+    e.preventDefault();
+    const touches = e.touches;
+    
+    // Mover imagen (un dedo)
+    if (touches.length === 1 && touchStart) {
+      const newX = touches[0].clientX - touchStart.x;
+      const newY = touches[0].clientY - touchStart.y;
+      
+      const maxX = (lightboxZoom - 1) * 100;
+      const maxY = (lightboxZoom - 1) * 100;
+      
+      setLightboxPosition({
+        x: Math.max(-maxX, Math.min(maxX, newX)),
+        y: Math.max(-maxY, Math.min(maxY, newY))
+      });
+      
+      // Actualizar swipe
+      if (swipeStart) {
+        setSwipeEnd({
+          x: touches[0].clientX,
+          y: touches[0].clientY,
+          time: Date.now()
+        });
+      }
+    }
+    // Pinch zoom (dos dedos)
+    else if (touches.length === 2) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (lastTouchDistance > 0) {
+        const zoomDelta = (distance - lastTouchDistance) / 200;
+        const newZoom = Math.max(1, Math.min(5, lightboxZoom + zoomDelta));
+        setLightboxZoom(newZoom);
+      }
+      
+      setLastTouchDistance(distance);
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    setIsTouching(false);
+    setTouchStart(null);
+    setLastTouchDistance(0);
+    setTouchDistance(0);
+    
+    // Procesar swipe
+    if (swipeStart && swipeEnd) {
+      const distanceX = swipeEnd.x - swipeStart.x;
+      const distanceY = swipeEnd.y - swipeStart.y;
+      const elapsedTime = swipeEnd.time - swipeStart.time;
+      
+      if (Math.abs(distanceX) > Math.abs(distanceY) && 
+          Math.abs(distanceX) > 50 && 
+          elapsedTime < 300) {
+        
+        if (distanceX > 0) {
+          prevLightboxImage();
+        } else {
+          nextLightboxImage();
+        }
+      }
+    }
+    
+    setSwipeStart(null);
+    setSwipeEnd(null);
+  };
+
+  const handleDoubleTap = () => {
+    if (lightboxZoom === 1) {
+      zoomInLightbox();
+    } else {
+      resetLightboxZoom();
+    }
+  };
+
+  const handleTap = () => {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+    
+    if (tapLength < 300 && tapLength > 0) {
+      handleDoubleTap();
+    }
+    
+    setLastTap(currentTime);
   };
 
   // ===== KEYBOARD SHORTCUTS =====
@@ -217,6 +357,25 @@ const ProductDetail = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [lightboxOpen, lightboxZoom, product]);
+
+  // ===== PREVENT NATIVE ZOOM ON MOBILE =====
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    
+    const handleTouchEvents = (e) => {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    };
+    
+    document.addEventListener('touchstart', handleTouchEvents, { passive: false });
+    document.addEventListener('touchmove', handleTouchEvents, { passive: false });
+    
+    return () => {
+      document.removeEventListener('touchstart', handleTouchEvents);
+      document.removeEventListener('touchmove', handleTouchEvents);
+    };
+  }, [lightboxOpen]);
 
   // ===== FUNCIONES PRODUCTO =====
   const handleSizeSelect = (size) => {
@@ -286,16 +445,17 @@ const ProductDetail = () => {
   return (
     <>
       <div className="product-detail-container">
-        {/* Botón flotante de volver */}
+        {/* Botón volver */}
         <button 
           onClick={() => navigate(-1)}
           className="back-button"
           title="Volver"
+          aria-label="Volver a la página anterior"
         >
           ←
         </button>
 
-        {/* Sección de imágenes con carrusel */}
+        {/* Carrusel de imágenes */}
         <div className="product-image-section">
           <ProductImageCarousel
             images={getImageUrls()}
@@ -305,7 +465,7 @@ const ProductDetail = () => {
           />
         </div>
 
-        {/* Sección de información del producto */}
+        {/* Información del producto */}
         <div className="product-info-section">
           <h1 className="product-title">{product.name}</h1>
           <p className="product-category">{product.category} / {product.subcategory}</p>
@@ -339,8 +499,9 @@ const ProductDetail = () => {
             className="add-to-cart-btn"
             onClick={handleAddToCart}
             disabled={!selectedSize}
+            aria-label="Añadir al carrito"
           >
-            
+            <span className="cart-icon">🛒</span>
             Añadir al carrito
           </button>
 
@@ -352,7 +513,7 @@ const ProductDetail = () => {
             </div>
             <div className="info-item">
               <span className="info-icon">↩️</span>
-              <span className="info-text"></span>
+              <span className="info-text">Devoluciones gratuitas en 30 días</span>
             </div>
             <div className="info-item">
               <span className="info-icon">🛡️</span>
@@ -362,7 +523,7 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* ===== LIGHTBOX CON ZOOM ===== */}
+      {/* ===== LIGHTBOX CON ZOOM COMPLETO ===== */}
       {lightboxOpen && product?.images && (
         <div 
           className="lightbox-overlay" 
@@ -372,52 +533,76 @@ const ProductDetail = () => {
           onMouseMove={handleLightboxMouseMove}
           onMouseUp={handleLightboxMouseUp}
           onMouseLeave={handleLightboxMouseUp}
+          // GESTOS TÁCTILES
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
         >
           <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
             {/* Botón cerrar */}
-            <button className="lightbox-close" onClick={closeLightbox}>
+            <button className="lightbox-close" onClick={closeLightbox} aria-label="Cerrar">
               ✕
             </button>
             
             {/* Instrucciones */}
-            
+            <div className="lightbox-instructions">
+              <span className="desktop-instructions">
+                🖱️ Rueda para zoom • 📍 Arrastra para mover
+              </span>
+              <span className="mobile-instructions">
+                📱 Pellizca para zoom • Toca 2x para reset
+              </span>
+            </div>
             
             {/* Controles de zoom */}
             <div className="lightbox-zoom-controls">
               <button 
                 className="lightbox-zoom-btn zoom-out"
                 onClick={zoomOutLightbox}
-                title="Alejar (-)"
+                title="Alejar"
+                aria-label="Alejar zoom"
               >
                 −
               </button>
               <button 
                 className="lightbox-zoom-btn zoom-reset"
                 onClick={resetLightboxZoom}
-                title="Restablecer zoom (0)"
+                title="Restablecer"
+                aria-label="Restablecer zoom"
               >
                 {Math.round(lightboxZoom * 100)}%
               </button>
               <button 
                 className="lightbox-zoom-btn zoom-in"
                 onClick={zoomInLightbox}
-                title="Acercar (+)"
+                title="Acercar"
+                aria-label="Acercar zoom"
               >
                 +
               </button>
+              <button 
+                className="lightbox-zoom-btn close-mobile"
+                onClick={closeLightbox}
+                title="Cerrar"
+                aria-label="Cerrar lightbox"
+              >
+                ✕
+              </button>
             </div>
             
-            {/* Imagen principal con zoom */}
+            {/* Imagen principal */}
             <div className="lightbox-main-image">
               <img
                 ref={lightboxImageRef}
                 src={getImageUrl(product.images[lightboxImageIndex])}
                 alt={`${product.name} - Vista ampliada`}
-                className={`lightbox-image ${lightboxZoom > 1 ? 'zoomed' : ''} ${isDragging ? 'dragging' : ''}`}
+                className={`lightbox-image ${lightboxZoom > 1 ? 'zoomed' : ''} ${isDragging || isTouching ? 'dragging' : ''}`}
                 style={{
                   transform: `translate(${lightboxPosition.x}px, ${lightboxPosition.y}px) scale(${lightboxZoom})`,
                   cursor: lightboxZoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in',
-                  transformOrigin: 'center center'
+                  transformOrigin: 'center center',
+                  touchAction: 'none'
                 }}
                 onClick={(e) => {
                   if (lightboxZoom === 1) {
@@ -433,43 +618,83 @@ const ProductDetail = () => {
                     resetLightboxZoom();
                   }
                 }}
+                // Touch events
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  handleTouchStart(e);
+                }}
+                onTouchMove={(e) => {
+                  e.stopPropagation();
+                  handleTouchMove(e);
+                }}
+                onTouchEnd={(e) => {
+                  handleTouchEnd(e);
+                  if (e.touches.length === 0) {
+                    handleTap();
+                  }
+                }}
+                onTouchCancel={handleTouchEnd}
                 onError={(e) => {
                   e.target.src = '/images/placeholder-product.jpg';
                 }}
               />
               
-              {/* Lente de zoom */}
-              {lightboxZoom > 1 && (
-                <div 
-                  className="lightbox-zoom-lens"
-                  style={{
-                    left: '50%',
-                    top: '50%',
-                    transform: `translate(-50%, -50%) scale(${1 / lightboxZoom})`
-                  }}
-                />
+              {/* Feedback visual para touch */}
+              {isTouching && lightboxZoom > 1 && (
+                <div className="touch-feedback">
+                  <div className="touch-points">
+                    <div className="touch-point"></div>
+                    <div className="touch-point"></div>
+                  </div>
+                  <div className="zoom-level-indicator">
+                    Zoom: {Math.round(lightboxZoom * 100)}%
+                  </div>
+                </div>
               )}
             </div>
             
-            {/* Navegación entre imágenes */}
+            {/* Navegación */}
             {product.images.length > 1 && (
               <>
                 <button 
                   className="lightbox-nav lightbox-prev"
                   onClick={prevLightboxImage}
+                  aria-label="Imagen anterior"
                 >
                   ‹
                 </button>
                 <button 
                   className="lightbox-nav lightbox-next"
                   onClick={nextLightboxImage}
+                  aria-label="Siguiente imagen"
                 >
                   ›
                 </button>
                 
                 {/* Contador */}
                 <div className="lightbox-counter">
-                  {lightboxImageIndex + 1} / {product.images.length}
+                  <span className="counter-text">
+                    {lightboxImageIndex + 1} / {product.images.length}
+                  </span>
+                  <div className="counter-dots">
+                    {product.images.map((_, index) => (
+                      <span 
+                        key={index}
+                        className={`counter-dot ${lightboxImageIndex === index ? 'active' : ''}`}
+                        onClick={() => {
+                          setLightboxImageIndex(index);
+                          resetLightboxZoom();
+                        }}
+                        aria-label={`Ir a imagen ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Swipe hint para móviles */}
+                <div className="swipe-hint">
+                  <span className="swipe-icon">↔️</span>
+                  <span>Desliza para navegar</span>
                 </div>
                 
                 {/* Miniaturas */}
@@ -495,6 +720,16 @@ const ProductDetail = () => {
                 </div>
               </>
             )}
+            
+            {/* Botón de cerrar para móviles */}
+            <button 
+              className="mobile-close-button"
+              onClick={closeLightbox}
+              aria-label="Cerrar lightbox"
+            >
+              <span>✕</span>
+              Cerrar
+            </button>
           </div>
         </div>
       )}
