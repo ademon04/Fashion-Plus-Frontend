@@ -21,7 +21,6 @@ const ProductManagement = () => {
       console.log("📦 Respuesta completa:", response);
       console.log("📦 Respuesta length:", response?.length);
 
-      // 🔥 CORRECCIÓN BASADA EN DATOS: response es Array(8) según logs
       let productsArray = [];
       
       if (Array.isArray(response)) {
@@ -31,9 +30,7 @@ const ProductManagement = () => {
         const arrayProperties = Object.values(response).filter(Array.isArray);
         productsArray = arrayProperties.length > 0 ? [...arrayProperties[0]] : [];
       }
-      
-      console.log("🔄 Array de productos PROCESADO:", productsArray);
-      console.log("🔄 Array length:", productsArray.length);
+     
       
       // 🔥 FORZAR ACTUALIZACIÓN con nueva referencia
       setProducts(productsArray);
@@ -43,8 +40,7 @@ const ProductManagement = () => {
       setProducts([]);
     } finally {
       setLoading(false);
-      console.log("✅ loadProducts() finalizado");
-      console.log("🔍 Estado FINAL de products:", products); // Para debug
+     
     }
   };
 

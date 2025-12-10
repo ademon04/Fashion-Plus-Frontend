@@ -395,3 +395,285 @@
   color: #666;
   font-size: 18px;
 }
+
+/* ZOOM STYLES */
+
+/* Contenedor principal para zoom */
+.image-zoom-container {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #f8f8f8;
+  cursor: crosshair;
+  user-select: none;
+}
+
+/* Imagen con zoom */
+.carousel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.1s ease-out;
+  will-change: transform;
+}
+
+.carousel-image.zooming {
+  cursor: move;
+}
+
+/* Lente de zoom */
+.zoom-lens {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 
+    0 0 0 9999px rgba(0, 0, 0, 0.3),
+    inset 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+/* Controles de zoom */
+.zoom-controls-overlay {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 8px 12px;
+  border-radius: 20px;
+  pointer-events: auto;
+}
+
+.zoom-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  color: #333;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.zoom-btn:hover {
+  background: #f0f0f0;
+  transform: scale(1.1);
+}
+
+.zoom-btn.zoom-in {
+  font-size: 20px;
+}
+
+.zoom-btn.zoom-out {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.zoom-btn.zoom-reset {
+  font-size: 16px;
+  background: #666;
+  color: white;
+}
+
+.zoom-btn.zoom-reset:hover {
+  background: #888;
+}
+
+.zoom-level {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 45px;
+  text-align: center;
+}
+
+/* Hint para pantalla completa */
+.zoom-hint {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.3s ease;
+}
+
+.zoom-hint:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: translateY(-2px);
+}
+
+.zoom-icon {
+  font-size: 16px;
+}
+
+.zoom-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Instrucciones de zoom */
+.zoom-instructions {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 12px;
+  z-index: 5;
+  pointer-events: none;
+  animation: fadeInOut 4s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; }
+  10%, 90% { opacity: 1; }
+}
+
+/* Efecto de transición para el zoom */
+.carousel-image {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Scroll deshabilitado cuando hay zoom */
+.image-zoom-container:active {
+  cursor: grabbing;
+}
+
+/* Miniaturas con indicador de zoom */
+.thumbnail.active.has-zoom::after {
+  content: "🔍";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  z-index: 2;
+}
+
+/* Responsive para zoom */
+@media (max-width: 768px) {
+  .image-zoom-container {
+    height: 400px;
+    cursor: default;
+  }
+  
+  .zoom-lens {
+    display: none; /* Ocultar lente en móviles */
+  }
+  
+  .zoom-controls-overlay {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  
+  .zoom-controls {
+    justify-content: center;
+  }
+  
+  .zoom-hint {
+    justify-content: center;
+  }
+  
+  /* Gestos táctiles para zoom */
+  .image-zoom-container {
+    touch-action: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-zoom-container {
+    height: 350px;
+  }
+  
+  .zoom-controls {
+    padding: 6px 10px;
+  }
+  
+  .zoom-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+  
+  .zoom-level {
+    font-size: 12px;
+    min-width: 40px;
+  }
+}
+
+/* Efecto para indicar que se puede hacer zoom */
+@keyframes pulseZoom {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.image-zoom-container:hover .carousel-image:not(.zooming) {
+  animation: pulseZoom 2s infinite;
+}
+
+/* Tooltip para controles */
+.zoom-btn[title] {
+  position: relative;
+}
+
+.zoom-btn[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  margin-bottom: 5px;
+}
+
+.zoom-btn[title]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #333;
+  margin-bottom: -5px;
+}

@@ -46,6 +46,7 @@ const AdminDashboard = () => {
         totalRevenue,
         paidOrders
       });
+      
 
       const sortedOrders = orders
         ?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))

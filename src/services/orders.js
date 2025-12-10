@@ -83,3 +83,46 @@ export const orderService = {
     }
   }
 };
+// Archivar orden 
+// Agrega estas funciones a tu servicio de órdenes existente:
+
+export const archiveOrder = async (orderId, archived = true, reason = '') => {
+  const response = await api.put(`/orders/${orderId}/archive`, { 
+    archived,
+    reason 
+  });
+  return response.data;
+};
+
+export const restoreOrder = async (orderId) => {
+  try {
+    const response = await api.put(`/orders/${orderId}/archive`, { 
+      archived: false  
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al restaurar orden:', error);
+    throw error;
+  }
+};
+
+
+export const deleteOrderPermanently = async (orderId) => {
+  try {
+    const response = await api.delete(`/orders/${orderId}/permanent`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al eliminar orden permanentemente:', error);
+    throw error;
+  }
+};
+
+export const getArchivedOrders = async (params = {}) => {
+  try {
+    const response = await api.get('/orders/archived', { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener órdenes archivadas:', error);
+    throw error;
+  }
+};
