@@ -545,15 +545,7 @@ const ProductDetail = () => {
               ✕
             </button>
             
-            {/* Instrucciones */}
-            <div className="lightbox-instructions">
-              <span className="desktop-instructions">
-                🖱️ Rueda para zoom • 📍 Arrastra para mover
-              </span>
-              <span className="mobile-instructions">
-                📱 Pellizca para zoom • Toca 2x para reset
-              </span>
-            </div>
+          
             
             {/* Controles de zoom */}
             <div className="lightbox-zoom-controls">
@@ -691,11 +683,7 @@ const ProductDetail = () => {
                   </div>
                 </div>
                 
-                {/* Swipe hint para móviles */}
-                <div className="swipe-hint">
-                  <span className="swipe-icon">↔️</span>
-                  <span>Desliza para navegar</span>
-                </div>
+                
                 
                 {/* Miniaturas */}
                 <div className="lightbox-thumbnails">
