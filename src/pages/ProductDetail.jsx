@@ -46,10 +46,10 @@ const ProductDetail = () => {
     if (!imagePath) return '/images/placeholder-product.jpg';
     if (imagePath.startsWith('http')) return imagePath;
     if (imagePath.startsWith('/uploads')) {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
+      const backendUrl = process.env.REACT_APP_BACKEND_URL;
       return `${backendUrl}${imagePath}`;
     }
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
     return `${backendUrl}/uploads/${imagePath}`;
   };
 
@@ -501,7 +501,7 @@ const ProductDetail = () => {
             disabled={!selectedSize}
             aria-label="Añadir al carrito"
           >
-            <span className="cart-icon">🛒</span>
+            
             Añadir al carrito
           </button>
 
@@ -726,3 +726,4 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
+

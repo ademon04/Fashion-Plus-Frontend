@@ -99,7 +99,24 @@
   position: relative;
   border: 1px solid var(--border-color);
 }
+.product-image-container {
+  /* CAMBIO IMPORTANTE: Quitar height fijo, usar aspect-ratio */
+  width: 100%;
+  aspect-ratio: 3/4; /* Proporción 3:4 (más realista para ropa) */
+  position: relative;
+  overflow: hidden;
+  background: #f8f9fa; /* Fondo suave mientras carga */
+  border-bottom: 1px solid var(--border-color);
+}
 
+.product-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain !important; /* CAMBIAR de 'cover' a 'contain' */
+  transition: transform 0.5s ease;
+  padding: 10px; /* Espacio para que respire la imagen */
+  border-radius: 8px 8px 0 0; /* Bordes redondeados solo arriba */
+}
 .product-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 25px rgba(0,0,0,0.1);
@@ -1785,87 +1802,444 @@
 }
 
 /* ============================================= */
-/* FORMULARIOS DE PRODUCTOS (ADMIN) */
+/* FORMULARIOS DE PRODUCTOS (ADMIN) - FIXED */
 /* ============================================= */
+
 .product-form-container {
-  position: relative;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
+  max-width: 95%;
+  margin: 1rem auto;
+  padding: 1.5rem;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  overflow-x: hidden;
 }
 
 .product-form {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
+/* Título del formulario */
+.form-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f0f0f0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Grid responsive para formulario */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Grupos de formulario optimizados */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+/* Área de texto específica */
+.form-group textarea {
+  min-height: 120px;
+  max-height: 300px;
+  line-height: 1.5;
+}
+
+/* Checkboxes en línea */
 .form-checkboxes {
   display: flex;
-  gap: 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
   margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
 }
 
-.checkbox-group label {
+.checkbox-group {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.checkbox-group label {
+  margin: 0;
   font-weight: 500;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .checkbox-group input[type="checkbox"] {
   width: 18px;
   height: 18px;
+  cursor: pointer;
+}
+
+/* Grid de tallas mejorado */
+.sizes-section {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.size-description {
+  margin-bottom: 1rem;
+  color: #666;
+  font-size: 0.9rem;
 }
 
 .sizes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 0.75rem;
-  margin-top: 0.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 1rem;
 }
 
 .size-input-group {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
+  gap: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid #ddd;
-  border-radius: 4px;
-  background: #f9f9f9;
+  border-radius: 6px;
+  background: white;
+  transition: all 0.3s;
+}
+
+.size-input-group:hover {
+  border-color: #4a90e2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .size-input-group label {
   font-weight: 600;
   text-align: center;
   color: #333;
+  font-size: 0.9rem;
 }
 
 .size-input-group input {
   text-align: center;
-  padding: 0.25rem;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
 }
 
-.size-description {
-  margin-bottom: 0.5rem;
-  color: #666;
-  font-style: italic;
+/* Subida de imágenes */
+.image-upload-section {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
 }
 
+.image-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.image-preview {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid #ddd;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-image {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+/* Botones de acción */
 .form-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   margin-top: 2rem;
   padding-top: 1.5rem;
   border-top: 1px solid #eee;
+  justify-content: flex-end;
 }
 
+.btn-save,
+.btn-cancel,
+.btn-delete {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 120px;
+}
+
+.btn-save {
+  background: #4a90e2;
+  color: white;
+}
+
+.btn-save:hover {
+  background: #357ae8;
+  transform: translateY(-2px);
+}
+
+.btn-cancel {
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.btn-cancel:hover {
+  background: #e8e8e8;
+}
+
+.btn-delete {
+  background: #ff4444;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #cc0000;
+}
+
+/* Mensajes de error/éxito */
+.form-message {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.form-message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.form-message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* ============================================= */
+/* RESPONSIVE PARA FORMULARIOS */
+/* ============================================= */
+
+@media (max-width: 768px) {
+  .product-form-container {
+    padding: 1rem;
+    margin: 0.5rem;
+    max-width: 100%;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .form-title {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  
+  .form-checkboxes {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .sizes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .size-input-group {
+    padding: 0.5rem;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .btn-save,
+  .btn-cancel,
+  .btn-delete {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-form-container {
+    padding: 0.75rem;
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="number"],
+  .form-group textarea,
+  .form-group select {
+    padding: 0.625rem;
+    font-size: 0.95rem;
+  }
+  
+  .sizes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .image-preview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .form-actions {
+    gap: 0.75rem;
+  }
+}
+
+/* Fix para inputs que se salen */
+input, textarea, select {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Para títulos largos */
+input[type="text"] {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Scroll suave en formularios largos */
+.product-form-container {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Estilos para validación */
+.form-group.error input,
+.form-group.error textarea,
+.form-group.error select {
+  border-color: #ff4444;
+}
+
+.form-group .error-message {
+  color: #ff4444;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: none;
+}
+
+.form-group.error .error-message {
+  display: block;
+}
+
+/* Placeholders mejorados */
+::placeholder {
+  color: #999;
+  opacity: 1;
+}
+
+:-ms-input-placeholder {
+  color: #999;
+}
+
+::-ms-input-placeholder {
+  color: #999;
+}
+
+/* Focus states mejorados */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}
+
+/* Labels flotantes opcionales (modern design) */
+.form-group.floating-label {
+  position: relative;
+}
+
+.form-group.floating-label label {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: white;
+  padding: 0 0.25rem;
+  color: #666;
+  transition: all 0.3s;
+  pointer-events: none;
+}
+
+.form-group.floating-label input:focus + label,
+.form-group.floating-label input:not(:placeholder-shown) + label,
+.form-group.floating-label textarea:focus + label,
+.form-group.floating-label textarea:not(:placeholder-shown) + label {
+  top: -0.5rem;
+  left: 0.5rem;
+  font-size: 0.8rem;
+  color: #4a90e2;
+  background: white;
+}
 /* ============================================= */
 /* BADGES DE ESTADO */
 /* ============================================= */
@@ -2169,7 +2543,7 @@
 }
 
 .main-image-placeholder {
-  width: 100%;
+  width: 95%;
   height: 100%;
   display: flex;
   align-items: center;
