@@ -548,9 +548,3 @@
   box-shadow: 0 5px 15px rgba(0,0,0,0.15);
 }
 
-/* iPhone notch safe area */
-@supports (-webkit-touch-callout: none) {
-  .back-button {
-    top: calc(90px + env(safe-area-inset-top));
-  }
-}

@@ -11,31 +11,6 @@
   min-height: calc(100vh - 120px);
 }
 
-/* Botón volver */
-.back-button {
-  position: absolute;
-  top: -40px;
-  left: 20px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  transition: all 0.3s ease;
-}
-
-.back-button:hover {
-  background: white;
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
 
 /* Sección de imagen */
 .product-image-section {
@@ -352,11 +327,7 @@
     position: static;
   }
   
-  .back-button {
-    top: -35px;
-    left: 10px;
-  }
-  
+
   .product-detail-info h1 {
     font-size: 28px;
   }
@@ -393,11 +364,7 @@
     margin-top: 50px;
   }
   
-  .back-button {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
-  }
+
   
   .lightbox-main-image {
     height: 50vh;
