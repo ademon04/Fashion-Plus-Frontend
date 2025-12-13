@@ -1,17 +1,161 @@
 /* ============================================= */
-/* RESPONSIVE - BOTÓN VOLVER MÁS ABAJO */
+/* MEDIA QUERIES RESPONSIVE - TABLETS Y MÓVILES */
+/* ============================================= */
+
+/* Tablets (768px - 1024px) */
+@media (max-width: 1024px) {
+  .product-detail-content {
+    gap: 2rem;
+  }
+  
+  .product-info h1 {
+    font-size: 2rem;
+  }
+  
+  .checkout-content {
+    gap: 2rem;
+  }
+}
+
+/* Tablets (menos de 768px) */
+@media (max-width: 768px) {
+  .header-content {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .nav-links {
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .main-content {
+    padding-top: 120px;
+  }
+  
+  .product-detail {
+    padding: 1rem 0;
+  }
+  
+  .product-detail-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .product-info h1 {
+    font-size: 1.8rem;
+  }
+  
+  .current-price {
+    font-size: 1.7rem;
+  }
+  
+  .add-to-cart-btn {
+    padding: 0.8rem 1.5rem;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .close-button {
+    top: 10px;
+    right: 15px;
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+  }
+  
+  /* Para escritorio - sidebar fijo */
+  .filters-sidebar {
+    width: 300px;
+    position: sticky;
+    top: 100px;
+    left: 0;
+    height: auto;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .filters-sidebar:not(.open) {
+    display: none;
+  }
+  
+  .sidebar-overlay {
+    display: none !important;
+  }
+}
+
+/* Móviles grandes (600px - 768px) */
+@media (max-width: 600px) {
+  .header {
+    height: 120px;
+    padding: 0;
+  }
+
+  .header-content {
+    padding: 0 1rem;
+  }
+
+  .logo-image {
+    height: 40px !important;
+    margin-left: 0 !important;
+  }
+
+  .logo-text {
+    font-size: 1rem;
+  }
+
+  .nav-links {
+    gap: 1rem;
+  }
+}
+
+/* Móviles pequeños (menos de 480px) */
+@media (max-width: 480px) {
+  .product-info h1 {
+    font-size: 1.5rem;
+  }
+  
+  .size-options {
+    gap: 0.3rem;
+  }
+  
+  .size-option {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .checkout-form, .order-summary {
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+  }
+
+  .success-content, .failure-content {
+    padding: 1.5rem 1rem;
+    border-radius: 16px;
+  }
+
+  .success-header h1, .failure-header h1 {
+    font-size: 1.75rem;
+  }
+}
+/* ============================================= */
+/* RESPONSIVE - MÓVILES */
 /* ============================================= */
 
 /* Tablets (768px o menos) */
 @media (max-width: 768px) {
-  /* Sidebar header */
+  /* Sidebar header - reorganizar en columna */
   .sidebar-header {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
     position: relative;
-    padding-right: 45px;
+    padding-right: 45px; /* Espacio para el botón de cerrar */
   }
   
   .sidebar-header h3 {
@@ -25,296 +169,388 @@
     right: 0;
     margin: 0;
   }
-  
-  /* BOTÓN DE VOLVER MUCHO MÁS ABAJO */
-  .back-button {
-    position: fixed !important;
-    top: 140px !important; /* ¡MUCHO MÁS ABAJO! Antes 85px */
-    left: 15px !important;
-    width: 44px !important;
-    height: 44px !important;
-    z-index: 100 !important;
-    background: rgba(255, 255, 255, 0.95) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
-    backdrop-filter: blur(10px) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
-    display: flex !important;
-  }
 }
 
-/* HAMBURGER EN ESQUINA SUPERIOR IZQUIERDA (SIEMPRE VISIBLE) */
-.hamburger-btn {
-  position: fixed !important;
-  top: 75px !important;
-  left: 5px !important;
-  z-index: 1001 !important;
-  width: 50px !important;
-  height: 50px !important;
-  border-radius: 50% !important;
-  padding: 0 !important;
-  background: rgba(255, 255, 255, 0.95) !important;
-  border: 2px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  backdrop-filter: blur(5px) !important;
-  -webkit-backdrop-filter: blur(5px) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.hamburger-btn .btn-text {
-  display: none !important;
-}
-
-.hamburger-icon, .close-icon {
-  font-size: 1.5rem !important;
-  margin: 0 !important;
-  color: #333 !important;
-}
-
-/* MÓVILES (600px o menos) */
+/* Móviles grandes (600px o menos) */
 @media (max-width: 600px) {
-  /* Hamburguesa */
+ .hamburger-menu-btn {
+  position: fixed;
+  top: 2px;
+  left: 15px;
+  width: 44px;
+  height: 44px;
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  z-index: 1000;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  cursor: pointer;
+  padding: 0;
+}
+  
+  .hamburger-btn .btn-text {
+    display: none; /* Oculta texto en móviles */
+  }
+  
   .hamburger-btn {
-    top: 15px !important;
-    left: 12px !important;
-    width: 46px !important;
-    height: 46px !important;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
   }
   
-  /* BOTÓN DE VOLVER AÚN MÁS ABAJO EN MÓVILES PEQUEÑOS */
-  .back-button {
-    top: 130px !important; /* Ajustado para móviles */
-    left: 12px !important;
-    width: 42px !important;
-    height: 42px !important;
-    font-size: 20px !important;
-  }
-  
-  /* Ajustar header para dar espacio */
-  .header {
-    padding-top: 70px !important;
-  }
-  
-  .main-content {
-    padding-top: 90px !important;
+  .hamburger-icon, .close-icon {
+    font-size: 1.5rem;
+    margin: 0;
   }
 }
 
 /* Móviles medianos (480px o menos) */
 @media (max-width: 480px) {
   .hamburger-btn {
-    top: 12px !important;
-    left: 10px !important;
-    width: 44px !important;
-    height: 44px !important;
+    top: 2px;
+    bottom: 20px;
+    right: 15px;
+    width: 55px;
+    height: 55px;
   }
   
-  .back-button {
-    top: 120px !important; /* Más ajuste */
-    left: 10px !important;
-    width: 40px !important;
-    height: 40px !important;
-    font-size: 18px !important;
+  .sidebar-header h3 {
+    font-size: 1.2rem;
+  }
+  
+  .filter-section h4 {
+    font-size: 1rem;
   }
 }
 
-/* Móviles pequeños (400px o menos) */
+/* Móviles pequeños (400px o menos) - REEMPLAZA TU SECCIÓN ACTUAL */
 @media (max-width: 400px) {
   .hamburger-btn {
-    top: 10px !important;
-    left: 8px !important;
-    width: 42px !important;
-    height: 42px !important;
+    bottom: 15px;
+    right: 10px;
+    width: 50px;
+    height: 50px;
   }
   
-  .back-button {
-    top: 110px !important; /* Aún más bajo */
-    left: 8px !important;
-    width: 38px !important;
-    height: 38px !important;
+  .filters-sidebar {
+    padding: 0.8rem;
+    max-width: 100%;
+  }
+  
+  .sidebar-header {
+    padding-right: 40px;
+    margin-bottom: 1.2rem;
+  }
+  
+  .sidebar-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .sidebar-header .close-sidebar-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+  }
+  
+  .filter-section h4 {
+    font-size: 0.95rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .category-btn {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+  }
+  
+  .filter-input, .price-input {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+  }
+  
+  .clear-filters-btn {
+    padding: 0.7rem;
+    font-size: 0.9rem;
   }
 }
 
 /* Móviles muy pequeños (350px o menos) */
 @media (max-width: 350px) {
   .hamburger-btn {
-    top: 8px !important;
-    left: 6px !important;
-    width: 40px !important;
-    height: 40px !important;
+    width: 45px;
+    height: 45px;
+    bottom: 10px;
+    right: 10px;
   }
   
-  .back-button {
-    top: 100px !important; /* Posición más baja posible */
-    left: 6px !important;
-    width: 36px !important;
-    height: 36px !important;
+  .hamburger-icon, .close-icon {
+    font-size: 1.3rem;
+  }
+  
+  .filters-sidebar {
+    padding: 0.7rem;
+  }
+  
+  .sidebar-header {
+    padding-right: 35px;
+  }
+  
+  .sidebar-header h3 {
+    font-size: 1rem;
+  }
+  
+  .sidebar-header .close-sidebar-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+  
+  .category-btn {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+  
+  .filter-input, .price-input {
+    padding: 0.6rem;
+    font-size: 0.85rem;
   }
 }
 
 /* ============================================= */
-/* BOTÓN DE VOLVER EN COMPUTADORAS (NO SE OCULTA) */
+/* COMPONENTES RESPONSIVE ESPECÍFICOS */
 /* ============================================= */
 
-/* Desktop - Siempre visible */
-@media (min-width: 769px) {
-  .back-button {
-    position: absolute !important;
-    top: 120px !important; /* Más abajo en desktop también */
-    left: 30px !important;
-    width: 50px !important;
-    height: 50px !important;
-    font-size: 24px !important;
-  }
-  
-  /* Hamburguesa también visible en desktop */
-  .hamburger-btn {
-    display: flex !important; /* NO se oculta */
-    position: fixed !important;
-    top: 25px !important;
-    left: 25px !important;
-    width: 55px !important;
-    height: 55px !important;
+/* Para escritorio (más de 768px) */
+@media (min-width: 768px) {
+  .close-button {
+    top: 25px;
   }
 }
 
-/* Desktop grande */
-@media (min-width: 1024px) {
-  .back-button {
-    top: 240px !important; /* Aún más abajo en pantallas grandes */
-    left: 40px !important;
-    width: 55px !important;
-    height: 55px !important;
-    font-size: 26px !important;
+/* Para móviles (menos de 767px) */
+@media (max-width: 767px) {
+  .close-button {
+    top: 80px;
   }
   
-  .hamburger-btn {
-    top: 30px !important;
-    left: 30px !important;
-    width: 60px !important;
-    height: 60px !important;
+  .order-card {
+    padding: 12px;
+  }
+  
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .order-footer {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .order-table-container {
+    margin: 10px -15px;
+    border-radius: 0;
+  }
+  
+  .order-table th,
+  .order-table td {
+    padding: 8px 12px;
+    font-size: 14px;
   }
 }
 
 /* ============================================= */
-/* ESTILOS ESPECIALES PARA DIFERENTES PÁGINAS */
+/* PRODUCT DETAIL RESPONSIVE ESPECÍFICO */
 /* ============================================= */
-
-/* En detalle de producto */
-.product-detail-container .back-button {
-  /* Si está dentro del contenedor de detalle, posición absoluta */
-  position: absolute !important;
-  top: 30px !important; /* Más abajo que antes */
-  left: 30px !important;
-  background: rgba(0, 0, 0, 0.7) !important;
-  color: white !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
+@media (max-width: 1024px) {
+  .product-detail-container {
+    gap: 40px;
+    padding: 0 30px;
+  }
+  
+  .thumbnails-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
-  .product-detail-container .back-button {
-    position: fixed !important;
-    top: 140px !important; /* Igual que en móviles general */
-    left: 15px !important;
-  }
-}
-
-/* En página de productos/listado */
-.products-page .back-button {
-  /* Puedes ajustar según necesites */
-  top: 100px !important;
-}
-
-/* ============================================= */
-/* Z-INDEX Y SUPERPOSICIONES */
-/* ============================================= */
-
-.hamburger-btn {
-  z-index: 1001 !important;
-}
-
-.back-button {
-  z-index: 1000 !important;
-}
-
-.filters-sidebar {
-  z-index: 1002 !important;
-}
-
-/* Cuando sidebar está abierto */
-.filters-sidebar.open {
-  z-index: 1003 !important;
-}
-
-/* ============================================= */
-/* ANIMACIONES Y EFECTOS */
-/* ============================================= */
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.hamburger-btn {
-  animation: fadeInUp 0.4s ease-out 0.1s both;
-}
-
-.back-button {
-  animation: fadeInUp 0.4s ease-out 0.2s both;
-}
-
-/* Efectos hover (solo desktop) */
-@media (min-width: 769px) {
-  .hamburger-btn:hover {
-    transform: scale(1.05);
-    background: white;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  .product-images-section,
+  .product-info-section {
+    padding: 20px;
   }
   
-  .back-button:hover {
-    transform: translateX(-3px) scale(1.05);
-    background: white;
+  .product-name {
+    font-size: 24px;
+  }
+  
+  .current-price {
+    font-size: 28px;
+  }
+  
+  .lightbox-main {
+    height: 60vh;
+  }
+  
+  .lightbox-nav-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+  }
+  
+  .lightbox-close-btn {
+    top: 10px;
+    right: 10px;
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+  }
+  
+  .lightbox-thumbnail {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .thumbnails-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .product-name {
+    font-size: 22px;
+  }
+  
+  .product-info-section {
+    padding: 15px;
+  }
+  
+  .lightbox-main {
+    height: 50vh;
+  }
+  
+  .lightbox-nav-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  
+  .lightbox-thumbnail {
+    width: 40px;
+    height: 40px;
   }
 }
 
 /* ============================================= */
-/* AJUSTES DE HEADER PARA NO CUBRIR CONTENIDO */
+/* MEDIA QUERIES PARA DESKTOP GRANDE */
 /* ============================================= */
 
-@media (max-width: 600px) {
-  /* Si tienes un header fijo, ajusta estos valores */
-  body {
-    padding-top: 60px; /* Espacio para botones fijos */
+/* Large Desktop (más de 1200px) */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+}
+
+/* Extra Large Desktop (más de 1400px) */
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1320px;
   }
 }
 
 /* ============================================= */
-/* ESTILOS POR DEFECTO DEL BOTÓN VOLVER */
+/* MEDIA QUERIES ESPECIALES */
 /* ============================================= */
 
+/* High DPI Displays (retina) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .product-image img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .header,
+  .footer,
+  .nav-links,
+  .btn,
+  .checkout-btn {
+    display: none !important;
+  }
+
+  .main-content {
+    padding-top: 0;
+  }
+
+  .cart-summary,
+  .order-summary {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+}
+
+/* Reduced Motion (accesibilidad) */
+@media (prefers-reduced-motion: reduce) {
+  .product-card:hover,
+  .stats-card:hover {
+    transform: none;
+  }
+
+  .spinner {
+    animation: none;
+  }
+
+  .toast {
+    animation: none;
+  }
+}
+
+/* BOTÓN BACK - iPhone & móviles */
 .back-button {
-  /* Estilos base que no cambian */
+  position: fixed;
+  top: 125px;
+  left: 20px;
+  width: 44px;
+  height: 44px;
+  background: rgb(0, 0, 0);
+  border: 2px solid #ddd;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
+  z-index: 999;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
   color: #333;
+  text-decoration: none;
+  font-size: 20px;
   font-weight: bold;
-  border: 2px solid rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .back-button:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
 }
 
+/* iPhone notch safe area */
+@supports (-webkit-touch-callout: none) {
+  .back-button {
+    top: calc(90px + env(safe-area-inset-top));
+  }
+}

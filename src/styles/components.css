@@ -99,24 +99,7 @@
   position: relative;
   border: 1px solid var(--border-color);
 }
-.product-image-container {
-  /* CAMBIO IMPORTANTE: Quitar height fijo, usar aspect-ratio */
-  width: 100%;
-  aspect-ratio: 3/4; /* Proporción 3:4 (más realista para ropa) */
-  position: relative;
-  overflow: hidden;
-  background: #f8f9fa; /* Fondo suave mientras carga */
-  border-bottom: 1px solid var(--border-color);
-}
 
-.product-image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain !important; /* CAMBIAR de 'cover' a 'contain' */
-  transition: transform 0.5s ease;
-  padding: 10px; /* Espacio para que respire la imagen */
-  border-radius: 8px 8px 0 0; /* Bordes redondeados solo arriba */
-}
 .product-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 25px rgba(0,0,0,0.1);

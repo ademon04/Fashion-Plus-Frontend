@@ -14,8 +14,8 @@
 /* Botón volver */
 .back-button {
   position: absolute;
-  top: 80px;
-  left: 0px;
+  top: -40px;
+  left: 20px;
   width: 40px;
   height: 40px;
   border-radius: 50%;
