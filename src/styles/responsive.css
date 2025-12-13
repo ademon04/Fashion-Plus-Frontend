@@ -523,8 +523,8 @@
 /* BOTÓN BACK - iPhone & móviles */
 .back-button {
   position: fixed;
-  top: 125px;
-  left: 20px;
+  top: 150px;
+  left: 15px;
   width: 44px;
   height: 44px;
   background: rgb(0, 0, 0);
