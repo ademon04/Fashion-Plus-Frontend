@@ -121,6 +121,7 @@ const Products = () => {
   return (
     <div className="products-page">
       <div className="products-header">
+        <h1></h1>
        
       </div>
 
