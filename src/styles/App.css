@@ -132,7 +132,8 @@ body {
 }
 
 .logo {
-  
+font-family: 'Cormorant Garamond', serif;  /* títulos premium */
+
   font-size: 1.8rem;
   font-weight: bold;
   color: var(--primary-color);
