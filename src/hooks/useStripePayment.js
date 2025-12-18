@@ -6,7 +6,6 @@ export const useStripePayment = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // 🔥 AGREGAR ESTA FUNCIÓN QUE FALTA
  const createCheckoutSession = async (orderData) => {
     setLoading(true);
     setError(null);

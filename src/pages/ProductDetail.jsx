@@ -509,7 +509,7 @@ const ProductDetail = () => {
           <div className="additional-info">
             <div className="info-item">
               <span className="info-icon">📦</span>
-              <span className="info-text">Envío gratis en compras mayores a $500</span>
+              <span className="info-text">Envío gratis en compras mayores a $5000</span>
             </div>
             <div className="info-item">
               <span className="info-icon">↩️</span>
