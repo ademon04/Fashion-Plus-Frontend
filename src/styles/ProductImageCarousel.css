@@ -1,4 +1,7 @@
-/* src/styles/ProductImageCarousel.css */
+/* ============================================= */
+/* CARRUSEL DE IMÁGENES - VERSIÓN OPTIMIZADA */
+/* ============================================= */
+
 .carousel-container {
   position: relative;
   width: 100%;
@@ -30,6 +33,42 @@
   transform: scale(1.02);
 }
 
+/* BOTONES FLECHA - VISIBLES Y ACCESIBLES */
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 22px;
+  color: #333;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+}
+
+.carousel-btn:hover {
+  background: white;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.25);
+}
+
+.prev-btn {
+  left: 15px;
+}
+
+.next-btn {
+  right: 15px;
+}
+
+/* BADGE DE OFERTA */
 .sale-badge-carousel {
   position: absolute;
   top: 15px;
@@ -43,53 +82,23 @@
   z-index: 10;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
-
+/* CONTADOR DE IMÁGENES - MÁS COMPACTO */
 .image-counter {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: 12px;
+  right: 12px;
   background: rgba(0,0,0,0.7);
   color: white;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
+  padding: 3px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 500;
   z-index: 10;
+  min-width: auto;
+  line-height: 1;
 }
 
-.carousel-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255,255,255,0.9);
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-size: 20px;
-  color: #333;
-  cursor: pointer;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.carousel-btn:hover {
-  background: white;
-  transform: translateY(-50%) scale(1.1);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.prev-btn {
-  left: 15px;
-}
-
-.next-btn {
-  right: 15px;
-}
-
+/* INDICADORES */
 .carousel-indicators {
   position: absolute;
   bottom: 20px;
@@ -97,7 +106,7 @@
   right: 0;
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   z-index: 10;
 }
 
@@ -105,8 +114,8 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  border: none;
-  background: rgba(255,255,255,0.5);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  background: transparent;
   cursor: pointer;
   padding: 0;
   transition: all 0.3s ease;
@@ -114,13 +123,16 @@
 
 .indicator.active {
   background: white;
+  border-color: white;
   transform: scale(1.2);
 }
 
 .indicator:hover {
-  background: white;
+  background: rgba(255, 255, 255, 0.5);
+  border-color: white;
 }
 
+/* MINIATURAS */
 .carousel-thumbnails {
   position: absolute;
   bottom: 50px;
@@ -129,10 +141,10 @@
   display: flex;
   justify-content: center;
   gap: 8px;
-  padding: 10px;
+  padding: 12px;
   overflow-x: auto;
   z-index: 10;
-  background: linear-gradient(transparent, rgba(0,0,0,0.1));
+  background: linear-gradient(transparent, rgba(0,0,0,0.08));
 }
 
 .thumbnail {
@@ -144,6 +156,7 @@
   border: 2px solid transparent;
   transition: all 0.3s ease;
   opacity: 0.7;
+  flex-shrink: 0;
 }
 
 .thumbnail.active {
@@ -155,6 +168,7 @@
 .thumbnail:hover {
   opacity: 1;
   border-color: #666;
+  transform: scale(1.03);
 }
 
 .thumbnail img {
@@ -163,6 +177,7 @@
   object-fit: cover;
 }
 
+/* PLACEHOLDER */
 .main-image-placeholder {
   width: 100%;
   height: 100%;
@@ -178,266 +193,131 @@
   opacity: 0.5;
 }
 
+/* ============================================= */
+/* RESPONSIVE PARA TELÉFONOS */
+/* ============================================= */
+
 @media (max-width: 768px) {
   .carousel-wrapper {
-    height: 350px;
+    height: 380px;
+  }
+  
+  .carousel-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    background: rgba(255, 255, 255, 0.9);
   }
   
   .carousel-thumbnails {
     bottom: 60px;
   }
   
-  .carousel-btn {
-    width: 35px;
-    height: 35px;
-    font-size: 18px;
+  .thumbnail {
+    width: 55px;
+    height: 55px;
   }
   
-  .thumbnail {
-    width: 50px;
-    height: 50px;
+  /* ZOOM EN MÓVILES - SIMPLIFICADO */
+  .image-zoom-container {
+    height: 380px;
+    touch-action: manipulation;
+  }
+  
+  .zoom-lens {
+    display: none;
+  }
+  
+  .zoom-controls-overlay {
+    bottom: 10px;
+    padding: 0 10px;
+  }
+  
+  .zoom-controls {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 3px 5px;
+  }
+  
+  .zoom-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+  }
+  
+  .zoom-level {
+    font-size: 13px;
+    min-width: 40px;
+  }
+  
+  .zoom-hint {
+    padding: 6px 12px;
+    font-size: 13px;
   }
 }
 
 @media (max-width: 480px) {
   .carousel-wrapper {
-    height: 300px;
+    height: 320px;
+  }
+  
+  .carousel-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
   }
   
   .carousel-thumbnails {
-    display: none;
+    display: none; /* Ocultar miniaturas en móviles pequeños */
   }
   
   .carousel-indicators {
-    bottom: 10px;
+    bottom: 15px;
   }
-}
-/* ProductDetail.css - VERSIÓN NUEVA CON CARRUSEL */
-.product-detail-container {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 0 20px;
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 60px;
-  align-items: start;
-}
-
-/* ELIMINA TODO LO RELACIONADO CON IMÁGENES VIEJAS */
-.product-image-section {
-  /* Solo para contener el carrusel */
-}
-
-/* INFORMACIÓN DEL PRODUCTO */
-.product-detail-info {
-  background: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-  position: sticky;
-  top: 30px;
-  height: fit-content;
-}
-
-.product-detail-info h1 {
-  font-size: 32px;
-  margin-bottom: 12px;
-  color: #222;
-  line-height: 1.3;
-  font-weight: 700;
-}
-
-.category {
-  color: #666;
-  font-size: 15px;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  font-weight: 500;
-}
-
-.price-section {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 25px;
-  padding-bottom: 25px;
-  border-bottom: 1px solid #eee;
-}
-
-.original-price {
-  font-size: 22px;
-  color: #999;
-  text-decoration: line-through;
-}
-
-.current-price {
-  font-size: 36px;
-  font-weight: 800;
-  color: #000;
-}
-
-.description {
-  color: #555;
-  line-height: 1.7;
-  margin-bottom: 30px;
-  font-size: 16px;
-}
-
-.error-message {
-  background: #ffe6e6;
-  color: #ff4444;
-  padding: 12px 18px;
-  border-radius: 8px;
-  margin: 20px 0;
-  font-size: 15px;
-  border-left: 4px solid #ff4444;
-}
-
-.add-to-cart-btn {
-  width: 100%;
-  padding: 20px;
-  background: #000;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 17px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-top: 15px;
-}
-
-.add-to-cart-btn:hover:not(:disabled) {
-  background: #333;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-}
-
-.add-to-cart-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* RESPONSIVE */
-@media (max-width: 1024px) {
-  .product-detail-container {
-    grid-template-columns: 1fr;
-    gap: 40px;
+ 
+  
+  .sale-badge-carousel {
+    top: 12px;
+    left: 12px;
+    padding: 6px 12px;
+    font-size: 12px;
   }
   
-  .product-detail-info {
-    position: static;
-  }
-}
-
-@media (max-width: 768px) {
-  .product-detail-container {
-    margin: 20px auto;
-    padding: 0 15px;
-    gap: 30px;
+  /* ZOOM EN MÓVILES PEQUEÑOS */
+  .image-zoom-container {
+    height: 320px;
   }
   
-  .product-detail-info {
-    padding: 25px;
+  .zoom-controls-overlay {
+    flex-direction: column;
+    gap: 8px;
   }
   
-  .product-detail-info h1 {
-    font-size: 28px;
-  }
-  
-  .current-price {
-    font-size: 32px;
+  .zoom-controls,
+  .zoom-hint {
+    width: 100%;
+    justify-content: center;
   }
 }
 
-/* Agrega esto al final de ProductDetail.css */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  text-align: center;
-}
+/* ============================================= */
+/* ZOOM - VERSIÓN MEJORADA */
+/* ============================================= */
 
-.loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #000;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 20px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.not-found-container {
-  text-align: center;
-  padding: 60px 20px;
-}
-
-.not-found-container h2 {
-  font-size: 28px;
-  margin-bottom: 15px;
-  color: #333;
-}
-
-.not-found-container p {
-  color: #666;
-  font-size: 18px;
-}
-
-/* ZOOM STYLES */
-
-/* Contenedor principal para zoom */
 .image-zoom-container {
   position: relative;
   width: 100%;
-  height: 500px;
+  height: 450px;
   overflow: hidden;
   border-radius: 12px;
   background: #f8f8f8;
-  cursor: crosshair;
   user-select: none;
-}
-
-/* Imagen con zoom */
-.carousel-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  transition: transform 0.1s ease-out;
-  will-change: transform;
 }
 
 .carousel-image.zooming {
   cursor: move;
 }
 
-/* Lente de zoom */
-.zoom-lens {
-  position: absolute;
-  width: 150px;
-  height: 150px;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 10;
-  box-shadow: 
-    0 0 0 9999px rgba(0, 0, 0, 0.3),
-    inset 0 0 20px rgba(255, 255, 255, 0.5);
-}
-
-/* Controles de zoom */
+/* Controles de zoom - MEJOR VISIBILIDAD */
 .zoom-controls-overlay {
   position: absolute;
   bottom: 20px;
@@ -482,25 +362,6 @@
   transform: scale(1.1);
 }
 
-.zoom-btn.zoom-in {
-  font-size: 20px;
-}
-
-.zoom-btn.zoom-out {
-  font-size: 24px;
-  line-height: 1;
-}
-
-.zoom-btn.zoom-reset {
-  font-size: 16px;
-  background: #666;
-  color: white;
-}
-
-.zoom-btn.zoom-reset:hover {
-  background: #888;
-}
-
 .zoom-level {
   color: white;
   font-size: 14px;
@@ -509,171 +370,125 @@
   text-align: center;
 }
 
-/* Hint para pantalla completa */
-.zoom-hint {
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  pointer-events: auto;
-  transition: all 0.3s ease;
-}
-
-.zoom-hint:hover {
-  background: rgba(0, 0, 0, 0.9);
-  transform: translateY(-2px);
-}
-
-.zoom-icon {
-  font-size: 16px;
-}
-
-.zoom-text {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-/* Instrucciones de zoom */
+/* Instrucciones de zoom - MEJOR DISEÑO */
 .zoom-instructions {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  top: 15px;
+  left: 15px;
   background: rgba(0, 0, 0, 0.7);
   color: white;
-  padding: 10px 15px;
+  padding: 8px 12px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 11px;
   z-index: 5;
   pointer-events: none;
-  animation: fadeInOut 4s ease-in-out;
+  animation: fadeInOut 3s ease-in-out;
 }
 
 @keyframes fadeInOut {
   0%, 100% { opacity: 0; }
-  10%, 90% { opacity: 1; }
+  10%, 80% { opacity: 1; }
 }
 
-/* Efecto de transición para el zoom */
-.carousel-image {
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+/* ============================================= */
+/* PRODUCT DETAIL - MEJORAS VISUALES */
+/* ============================================= */
+
+.product-detail-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 60px;
+  align-items: start;
 }
 
-/* Scroll deshabilitado cuando hay zoom */
-.image-zoom-container:active {
-  cursor: grabbing;
+.product-detail-info {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 30px;
+  height: fit-content;
 }
 
-/* Miniaturas con indicador de zoom */
-.thumbnail.active.has-zoom::after {
-  content: "🔍";
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: rgba(0, 0, 0, 0.7);
+.add-to-cart-btn {
+  width: 100%;
+  padding: 18px;
+  background: #000;
   color: white;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  z-index: 2;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 15px;
 }
 
-/* Responsive para zoom */
+.add-to-cart-btn:hover:not(:disabled) {
+  background: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+/* ============================================= */
+/* RESPONSIVE PRODUCT DETAIL */
+/* ============================================= */
+
+@media (max-width: 1024px) {
+  .product-detail-container {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
+  .product-detail-info {
+    position: static;
+  }
+}
+
 @media (max-width: 768px) {
-  .image-zoom-container {
-    height: 400px;
-    cursor: default;
+  .product-detail-container {
+    margin: 20px auto;
+    padding: 0 15px;
+    gap: 30px;
   }
   
-  .zoom-lens {
-    display: none; /* Ocultar lente en móviles */
+  .product-detail-info {
+    padding: 25px;
   }
   
-  .zoom-controls-overlay {
-    flex-direction: column;
-    gap: 10px;
-    align-items: stretch;
+  .product-detail-info h1 {
+    font-size: 28px;
   }
   
-  .zoom-controls {
-    justify-content: center;
+  .current-price {
+    font-size: 32px;
   }
   
-  .zoom-hint {
-    justify-content: center;
-  }
-  
-  /* Gestos táctiles para zoom */
-  .image-zoom-container {
-    touch-action: none;
+  .add-to-cart-btn {
+    padding: 16px;
+    font-size: 15px;
   }
 }
 
 @media (max-width: 480px) {
-  .image-zoom-container {
-    height: 350px;
+  .product-detail-info {
+    padding: 20px;
   }
   
-  .zoom-controls {
-    padding: 6px 10px;
+  .product-detail-info h1 {
+    font-size: 24px;
   }
   
-  .zoom-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 16px;
+  .current-price {
+    font-size: 28px;
   }
   
-  .zoom-level {
-    font-size: 12px;
-    min-width: 40px;
+  .add-to-cart-btn {
+    padding: 14px;
+    font-size: 14px;
   }
-}
-
-/* Efecto para indicar que se puede hacer zoom */
-@keyframes pulseZoom {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-}
-
-.image-zoom-container:hover .carousel-image:not(.zooming) {
-  animation: pulseZoom 2s infinite;
-}
-
-/* Tooltip para controles */
-.zoom-btn[title] {
-  position: relative;
-}
-
-.zoom-btn[title]:hover::after {
-  content: attr(title);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #333;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  margin-bottom: 5px;
-}
-
-.zoom-btn[title]:hover::before {
-  content: '';
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: #333;
-  margin-bottom: -5px;
 }

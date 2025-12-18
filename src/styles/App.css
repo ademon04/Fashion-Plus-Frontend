@@ -132,6 +132,7 @@ body {
 }
 
 .logo {
+  
   font-size: 1.8rem;
   font-weight: bold;
   color: var(--primary-color);
@@ -513,3 +514,51 @@ body {
   gap: 2rem;
 }
 
+/* COPIAR ESTO: */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-body: 'Poppins', sans-serif;
+  --font-heading: 'Playfair Display', serif;
+}
+
+/* Aplicar a tu sitio: */
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Productos */
+.product-name {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: 0.3px;
+}
+
+/* Precios */
+.current-price {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+}
+
+/* Botones */
+.add-to-cart-btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+/* Header/Nav */
+.nav-links a {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}

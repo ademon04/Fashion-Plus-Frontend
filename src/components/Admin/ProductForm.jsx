@@ -12,7 +12,8 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     { size: 'XXXL', stock: 0 },
   ];
 
-  const shoeSizes = [
+  // Tallas para tenis hombre/unisex
+  const shoeSizesMen = [
     { size: '25', stock: 0 },
     { size: '25.5', stock: 0 },
     { size: '26', stock: 0 },
@@ -30,6 +31,32 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     { size: '32', stock: 0 }
   ];
 
+  // Tallas para tenis mujer (20-28)
+  const shoeSizesWomen = [
+    { size: '20', stock: 0 },
+    { size: '20.5', stock: 0 },
+    { size: '21', stock: 0 },
+    { size: '21.5', stock: 0 },
+    { size: '22', stock: 0 },
+    { size: '22.5', stock: 0 },
+    { size: '23', stock: 0 },
+    { size: '23.5', stock: 0 },
+    { size: '24', stock: 0 },
+    { size: '24.5', stock: 0 },
+    { size: '25', stock: 0 },
+    { size: '25.5', stock: 0 },
+    { size: '26', stock: 0 },
+    { size: '26.5', stock: 0 },
+    { size: '27', stock: 0 },
+    { size: '27.5', stock: 0 },
+    { size: '28', stock: 0 }
+  ];
+
+  // Cantidad simple para accesorios
+  const accessoriesQuantity = [
+    { size: 'Unidad', stock: 0 }
+  ];
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -43,27 +70,37 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     featured: false
   });
 
-  // Efecto para cambiar las tallas cuando cambia la subcategoría
-  useEffect(() => {
-    if (formData.subcategory === 'tenis') {
-      setFormData(prev => ({
-        ...prev,
-        sizes: shoeSizes
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        sizes: clothingSizes
-      }));
+  // Obtener las tallas correctas según categoría y subcategoría
+  const getSizesForProduct = (category, subcategory) => {
+    if (subcategory === 'tenis' || subcategory === 'zapatos') {
+      if (category === 'mujer') {
+        return shoeSizesWomen;
+      } else {
+        return shoeSizesMen;
+      }
     }
-  }, [formData.subcategory]);
+    
+    if (subcategory === 'bolsas' || subcategory === 'accesorios') {
+      return accessoriesQuantity;
+    }
+    
+    return clothingSizes;
+  };
+
+  // Efecto para cambiar las tallas cuando cambia la categoría o subcategoría
+  useEffect(() => {
+    const newSizes = getSizesForProduct(formData.category, formData.subcategory);
+    setFormData(prev => ({
+      ...prev,
+      sizes: newSizes
+    }));
+  }, [formData.category, formData.subcategory]);
 
   // Cargar datos si estamos editando
   useEffect(() => {
     if (product) {
-      const initialSizes = product.subcategory === 'tenis' ? shoeSizes : clothingSizes;
+      const initialSizes = getSizesForProduct(product.category, product.subcategory);
 
-      // IMPORTANTE: No aplicar trim aquí a name y description
       setFormData({
         name: product.name || '',
         description: product.description || '',
@@ -83,13 +120,10 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
   }, [product]);
 
   /* ------------------------------
-        HANDLERS CORREGIDOS
+        HANDLERS
   ------------------------------ */
-
   const handleChange = e => {
     const { name, value, type, checked } = e.target;
-
-    // NUNCA aplicar trim durante la edición - permite espacios en todos los campos
     const finalValue = type === "checkbox" ? checked : value;
 
     setFormData(prev => ({
@@ -112,45 +146,56 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     setFormData(prev => ({ ...prev, sizes: newSizes }));
   };
 
-  /* ------------------------------
-        ENVIAR FORMULARIO
-  ------------------------------ */
-const handleSubmit = e => {
-  e.preventDefault();
+  const handleSubmit = e => {
+    e.preventDefault();
 
-  if (!formData.category || !formData.subcategory || !formData.price) {
-    alert("Debes completar todos los campos obligatorios");
-    return;
-  }
-
-  const fd = new FormData();
-
-  // SIN .trim() - mantiene espacios incluso al enviar
-  fd.append("name", String(formData.name || ""));
-  fd.append("description", String(formData.description || ""));
-  fd.append("price", String(formData.price || "0"));
-  fd.append("originalPrice", String(formData.originalPrice || "0"));
-  // Solo categoría y subcategoría con trim (son selects)
-  fd.append("category", String(formData.category || "").trim());
-  fd.append("subcategory", String(formData.subcategory || "").trim());
-  fd.append("onSale", String(formData.onSale));
-  fd.append("featured", String(formData.featured));
-  fd.append("sizes", JSON.stringify(formData.sizes));
-
-  formData.images.forEach(img => {
-    if (img instanceof File) {
-      fd.append("images", img);
+    if (!formData.category || !formData.subcategory || !formData.price) {
+      alert("Debes completar todos los campos obligatorios");
+      return;
     }
-  });
 
-  onSubmit(fd);
-};
+    const fd = new FormData();
+    fd.append("name", String(formData.name || ""));
+    fd.append("description", String(formData.description || ""));
+    fd.append("price", String(formData.price || "0"));
+    fd.append("originalPrice", String(formData.originalPrice || "0"));
+    fd.append("category", String(formData.category || "").trim());
+    fd.append("subcategory", String(formData.subcategory || "").trim());
+    fd.append("onSale", String(formData.onSale));
+    fd.append("featured", String(formData.featured));
+    fd.append("sizes", JSON.stringify(formData.sizes));
+
+    formData.images.forEach(img => {
+      if (img instanceof File) {
+        fd.append("images", img);
+      }
+    });
+
+    onSubmit(fd);
+  };
+
   // Función para obtener el texto descriptivo de las tallas
   const getSizeDescription = () => {
-    if (formData.subcategory === 'tenis') {
-      return "Tallas de Calzado (25-32)";
+    if (formData.subcategory === 'tenis' || formData.subcategory === 'zapatos') {
+      if (formData.category === 'mujer') {
+        return "Tallas de Calzado Mujer (20-28)";
+      }
+      return "Tallas de Calzado Hombre/Unisex (25-32)";
     }
+    
+    if (formData.subcategory === 'bolsas' || formData.subcategory === 'accesorios') {
+      return "Cantidad Disponible";
+    }
+    
     return "Tallas de Ropa (XS-XXXL)";
+  };
+
+  // Función para obtener el placeholder del input de cantidad
+  const getSizePlaceholder = () => {
+    if (formData.subcategory === 'bolsas' || formData.subcategory === 'accesorios') {
+      return "Ej: 5 unidades";
+    }
+    return "0";
   };
 
   return (
@@ -242,6 +287,7 @@ const handleSubmit = e => {
               <option value="conjuntos">Conjuntos</option>
               <option value="vestidos">Vestidos</option>
               <option value="bolsas">Bolsas</option>
+              <option value="accesorios">Accesorios</option>
               <option value="ropa-niños">Ropa Niños</option>
             </select>
           </div>
@@ -263,7 +309,7 @@ const handleSubmit = e => {
         </div>
 
         <div className="form-group">
-          <label>Inventario por Tallas</label>
+          <label>Inventario por {formData.subcategory === 'bolsas' || formData.subcategory === 'accesorios' ? 'Cantidad' : 'Tallas'}</label>
           <div className="size-description">
             <small>{getSizeDescription()}</small>
           </div>
@@ -276,7 +322,7 @@ const handleSubmit = e => {
                   value={size.stock}
                   min="0"
                   onChange={e => handleSizeChange(index, e.target.value)}
-                  placeholder="0"
+                  placeholder={getSizePlaceholder()}
                 />
               </div>
             ))}

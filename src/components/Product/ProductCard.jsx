@@ -120,16 +120,11 @@ const ProductCard = ({ product, fromPage = "home", category = "" }) => {
 
       <div className="product-info">
         {/* También hacer clickeable el título */}
-        <Link 
-          to={`/producto/${product._id}`}
-          state={{ 
-            from: detectedFromPage,
-            category: category || product.category?.toLowerCase()
-          }}
-          className="product-name-link"
-        >
+        
+         
+        
           <h3 className="product-name">{product.name}</h3>
-        </Link>
+      
         
         <p className="product-category">{product.category}</p>
         <div className="product-price">
