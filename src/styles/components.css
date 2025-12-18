@@ -1456,6 +1456,13 @@
   align-items: center;
   gap: 0.5rem;
   box-shadow: var(--shadow);
+  margin-top: 43px;
+
+}
+@media (max-width: 768px) {
+  .hamburger-btn {
+    margin-top: 5px; 
+  }
 }
 
 .hamburger-btn:hover {
