@@ -19,7 +19,7 @@ const CartSummary = () => {
   }
 
   const subtotal = getCartTotal ? getCartTotal() : 0;
-  const shipping = subtotal > 50 ? 0 : 5.99;
+  const shipping = subtotal > 50 ? 0 : 150;
   const total = subtotal + shipping;
 
   return (
@@ -40,7 +40,7 @@ const CartSummary = () => {
 
       {shipping > 0 && (
         <div className="shipping-notice">
-          ¡Faltan ${(50 - subtotal).toFixed(2)} para envío gratis!
+          ¡Faltan ${(5000 - subtotal).toFixed(2)} para envío gratis!
         </div>
       )}
 

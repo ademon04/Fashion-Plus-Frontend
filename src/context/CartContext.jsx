@@ -47,7 +47,7 @@ export const CartProvider = ({ children }) => {
 
   const [cart, setCart] = useState(() => loadCartFromCookie());
 
-  // 🔥 FUNCIÓN PARA VERIFICAR STOCK EN TIEMPO REAL
+  //  FUNCIÓN PARA VERIFICAR STOCK EN TIEMPO REAL
   const checkStock = async (productId, size, quantityToAdd = 0, currentInCart = 0) => {
   try {
     const product = await productService.getProductById(productId);

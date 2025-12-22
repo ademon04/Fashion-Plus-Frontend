@@ -53,7 +53,7 @@ const CartItem = ({ item }) => {
         <p className="size">Talla: {item.size}</p>
         <p className="price">${item.product.price}</p>
 
-        {/* 🔥 SELECTOR DE CANTIDAD CON LÍMITES */}
+        {/*  SELECTOR DE CANTIDAD CON LÍMITES */}
         <div className="quantity-controls">
           <div className="quantity-selector">
             <button 
