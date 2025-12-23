@@ -26,19 +26,19 @@ const Cart = () => {
   }
 
   return (
-    <div className="cart-page" style={{ padding: "20px" }}>
-      <h1 style={{ marginBottom: "20px" }}>Tu Carrito</h1>
+    <div className="cart-page">
+      <h1>Tu Carrito</h1>
 
-      <div className="cart-content" style={{ display: "flex", gap: "40px" }}>
+      <div className="cart-content">
         {/* Lista de productos */}
-        <div className="cart-items" style={{ flex: 2 }}>
+        <div className="cart-items">
           {cart.map((item, index) => (
             <CartItem key={index} item={item} />
           ))}
         </div>
 
         {/* Resumen */}
-        <div className="cart-summary" style={{ flex: 1 }}>
+        <div className="cart-summary">
           <CartSummary />
         </div>
       </div>
