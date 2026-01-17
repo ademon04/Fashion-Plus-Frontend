@@ -47,7 +47,7 @@ const Home = () => {
     {
       icon: '⇨',
       title: 'Envío Express',
-      description: 'Entrega en 24-48 horas para toda la península'
+      description: 'Entrega en 24-48 horas para toda la republica'
     },
     {
       icon: 'Ⓝ',
@@ -246,20 +246,16 @@ const Home = () => {
                           <span className="current-price">
                             ${product.price?.toLocaleString() || '--'}
                           </span>
-                          {product.originalPrice && (
+                         {product.originalPrice > 0 && (
                             <span className="original-price">
-                              ${product.originalPrice.toLocaleString()}
-                            </span>
-                          )}
+                             ${product.originalPrice.toLocaleString()}
+                               </span>
+                               )}
+                         
                         </div>
                         
                         <div className="product-actions">
-                          <button
-                            className="gallery-button"
-                            onClick={() => handleOpenGallery(product)}
-                          >
-                            <span className="button-text">Gallery</span>
-                          </button>
+                          
                           <Link
                             to={`/producto/${product._id}`}
                             className="details-button"
@@ -359,7 +355,7 @@ const Home = () => {
                       : 'Discover this exclusive piece from our premium collection.'}
                   </p>
                   
-                  {/* ⭐⭐⭐⭐⭐ SOLO BOTÓN PARA VER PÁGINA COMPLETA ⭐⭐⭐⭐⭐ */}
+                  {/*SOLO BOTÓN PARA VER PÁGINA COMPLETA */}
                   <div className="modal-simple-actions">
                     <Link
                       to={`/producto/${selectedProduct._id}`}
@@ -373,11 +369,11 @@ const Home = () => {
                     
                     <div className="quick-info">
                       <div className="info-item">
-                        <span className="info-icon">🚚</span>
+                        <span className="info-icon">⇨</span>
                         <span className="info-text">Free Shipping</span>
                       </div>
                       <div className="info-item">
-                        <span className="info-icon">↩️</span>
+                        <span className="info-icon">↩</span>
                         <span className="info-text">30-Day Returns</span>
                       </div>
                     </div>

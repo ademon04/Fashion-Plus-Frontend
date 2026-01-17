@@ -184,7 +184,7 @@ const ProductImageCarousel = ({
                 onClick={handleImageClick}
                 title="Click para ver en pantalla completa"
               >
-                <span className="zoom-icon">🔍</span>
+                <span className="zoom-icon"></span>
                 <span className="zoom-text">Pantalla completa</span>
               </div>
             </div>

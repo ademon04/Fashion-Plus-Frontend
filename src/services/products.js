@@ -14,12 +14,7 @@ export const productService = {
       if (filters.sort) params.append('sort', filters.sort);
       
       const response = await api.get(`/products?${params}`);
-      console.log('🔍 getProducts - response.data:', response.data);
-      console.log('🔍 getProducts - response.data.products:', response.data.products);
-      console.log('🔍 getProducts - typeof response.data.products:', typeof response.data.products);
-      console.log('🔍 getProducts - Array.isArray:', Array.isArray(response.data.products));
-          console.log('🔍 DEBUG SERVICE - Respuesta cruda:', response.data);
-
+      
       
       // 🔥 CORRECCIÓN DEFINITIVA: Extraer products correctamente
       let productsData = [];
@@ -31,8 +26,7 @@ export const productService = {
         productsData = response.data;
       }
       
-      console.log('🔍 getProducts - productsData después de extracción:', productsData);
-      console.log('🔍 getProducts - productsData length:', productsData.length);
+     
       
       // Procesar imágenes
       const products = productsData.map(product => {
@@ -55,7 +49,6 @@ export const productService = {
         }
       });
 
-      console.log('🔍 getProducts - productos finales:', products);
       return products;
       
     } catch (error) {
@@ -67,11 +60,9 @@ export const productService = {
   async getProductById(id) {
     try {
       const response = await api.get(`/products/${id}`);
-      console.log('🔍 getProductById - response.data:', response.data);
       
       // 🔥 CORRECCIÓN: Acceder a response.data.product
       const productData = response.data.product || response.data;
-      console.log('🔍 getProductById - productData:', productData);
       
       return {
         ...productData,
@@ -107,12 +98,9 @@ export const productService = {
 export const getFeaturedProducts = async () => {
   try {
     const response = await api.get('/products/featured');
-    console.log('🔍 getFeaturedProducts - response.data:', response.data);
-
-    // 🔥 CORRECCIÓN: Acceder a response.data.products
+    //  CORRECCIÓN: Acceder a response.data.products
     const productsData = response.data.products || response.data || [];
-    console.log('🔍 getFeaturedProducts - productsData:', productsData);
-        console.log('🔍 DEBUG SERVICE - Antes de procesar imágenes:', productsData[0]?.images);
+   
 
 
     const products = productsData.map(product => ({
@@ -124,7 +112,6 @@ export const getFeaturedProducts = async () => {
         return `${BACKEND_URL}/uploads/${img}`;
       }) || []
     }));
-    console.log('🔍 DEBUG SERVICE - Después de procesar imágenes:', products[0]?.images);
 
     return products;
 

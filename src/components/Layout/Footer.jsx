@@ -98,7 +98,7 @@ const Footer = () => {
       </div>
       
       <div className="footer-bottom">
-        <p>&copy; 2025 Fashion Plus Premium. Todos los derechos reservados.</p>
+        <p>&copy; 2026 Fashion Plus Premium. Todos los derechos reservados.</p>
       </div>
     </footer>
   );

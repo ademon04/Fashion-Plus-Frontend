@@ -8,10 +8,10 @@ const Checkout = () => {
   const { items, getCartTotal, clearCart } = useCart();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("stripe"); // "stripe" o "mercadopago"
+  const [paymentMethod, setPaymentMethod] = useState("stripe"); 
   
   const { createCheckoutSession, loading: stripeLoading, error: stripeError } = useStripePayment();
-  console.log('🔍 Hook cargado:', {
+  console.log(' Hook cargado:', {
   createCheckoutSession: typeof createCheckoutSession,
   exists: !!createCheckoutSession
 });
@@ -41,7 +41,7 @@ const Checkout = () => {
 
 const handleStripePayment = async () => {
   try {
-    // ✅ 1. CREAR ORDEN EN MONGODB (igual que Mercado Pago)
+    //  CREAR ORDEN EN MONGODB 
     const orderData = {
       items: items.map(item => ({
         product: item.product._id,
@@ -55,7 +55,7 @@ const handleStripePayment = async () => {
         zipCode: customerData.zipCode,
       },
       shippingAddress: `${customerData.address}, ${customerData.city}, ${customerData.zipCode}, México`,
-      paymentMethod: 'stripe', // ✅ ESPECIFICAR QUE ES STRIPE
+      paymentMethod: 'stripe',
       guest: true,
     };
 
@@ -75,9 +75,9 @@ const handleStripePayment = async () => {
     const orderId = orderResult.order.id;
     console.log("✅ Orden Stripe creada en MongoDB:", orderId);
 
-    // ✅ 2. CREAR SESIÓN DE STRIPE CON orderId
+    //  2. CREAR SESIÓN DE STRIPE CON orderId
     const stripeOrderData = {
-      orderId: orderId, // ✅ ENVIAR orderId
+      orderId: orderId,
       items: items.map(item => ({
         product: item.product._id,
         name: item.product.name,
@@ -97,17 +97,17 @@ const handleStripePayment = async () => {
       cancelUrl: `${window.location.origin}/checkout/failure`
     };
 
-    console.log('📤 Creando sesión Stripe para orden:', orderId);
+    console.log(' Creando sesión Stripe para orden:', orderId);
     await createCheckoutSession(stripeOrderData);
 
   } catch (error) {
-    console.error('❌ Error en checkout de Stripe:', error);
+    console.error(' Error en checkout de Stripe:', error);
     alert('Error al procesar el pago con Stripe: ' + error.message);
   }
 };
 // Función de diagnóstico - ejecútala temporalmente
 const diagnoseCartItems = () => {
-  console.log('🔍 DIAGNÓSTICO DEL CARRITO:');
+  
   
   items.forEach((item, index) => {
     console.log(`Item ${index + 1}:`, {
@@ -129,17 +129,13 @@ const diagnoseCartItems = () => {
   );
 
   if (problematicItems.length > 0) {
-    console.error('❌ ITEMS PROBLEMÁTICOS:', problematicItems);
+    console.error('ITEMS PROBLEMÁTICOS:', problematicItems);
     alert(`Se encontraron ${problematicItems.length} productos con precios inválidos. Por favor, recarga la página.`);
   } else {
-    console.log('✅ Todos los items tienen precios válidos');
+    console.log('Todos los items tienen precios válidos');
   }
 };
 
-// Ejecuta esta función temporalmente en tu componente
-// useEffect(() => {
-//   diagnoseCartItems();
-// }, [items]);
   // Procesar pago con Mercado Pago (lógica original)
   const handleMercadoPagoPayment = async () => {
     try {

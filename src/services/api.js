@@ -22,7 +22,6 @@ api.interceptors.request.use((config) => {
     config.headers['Content-Type'] = 'application/json';
   }
 
-  console.log('🔄 Enviando request a:', `${config.baseURL}${config.url}`);
   return config;
 }, (error) => {
   console.error('❌ Error en request:', error);

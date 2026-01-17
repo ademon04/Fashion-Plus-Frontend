@@ -60,7 +60,7 @@ const ProductCard = ({ product, fromPage = "home", category = "" }) => {
   };
 
   const formatPrice = (price) => {
-    if (!price) return '$0.00';
+    if (!price) return '--';
     const numericPrice = typeof price === 'string' ? parseFloat(price.replace(/[^\d.]/g, '')) : Number(price);
     return isNaN(numericPrice) ? '$0.00' : new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(numericPrice);
   };
