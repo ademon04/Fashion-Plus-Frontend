@@ -92,7 +92,9 @@ const ProductCard = ({ product, fromPage = "home", category = "" }) => {
           to={`/producto/${product._id}`}
           state={{ 
             from: detectedFromPage,
-            category: category || product.category?.toLowerCase()
+            category: category || product.category?.toLowerCase(),
+            subcategory: product.subcategory?.toLowerCase()
+            
           }}
         >
           {imageStatus === 'loading' && (

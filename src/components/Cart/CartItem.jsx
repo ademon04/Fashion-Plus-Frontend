@@ -97,9 +97,7 @@ const CartItem = ({ item }) => {
         </button>
       </div>
 
-      <div className="item-total">
-        ${(item.product.price * item.quantity).toFixed(2)}
-      </div>
+      
     </div>
   );
 };

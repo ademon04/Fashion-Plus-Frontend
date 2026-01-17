@@ -127,6 +127,21 @@ const ProductDetail = () => {
     setLightboxPosition({ x: 0, y: 0 });
   };
 
+const handleBackToProducts = () => {
+  // Si tenemos el producto cargado, usar sus datos
+  if (product) {
+    navigate('/products', { 
+      state: { 
+        category: product.category || '',
+        subcategory: product.subcategory || ''
+      } 
+    });
+  } 
+  // Si no, volver normalmente
+  else {
+    navigate(-1);
+  }
+};
   // ===== ZOOM DESKTOP =====
   const handleLightboxWheel = (e) => {
     e.preventDefault();
@@ -715,8 +730,8 @@ const ProductDetail = () => {
               onClick={closeLightbox}
               aria-label="Cerrar lightbox"
             >
-              <span>✕</span>
-              Cerrar
+              
+              
             </button>
           </div>
         </div>

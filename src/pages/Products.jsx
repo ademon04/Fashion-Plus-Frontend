@@ -145,9 +145,11 @@ const Products = () => {
         {/* Grid de Productos */}
         <main className="products-main">
           <div className="products-info">
+            <h2 className="collection-title">THE COMPLETE COLLECTION</h2>
+        
             <p>
               {filteredProducts.length === products.length 
-                ? `Mostrando todos los ${products.length} productos`
+                ? `Showing our ${products.length} products`
                 : `Mostrando ${filteredProducts.length} de ${products.length} productos`
               }
               {filters.subcategory && ` - Subcategoría: ${filters.subcategory}`}

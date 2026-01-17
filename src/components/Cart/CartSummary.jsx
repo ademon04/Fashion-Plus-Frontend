@@ -34,7 +34,7 @@ const CartSummary = () => {
       <div className="summary-row">
         <span>Envío</span>
         <span>
-          {shipping === 0 ? 'Gratis' : `$${shipping.toFixed(2)}`}
+          {shipping === 5000 ? 'Gratis' : `$${shipping.toFixed(2)}`}
         </span>
       </div>
 
