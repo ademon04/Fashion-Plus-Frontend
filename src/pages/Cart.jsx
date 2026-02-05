@@ -6,7 +6,6 @@ import CartSummary from "../components/Cart/CartSummary";
 const Cart = () => {
   const { cart } = useCart();
 
-  // Evita error al cargar carrito
   if (!cart || !Array.isArray(cart)) {
     return (
       <div style={{ padding: "40px", textAlign: "center" }}>
@@ -15,8 +14,7 @@ const Cart = () => {
     );
   }
 
-  // Carrito vacío
-  if (cart.length === 0) {
+ if (cart.length === 0) {
     return (
       <div style={{ padding: "40px", textAlign: "center" }}>
         <h2>Tu carrito está vacío</h2>

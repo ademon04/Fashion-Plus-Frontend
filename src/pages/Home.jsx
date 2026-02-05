@@ -5,6 +5,8 @@ import { getFeaturedProducts } from '../services/products';
 import ProductCard from '../components/Product/ProductCard';
 import ProductImageCarousel from '../components/Product/ProductImageCarousel';
 import '../styles/home.css';
+import heroBgImage from '../images/hero-bg.webp'; // ← Ruta corregida
+
 
 const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -243,14 +245,8 @@ const Home = () => {
                       
                       <div className="product-footer">
                         <div className="price-section">
-                          <span className="current-price">
-                            ${product.price?.toLocaleString() || '--'}
-                          </span>
-                         {product.originalPrice > 0 && (
-                            <span className="original-price">
-                             ${product.originalPrice.toLocaleString()}
-                               </span>
-                               )}
+                         
+                              
                          
                         </div>
                         
@@ -395,6 +391,7 @@ const Home = () => {
             </p>
           </div>
           
+          
           {loading ? (
             <div className="collection-loading">
               <div className="loading-spinner"></div>
@@ -436,10 +433,39 @@ const Home = () => {
                 </div>
               )}
             </>
+            
           )}
         </div>
       </section>
+      {/* Brand Story Section */}
+<section className="brand-story-hero">
+  <div className="brand-story-container">
+    <div className="brand-story-image">
+      {/* Tu imagen importada aquí */}
+      <img 
+              src={heroBgImage} 
+              alt="Nuestra marca - Moda exclusiva y diseño contemporáneo"
+              className="brand-image"
+              loading="lazy"
+            />
     </div>
+    
+    <div className="brand-story-content">
+      <div className="story-badge">EST. 2007</div>
+      <h2>Beyond Fashion.<br />A Statement.</h2>
+      <p>
+        Nacimos de la idea de que la moda debe contar historias. 
+        Cada pieza es un diálogo entre tradición y vanguardia, 
+        creada para quienes buscan algo más que ropa.
+      </p>
+      <Link to="/aboutUs" className="story-cta">
+        Discover Our Philosophy ⟶
+      </Link>
+    </div>
+  </div>
+</section>
+    </div>
+    
   );
 };
 

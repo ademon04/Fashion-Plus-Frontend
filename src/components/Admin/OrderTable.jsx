@@ -10,7 +10,6 @@ const OrderTable = ({
   isArchivedView = false 
 }) => {
 
-  // ... mantén todas tus funciones existentes (getStatusBadge, etc.) ...
 
   const handleStatusChange = async (orderId, newStatus) => {
     if (onStatusUpdate) {

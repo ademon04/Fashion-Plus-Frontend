@@ -1,5 +1,7 @@
 import React from "react";
 
+import '../styles/aboutUs.css';
+
 const AboutUs = () => {
   return (
     <div className="about-container">

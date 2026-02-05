@@ -396,7 +396,7 @@
 /* Preview Image */
 .preview-image-container {
   position: relative;
-  height: 240px;
+  height: 330px;
   overflow: hidden;
   cursor: pointer;
 }
@@ -1148,4 +1148,363 @@
   transition: all 0.3s ease;
   cursor: pointer;
   padding-right: 10px;
+}
+
+/* ============================================
+   BRAND STORY SECTION - RESPONSIVE
+   ============================================ */
+
+/* Contenedor principal */
+.brand-story-hero {
+  margin: 80px 0 100px;
+  position: relative;
+  background: #fafafa;
+}
+
+/* Versión Desktop (≥ 1200px) */
+.brand-story-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  min-height: 500px;
+  align-items: center;
+}
+
+.brand-story-image {
+  height: 500px;
+  background: linear-gradient(135deg, #e8e8e8 0%, #d0d0d0 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Imagen real cuando la importes */
+.brand-story-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.brand-story-content {
+  padding: 60px;
+  background: white;
+  margin-left: -60px;
+  z-index: 2;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+.story-badge {
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  margin-bottom: 30px;
+  color: #888;
+  text-transform: uppercase;
+  font-weight: 300;
+}
+
+.brand-story-content h2 {
+  font-size: 2.5rem;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  font-weight: 300;
+  color: #1a1a1a;
+}
+
+.brand-story-content p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #666;
+  margin-bottom: 30px;
+  font-weight: 300;
+}
+
+.story-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+  color: #333;
+  text-decoration: none;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-weight: 400;
+  padding: 12px 0;
+  border-bottom: 1px solid transparent;
+}
+
+.story-cta:hover {
+  gap: 15px;
+  border-bottom-color: #333;
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Tablet Landscape (992px - 1199px) */
+@media screen and (max-width: 1199px) {
+  .brand-story-hero {
+    margin: 70px 0 90px;
+  }
+  
+  .brand-story-container {
+    max-width: 960px;
+    grid-template-columns: 1fr 1fr;
+    min-height: 450px;
+  }
+  
+  .brand-story-image {
+    height: 450px;
+  }
+  
+  .brand-story-content {
+    padding: 50px;
+    margin-left: -40px;
+  }
+  
+  .brand-story-content h2 {
+    font-size: 2.2rem;
+  }
+}
+
+/* Tablet Portrait (768px - 991px) */
+@media screen and (max-width: 991px) {
+  .brand-story-hero {
+    margin: 60px 0 80px;
+    padding: 0 20px;
+  }
+  
+  .brand-story-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    gap: 0;
+    min-height: auto;
+  }
+  
+  .brand-story-image {
+    height: 400px;
+    width: 100%;
+  }
+  
+  .brand-story-content {
+    margin-left: 0;
+    margin-top: -60px;
+    padding: 40px;
+    width: 90%;
+    justify-self: center;
+  }
+  
+  .brand-story-content h2 {
+    font-size: 2rem;
+  }
+}
+
+/* Mobile Large (576px - 767px) */
+@media screen and (max-width: 767px) {
+  .brand-story-hero {
+    margin: 50px 0 70px;
+    padding: 0 15px;
+  }
+  
+  .brand-story-image {
+    height: 350px;
+  }
+  
+  .brand-story-content {
+    padding: 35px 30px;
+    width: 95%;
+    margin-top: -50px;
+  }
+  
+  .brand-story-content h2 {
+    font-size: 1.8rem;
+  }
+  
+  .brand-story-content p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  
+  .story-cta {
+    font-size: 0.85rem;
+    padding: 10px 0;
+  }
+}
+
+/* Mobile Small (375px - 575px) */
+@media screen and (max-width: 575px) {
+  .brand-story-hero {
+    margin: 40px 0 60px;
+    padding: 0 12px;
+  }
+  
+  .brand-story-image {
+    height: 300px;
+  }
+  
+  .brand-story-content {
+    padding: 30px 25px;
+    width: 100%;
+    margin-top: -40px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  }
+  
+  .brand-story-content h2 {
+    font-size: 1.6rem;
+    margin-bottom: 15px;
+  }
+  
+  .brand-story-content p {
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+  }
+  
+  .story-badge {
+    font-size: 0.75rem;
+    margin-bottom: 20px;
+  }
+  
+  .story-cta {
+    font-size: 0.8rem;
+    gap: 8px;
+  }
+  
+  .story-cta:hover {
+    gap: 12px;
+  }
+}
+
+/* Mobile Extra Small (≤ 374px) */
+@media screen and (max-width: 374px) {
+  .brand-story-hero {
+    margin: 30px 0 50px;
+    padding: 0 10px;
+  }
+  
+  .brand-story-image {
+    height: 250px;
+  }
+  
+  .brand-story-content {
+    padding: 25px 20px;
+    margin-top: -30px;
+  }
+  
+  .brand-story-content h2 {
+    font-size: 1.4rem;
+  }
+  
+  .brand-story-content p {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+  
+  .story-badge {
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+  }
+}
+
+/* ============================================
+   EFECTOS ESPECIALES RESPONSIVE
+   ============================================ */
+
+/* Efecto hover solo en dispositivos con hover */
+@media (hover: hover) {
+  .story-cta:hover {
+    gap: 15px;
+    border-bottom-color: #333;
+  }
+}
+
+/* Ajustes para modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .brand-story-hero {
+    background: #0a0a0a;
+  }
+  
+  .brand-story-content {
+    background: #1a1a1a;
+    color: #fff;
+  }
+  
+  .brand-story-content h2 {
+    color: #fff;
+  }
+  
+  .brand-story-content p {
+    color: #ccc;
+  }
+  
+  .story-badge {
+    color: #aaa;
+  }
+  
+  .story-cta {
+    color: #fff;
+  }
+  
+  .story-cta:hover {
+    border-bottom-color: #fff;
+  }
+}
+
+/* Ajustes para orientación landscape en móviles */
+@media screen and (max-height: 600px) and (orientation: landscape) {
+  .brand-story-container {
+    min-height: 300px;
+  }
+  
+  .brand-story-image {
+    height: 300px;
+  }
+  
+  .brand-story-content {
+    padding: 25px;
+    margin-top: -40px;
+  }
+}
+
+/* Soporte para tablets de alta resolución */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  .brand-story-container {
+    min-height: 400px;
+  }
+  
+  .brand-story-image {
+    height: 400px;
+  }
+}
+
+/* ============================================
+   ANIMACIONES RESPONSIVE
+   ============================================ */
+
+/* Solo animar en dispositivos que no sean móviles muy antiguos */
+@media (prefers-reduced-motion: no-preference) {
+  .brand-story-content {
+    animation: fadeInUp 0.8s ease-out;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Para dispositivos que prefieren movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .story-cta {
+    transition: none;
+  }
 }
