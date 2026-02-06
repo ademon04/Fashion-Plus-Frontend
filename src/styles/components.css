@@ -3782,3 +3782,101 @@ select:focus {
     width: 100%;
   }
 }
+/* ============================================= */
+/* FIX DEFINITIVO - SCROLL EN MÓVILES */
+/* REEMPLAZA todo el código mobile anterior con ESTE */
+/* ============================================= */
+
+@media (max-width: 768px) {
+  /* === PASO 1: Resetear TODA la estructura === */
+  * {
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  html {
+    overflow: auto !important;
+    overflow-x: hidden !important;
+    height: 100% !important;
+    position: relative !important;
+  }
+  
+  body {
+    overflow: auto !important;
+    overflow-x: hidden !important;
+    height: 100% !important;
+    position: relative !important;
+  }
+  
+  #root {
+    overflow: auto !important;
+    overflow-x: hidden !important;
+    min-height: 100vh !important;
+    height: auto !important;
+    position: relative !important;
+  }
+  
+  .App {
+    overflow: auto !important;
+    overflow-x: hidden !important;
+    min-height: 100vh !important;
+    height: auto !important;
+    position: relative !important;
+  }
+  
+  .main-content {
+    overflow: visible !important;
+    overflow-x: hidden !important;
+    min-height: 100vh !important;
+    height: auto !important;
+    position: relative !important;
+    padding-top: 80px !important;
+    padding-bottom: 3rem !important;
+  }
+  
+  /* === PASO 2: Header DEBE ser sticky, NO fixed === */
+  .header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+  }
+  
+  /* === PASO 3: Formulario completamente fluido === */
+  
+ 
+.product-form-container {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: calc(100vh - 80px) !important; /* Cambiado */
+  margin: 0 auto 2rem !important;
+  padding: 1rem !important;
+  overflow-y: auto !important; /* Cambiado */
+  overflow-x: hidden !important; /* Cambiado */
+  -webkit-overflow-scrolling: touch !important; /* Agregado para iOS */
+  box-sizing: border-box !important;
+}
+  
+  
+  
+  /* === PASO 4: Todos los elementos internos === */
+ 
+  
+ 
+  
+  
+  
+  
+  
+
+
+  
+  /* === PASO 9: Evitar zoom iOS === */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+  
+}
