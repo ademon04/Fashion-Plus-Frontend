@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import ProductGrid from '../components/Product/ProductGrid';
 import ProductFilters from '../components/Product/ProductFilters';
 import { productService } from '../services/products';
 
 const Products = () => {
+  const location = useLocation();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Ref para trackear si es la primera carga
+  const isFirstLoadRef = useRef(true);
   
   // ACTUALIZA los filtros para incluir subcategory y onSale
   const [filters, setFilters] = useState({
@@ -17,6 +22,31 @@ const Products = () => {
     search: '',
     onSale: false
   });
+
+  // 🔥 NUEVO: Restaurar scroll cuando vuelves de ProductDetail
+  useEffect(() => {
+    // Si vienes de ProductDetail con una posición guardada
+    if (location.state?.scrollPosition && !isFirstLoadRef.current) {
+      console.log('📍 Restaurando scroll a:', location.state.scrollPosition);
+      
+      // Usar setTimeout para asegurar que el DOM esté listo
+      setTimeout(() => {
+        window.scrollTo(0, location.state.scrollPosition);
+      }, 0);
+    }
+    
+    // Si vienes con filtros desde ProductDetail, aplicarlos
+    if (location.state?.category || location.state?.subcategory) {
+      setFilters(prev => ({
+        ...prev,
+        category: location.state.category || prev.category,
+        subcategory: location.state.subcategory || prev.subcategory
+      }));
+    }
+    
+    // Marcar que ya no es la primera carga
+    isFirstLoadRef.current = false;
+  }, [location.state]);
 
   useEffect(() => {
     loadProducts();
