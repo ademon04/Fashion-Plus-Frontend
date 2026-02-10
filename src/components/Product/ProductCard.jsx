@@ -1,4 +1,4 @@
-// src/components/Product/ProductCard.jsx - VERSIÓN COMPLETA
+// src/components/Product/ProductCard.jsx - CON SCROLL PRESERVATION
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
@@ -11,7 +11,6 @@ const ProductCard = ({ product, fromPage = "home", category = "" }) => {
   const { addToCart } = useCart();
   const location = useLocation();
 
-  // Si no se especifica fromPage, detectar automáticamente
   const detectedFromPage = fromPage || (location.pathname === '/' ? 'home' : 'productos');
   
   useEffect(() => {
@@ -21,7 +20,6 @@ const ProductCard = ({ product, fromPage = "home", category = "" }) => {
         return;
       }
 
-      // Las imágenes YA vienen como URLs completas de Cloudinary que funcionan
       const validUrls = product.images.filter(url => 
         url && url.startsWith('http') && url.includes('cloudinary.com')
       );
@@ -84,18 +82,34 @@ const ProductCard = ({ product, fromPage = "home", category = "" }) => {
     }
   };
 
+  // 🔥 NUEVO: Función para guardar scroll al hacer click
+  const handleProductClick = () => {
+    const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+    console.log('📍 ProductCard - Guardando scroll:', scrollPosition);
+    
+    // Guardar en sessionStorage como backup
+    sessionStorage.setItem('productsScrollPosition', scrollPosition.toString());
+  };
+
+  // 🔥 NUEVO: Preparar state con scroll position
+  const getLinkState = () => {
+    const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+    
+    return {
+      from: detectedFromPage,
+      category: category || product.category?.toLowerCase(),
+      subcategory: product.subcategory?.toLowerCase(),
+      scrollPosition: scrollPosition // Guardar posición actual
+    };
+  };
+
   return (
     <div className="product-card">
       <div className="product-image-container">
-        {/* Link con información de origen */}
         <Link 
           to={`/producto/${product._id}`}
-          state={{ 
-            from: detectedFromPage,
-            category: category || product.category?.toLowerCase(),
-            subcategory: product.subcategory?.toLowerCase()
-            
-          }}
+          state={getLinkState()}
+          onClick={handleProductClick}
         >
           {imageStatus === 'loading' && (
             <div className="image-loading-placeholder">
@@ -121,13 +135,7 @@ const ProductCard = ({ product, fromPage = "home", category = "" }) => {
       </div>
 
       <div className="product-info">
-        {/* También hacer clickeable el título */}
-        
-         
-        
-          <h3 className="product-name">{product.name}</h3>
-      
-        
+        <h3 className="product-name">{product.name}</h3>
         <p className="product-category">{product.category}</p>
         <div className="product-price">
           {product.originalPrice > product.price && (

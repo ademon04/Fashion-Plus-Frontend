@@ -1,5 +1,5 @@
 /* ============================================= */
-/* CARRUSEL DE IMÁGENES - VERSIÓN OPTIMIZADA */
+/* CARRUSEL DE IMÁGENES - VERSIÓN CORREGIDA */
 /* ============================================= */
 
 .carousel-container {
@@ -82,6 +82,7 @@
   z-index: 10;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
+
 /* CONTADOR DE IMÁGENES - MÁS COMPACTO */
 .image-counter {
   position: absolute;
@@ -218,7 +219,6 @@
     height: 55px;
   }
   
-  /* ZOOM EN MÓVILES - SIMPLIFICADO */
   .image-zoom-container {
     height: 380px;
     touch-action: manipulation;
@@ -267,13 +267,12 @@
   }
   
   .carousel-thumbnails {
-    display: none; /* Ocultar miniaturas en móviles pequeños */
+    display: none;
   }
   
   .carousel-indicators {
     bottom: 15px;
   }
- 
   
   .sale-badge-carousel {
     top: 12px;
@@ -282,7 +281,6 @@
     font-size: 12px;
   }
   
-  /* ZOOM EN MÓVILES PEQUEÑOS */
   .image-zoom-container {
     height: 320px;
   }
@@ -317,7 +315,6 @@
   cursor: move;
 }
 
-/* Controles de zoom - MEJOR VISIBILIDAD */
 .zoom-controls-overlay {
   position: absolute;
   bottom: 20px;
@@ -370,7 +367,6 @@
   text-align: center;
 }
 
-/* Instrucciones de zoom - MEJOR DISEÑO */
 .zoom-instructions {
   position: absolute;
   top: 15px;
@@ -494,22 +490,86 @@
 }
 
 /* ============================================= */
-/* BOTÓN DE CERRAR - MEJORADO */
+/* BOTÓN DE CERRAR - CORREGIDO COMPLETAMENTE */
 /* ============================================= */
 
-.close-btn {
-  position: fixed;
+/* ELIMINA TODO LO QUE TENÍAS DE .close-btn y reemplázalo con: */
+
+/* CLASES ESPECÍFICAS PARA CADA COMPONENTE */
+
+/* 1. Para modales de producto */
+.product-modal-close {
+  position: absolute; /* NO fixed */
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #e0e0e0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.product-modal-close:hover {
+  background: #f8f8f8;
+  border-color: #ccc;
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+}
+
+/* 2. Para carrito */
+.cart-modal-close {
+  position: absolute; /* NO fixed */
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  border: 2px solid #ddd;
+  font-size: 20px;
+  color: #666;
+  cursor: pointer;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.cart-modal-close:hover {
+  background: white;
+  border-color: #999;
+  transform: rotate(90deg);
+  color: #333;
+}
+
+/* 3. Para lightbox/fullscreen */
+.lightbox-close {
+  position: fixed; /* Este SÍ puede ser fixed porque está en pantalla completa */
   top: 20px;
   right: 20px;
   width: 44px;
   height: 44px;
+  border-radius: 50%;
   background: rgba(255, 255, 255, 0.95);
   border: 2px solid rgba(0, 0, 0, 0.15);
-  border-radius: 50%;
   font-size: 24px;
   color: #333;
   cursor: pointer;
-  z-index: 1000;
+  z-index: 9999; /* Muy alto para lightbox */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -517,35 +577,108 @@
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
 }
 
-.close-btn:hover {
+.lightbox-close:hover {
   background: white;
   transform: scale(1.1) rotate(90deg);
   box-shadow: 0 5px 18px rgba(0, 0, 0, 0.25);
 }
 
-/* En contexto de modal de producto */
-.product-modal .close-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
+/* 4. Para filtros sidebar */
+.sidebar-close {
+  position: absolute; /* NO fixed */
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
+.sidebar-close:hover {
+  background: #eaeaea;
+  color: #333;
+}
+
+/* ============================================= */
+/* CONTENEDORES PADRE - AÑADE A TUS COMPONENTES */
+/* ============================================= */
+
+/* Para modales */
+.modal-container {
+  position: relative; /* Esto es CLAVE para que absolute funcione */
+}
+
+/* Para carrito */
+.cart-container {
+  position: relative;
+}
+
+/* Para lightbox */
+.lightbox-container {
+  position: relative;
+}
+
+/* Para sidebar */
+.sidebar-container {
+  position: relative;
+}
+
+/* ============================================= */
+/* RESPONSIVE PARA BOTONES DE CERRAR */
+/* ============================================= */
+
 @media (max-width: 768px) {
-  .close-btn {
+  .product-modal-close {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    top: 10px;
+    right: 10px;
+  }
+  
+  .cart-modal-close {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    top: 12px;
+    right: 12px;
+  }
+  
+  .lightbox-close {
     width: 40px;
     height: 40px;
-    font-size: 22px;
+    font-size: 20px;
     top: 15px;
     right: 15px;
   }
 }
 
 @media (max-width: 480px) {
-  .close-btn {
+  .product-modal-close {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+  
+  .cart-modal-close {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+  
+  .lightbox-close {
     width: 36px;
     height: 36px;
-    font-size: 20px;
-    top: 12px;
-    right: 12px;
+    font-size: 18px;
   }
 }
+
+

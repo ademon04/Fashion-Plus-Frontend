@@ -7,6 +7,7 @@ import { ProductProvider } from "./context/ProductContext";
 
 import Header from "./components/Layout/Header";
 import Footer from "./components/Layout/Footer";
+import ScrollToTop from "./components/ScrollToTop"; // Importar aquí
 
 import Home from "./pages/Home";
 import Products from "./pages/Products";
@@ -22,15 +23,13 @@ import OrderManagement from "./pages/admin/OrderManagement";
 import CookieBanner from "./components/UI/CookieBanner";
 import CheckoutSuccess from './pages/CheckoutSuccess';
 import CheckoutFailure from './pages/CheckoutFailure';
-import AboutUs from './context/AboutUs'
-
+import AboutUs from './context/AboutUs';
 
 import "./styles/App.css";
 import "./styles/components.css";
 import "./styles/responsive.css";
 import "./styles/ProductDetail.css";
 import "./styles/ProductImageCarousel.css";
-
 
 function App() {
   return (
@@ -39,6 +38,7 @@ function App() {
         <ProductProvider>
           <Router>
             <div className="App">
+              <ScrollToTop /> {/* Colocar aquí, dentro de Router */}
               <Header />
 
               <main className="main-content">
@@ -50,25 +50,19 @@ function App() {
                   <Route path="/producto/:id" element={<ProductDetail />} />
                   <Route path="/carrito" element={<Cart />} />
                   <Route path="/checkout" element={<Checkout />} />
-                
+                  <Route path="/checkout/success" element={<CheckoutSuccess />} />
+                  <Route path="/checkout/failure" element={<CheckoutFailure />} />
+                  <Route path="/aboutUs" element={<AboutUs />} />
 
                   {/* Rutas de administración */}
                   <Route path="/admin/login" element={<AdminLogin />} />
                   <Route path="/admin/dashboard" element={<AdminDashboard />} />
                   <Route path="/admin/productos" element={<ProductManagement />} />
                   <Route path="/admin/ordenes" element={<OrderManagement />} />
-                  <Route path="/checkout/success" element={<CheckoutSuccess />} />
-                  <Route path="/checkout/failure" element={<CheckoutFailure />} />
-                  <Route path="/aboutUs" element={<AboutUs />} />
-                  <Route path="/aboutUs" element={<AboutUs />} />
-
-
                 </Routes>
               </main>
 
-              {/* Banner de cookies */}
               <CookieBanner />
-
               <Footer />
             </div>
           </Router>
