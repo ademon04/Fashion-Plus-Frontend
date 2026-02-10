@@ -27,9 +27,9 @@
     "vercel-build": "npm run build"
   },
   "engines": {
-    "node": "18.x",
-    "npm": "9.x"
-  },
+  "node": "24.x",
+  "npm": "10.x"
+},
   "eslintConfig": {
     "extends": [
       "react-app",
