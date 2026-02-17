@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
     //  Si existe token, verificamos admin
     try {
       const userData = await authService.verifyAuth();
-      setUser(userData);
+      setUser(userData.user);
     } catch (error) {
       console.error("Token inválido, cerrando sesión...");
       localStorage.removeItem('token');
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', userData.token);
       }
 
-      setUser(userData);
+      setUser(userData.user);
       return { success: true };
     } catch (error) {
       return { 

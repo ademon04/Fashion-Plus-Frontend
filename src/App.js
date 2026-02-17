@@ -7,7 +7,7 @@ import { ProductProvider } from "./context/ProductContext";
 
 import Header from "./components/Layout/Header";
 import Footer from "./components/Layout/Footer";
-import ScrollToTop from "./components/ScrollToTop"; // Importar aquí
+import ScrollToTop from "./components/ScrollToTop"; 
 
 import Home from "./pages/Home";
 import Products from "./pages/Products";
@@ -25,6 +25,9 @@ import CheckoutSuccess from './pages/CheckoutSuccess';
 import CheckoutFailure from './pages/CheckoutFailure';
 import AboutUs from './context/AboutUs';
 
+import AdminRoute from "./components/AdminRoute";
+import NotFound from "./components/UI/NotFound";
+
 import "./styles/App.css";
 import "./styles/components.css";
 import "./styles/responsive.css";
@@ -38,12 +41,12 @@ function App() {
         <ProductProvider>
           <Router>
             <div className="App">
-              <ScrollToTop /> {/* Colocar aquí, dentro de Router */}
+              <ScrollToTop />
               <Header />
 
               <main className="main-content">
                 <Routes>
-                  {/* Rutas públicas */}
+                  {/* ===== RUTAS PÚBLICAS ===== */}
                   <Route path="/" element={<Home />} />
                   <Route path="/productos" element={<Products />} />
                   <Route path="/productos/:category" element={<Products />} />
@@ -54,11 +57,38 @@ function App() {
                   <Route path="/checkout/failure" element={<CheckoutFailure />} />
                   <Route path="/aboutUs" element={<AboutUs />} />
 
-                  {/* Rutas de administración */}
+                  {/* ===== RUTAS DE ADMINISTRACIÓN ===== */}
+                  {/* Login público (necesario para que admins accedan) */}
                   <Route path="/admin/login" element={<AdminLogin />} />
-                  <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                  <Route path="/admin/productos" element={<ProductManagement />} />
-                  <Route path="/admin/ordenes" element={<OrderManagement />} />
+
+                  {/* Rutas protegidas - SOLO ADMIN */}
+                  <Route 
+                    path="/admin/dashboard" 
+                    element={
+                      <AdminRoute>
+                        <AdminDashboard />
+                      </AdminRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/admin/productos" 
+                    element={
+                      <AdminRoute>
+                        <ProductManagement />
+                      </AdminRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/admin/ordenes" 
+                    element={
+                      <AdminRoute>
+                        <OrderManagement />
+                      </AdminRoute>
+                    } 
+                  />
+
+                  {/* ===== RUTA 404 PARA TODO LO DEMÁS ===== */}
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
 

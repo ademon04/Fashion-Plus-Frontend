@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import OrderTable from '../../components/Admin/OrderTable';
+import Unauthorized from '../../components/UI/Unauthorized';
 import { orderService } from '../../services/orders';
+import { useAuth } from '../../context/AuthContext'; 
 
 const OrderManagement = () => {
+  const { user, loading: authLoading } = useAuth(); 
+  
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderDetail, setShowOrderDetail] = useState(false);
   const [activeTab, setActiveTab] = useState('active'); 
@@ -20,15 +25,18 @@ const OrderManagement = () => {
     paymentMethod: '',
   });
 
+  // VERIFICAR AUTH
   useEffect(() => {
-    loadOrders();
-  }, [filters, activeTab]);
+    if (!authLoading && user) {
+      loadOrders();
+    }
+  }, [filters, activeTab, authLoading, user]);
 
   const loadOrders = async () => {
     try {
       setLoading(true);
+      setError(null);
       
-      // Diferente endpoint para archivadas vs activas
       let ordersData;
       if (activeTab === 'archived') {
         ordersData = await orderService.getArchivedOrders(filters);
@@ -39,6 +47,13 @@ const OrderManagement = () => {
       setOrders(ordersData);
     } catch (error) {
       console.error("Error loading orders:", error);
+      
+      //  DETECTAR ERROR DE PERMISOS
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        setError('unauthorized');
+      } else {
+        alert("❌ Error al cargar órdenes");
+      }
     } finally {
       setLoading(false);
     }
@@ -114,7 +129,6 @@ const OrderManagement = () => {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    // Reiniciar filtros al cambiar de pestaña
     setFilters({
       status: '',
       paymentStatus: '',
@@ -125,8 +139,34 @@ const OrderManagement = () => {
   const activeOrdersCount = orders.filter(order => !order.archived).length;
   const archivedOrdersCount = orders.filter(order => order.archived).length;
 
+  // LOADING AUTH
+  if (authLoading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Verificando permisos...</p>
+      </div>
+    );
+  }
+
+  // SIN PERMISOS → 401
+  if (!user || user.role !== 'admin') {
+    return <Unauthorized type="401" />;
+  }
+
+  //  ERROR DE PERMISOS DEL BACKEND
+  if (error === 'unauthorized') {
+    return <Unauthorized type="401" />;
+  }
+
+  //  LOADING DATA
   if (loading) {
-    return <div className="loading">Cargando órdenes...</div>;
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Cargando órdenes...</p>
+      </div>
+    );
   }
 
   return (
@@ -152,7 +192,6 @@ const OrderManagement = () => {
 
         {/* FILTROS */}
         <div className="filters">
-          {/* Estado de orden */}
           <select
             value={filters.status}
             onChange={e => handleFilterChange({ status: e.target.value })}
@@ -166,7 +205,6 @@ const OrderManagement = () => {
             <option value="cancelled">❌ Canceladas</option>
           </select>
 
-          {/* Estado de pago */}
           <select
             value={filters.paymentStatus}
             onChange={e => handleFilterChange({ paymentStatus: e.target.value })}
@@ -178,7 +216,6 @@ const OrderManagement = () => {
             <option value="rejected">❌ Rechazadas</option>
           </select>
 
-          {/* Método de pago */}
           <select
             value={filters.paymentMethod}
             onChange={e => handleFilterChange({ paymentMethod: e.target.value })}
@@ -190,7 +227,6 @@ const OrderManagement = () => {
             <option value="cash">💰 Efectivo</option>
           </select>
 
-          {/* Botón de actualizar */}
           <button 
             onClick={loadOrders} 
             className="refresh-btn"

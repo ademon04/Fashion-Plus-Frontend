@@ -55,7 +55,7 @@ export const CartProvider = ({ children }) => {
     const sizeObj = sizes.find(s => s.size === size);
     const availableStock = sizeObj?.stock || 0;
 
-    // 🔹 Calculamos el stock real considerando lo que ya hay en el carrito
+    //  Calculamos el stock real considerando lo que ya hay en el carrito
     const remainingStock = availableStock - currentInCart;
 
     return {
@@ -68,11 +68,11 @@ export const CartProvider = ({ children }) => {
     return { hasStock: false, availableStock: 0, product: null };
   }
 };
-  // 🔥 AGREGAR PRODUCTO CON VALIDACIÓN DE STOCK
+  //  AGREGAR PRODUCTO CON VALIDACIÓN DE STOCK
   const addToCart = async (product, size, quantity = 1) => {
   return new Promise(async (resolve, reject) => {
     try {
-      // 🔹 Cantidad actual en el carrito
+      // Cantidad actual en el carrito
       const currentInCart = cart.find(
         i => i.product._id === product._id && i.size === size
       )?.quantity || 0;
@@ -126,7 +126,6 @@ export const CartProvider = ({ children }) => {
   });
 };
 
-  // 🔥 ACTUALIZAR CANTIDAD CON VALIDACIÓN DE STOCK
   const updateQuantity = async (productId, size, newQuantity) => {
     try {
       // Verificar stock si estamos aumentando la cantidad
@@ -147,8 +146,7 @@ export const CartProvider = ({ children }) => {
             return { 
               ...item, 
               quantity: Number(newQuantity),
-              // 🔥 Actualizar el stock máximo si es necesario
-              maxStock: Math.min(item.maxStock, newQuantity + 5) // Pequeño buffer
+              maxStock: Math.min(item.maxStock, newQuantity + 5) 
             };
           }
           return item;
@@ -163,7 +161,6 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // 🔥 ELIMINAR ITEM (sin cambios)
   const removeFromCart = (productId, size) => {
     setCart((prev) => {
       const newCart = prev.filter(

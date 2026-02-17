@@ -87,7 +87,6 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     return clothingSizes;
   };
 
-  // Efecto para cambiar las tallas cuando cambia la categoría o subcategoría
   useEffect(() => {
     const newSizes = getSizesForProduct(formData.category, formData.subcategory);
     setFormData(prev => ({
@@ -96,7 +95,6 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     }));
   }, [formData.category, formData.subcategory]);
 
-  // Cargar datos si estamos editando
   useEffect(() => {
     if (product) {
       const initialSizes = getSizesForProduct(product.category, product.subcategory);
@@ -285,6 +283,7 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
               <option value="tenis">Tenis</option>
               <option value="zapatos">Zapatos</option>
               <option value="conjuntos">Conjuntos</option>
+              <option value=" traje-de-baño"> Traje de baño</option>
               <option value="vestidos">Vestidos</option>
               <option value="bolsas">Bolsas</option>
               <option value="accesorios">Accesorios</option>
