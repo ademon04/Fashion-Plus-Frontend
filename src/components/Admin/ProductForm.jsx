@@ -283,7 +283,7 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
               <option value="tenis">Tenis</option>
               <option value="zapatos">Zapatos</option>
               <option value="conjuntos">Conjuntos</option>
-              <option value=" traje-de-baño"> Traje de baño</option>
+              <option value="traje-de-baño"> Traje de baño</option>
               <option value="vestidos">Vestidos</option>
               <option value="bolsas">Bolsas</option>
               <option value="accesorios">Accesorios</option>

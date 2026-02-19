@@ -23,11 +23,8 @@ const Products = () => {
     onSale: false
   });
 
-  // 🔥 NUEVO: Restaurar scroll cuando vuelves de ProductDetail
   useEffect(() => {
-    // Si vienes de ProductDetail con una posición guardada
     if (location.state?.scrollPosition && !isFirstLoadRef.current) {
-      console.log('📍 Restaurando scroll a:', location.state.scrollPosition);
       
       // Usar setTimeout para asegurar que el DOM esté listo
       setTimeout(() => {
@@ -81,7 +78,7 @@ const Products = () => {
     }
   };
 
-  // 🔥 FUNCIÓN ACTUALIZADA PARA APLICAR FILTROS EN EL FRONTEND
+  //  FUNCIÓN ACTUALIZADA PARA APLICAR FILTROS EN EL FRONTEND
   const applyLocalFilters = () => {
     if (products.length === 0) return;
 
@@ -94,7 +91,7 @@ const Products = () => {
       const categoryMap = {
         'hombre': 'hombre',
         'mujer': 'mujer', 
-        'ninos': 'niños'  // Nota: tu botón dice 'ninos' pero tu schema usa 'niños'
+        'ninos': 'niños'  
       };
       
       const backendCategory = categoryMap[filters.category] || filters.category;
