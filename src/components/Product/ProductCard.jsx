@@ -1,17 +1,50 @@
-// src/components/Product/ProductCard.jsx - CON SCROLL PRESERVATION
+// src/components/Product/ProductCard.jsx - VERSION DEBUG
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import SizeSelector from './SizeSelector';
 
-const ProductCard = ({ product, fromPage = "home", category = "" }) => {
+const ProductCard = ({ product, fromPage, category = "" }) => {
   const [selectedSize, setSelectedSize] = useState('');
   const [currentImage, setCurrentImage] = useState('');
   const [imageStatus, setImageStatus] = useState('loading');
   const { addToCart } = useCart();
   const location = useLocation();
 
-  const detectedFromPage = fromPage || (location.pathname === '/' ? 'home' : 'productos');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('🔍 ProductCard RENDERIZADO');
+  console.log('📍 location.pathname:', location.pathname);
+  console.log('📍 fromPage prop:', fromPage);
+
+  // 🔥 Detectar correctamente la página de origen
+  const detectedFromPage = (() => {
+    if (fromPage) {
+      console.log('✅ Usando fromPage prop:', fromPage);
+      return fromPage;
+    }
+    
+    const path = location.pathname;
+    console.log('🔍 Detectando desde path:', path);
+    
+    if (path === '/') {
+      console.log('✅ Detectado: HOME');
+      return 'home';
+    }
+    if (path === '/productos') {
+      console.log('✅ Detectado: PRODUCTOS');
+      return 'productos';
+    }
+    if (path.startsWith('/about')) {
+      console.log('✅ Detectado: ABOUT');
+      return 'about';
+    }
+    
+    console.log('⚠️ No detectado, usando default: productos');
+    return 'productos';
+  })();
+  
+  console.log('🎯 RESULTADO FINAL - detectedFromPage:', detectedFromPage);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   
   useEffect(() => {
     const loadBestImage = async () => {
@@ -82,25 +115,31 @@ const ProductCard = ({ product, fromPage = "home", category = "" }) => {
     }
   };
 
-  // 🔥 NUEVO: Función para guardar scroll al hacer click
   const handleProductClick = () => {
     const scrollPosition = window.scrollY || document.documentElement.scrollTop;
-    console.log('📍 ProductCard - Guardando scroll:', scrollPosition);
-    
-    // Guardar en sessionStorage como backup
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🖱️ CLICK EN PRODUCTO');
+    console.log('📍 Guardando scroll:', scrollPosition);
     sessionStorage.setItem('productsScrollPosition', scrollPosition.toString());
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   };
 
-  // 🔥 NUEVO: Preparar state con scroll position
   const getLinkState = () => {
     const scrollPosition = window.scrollY || document.documentElement.scrollTop;
     
-    return {
+    const state = {
       from: detectedFromPage,
       category: category || product.category?.toLowerCase(),
       subcategory: product.subcategory?.toLowerCase(),
-      scrollPosition: scrollPosition // Guardar posición actual
+      scrollPosition: scrollPosition
     };
+
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('📦 STATE QUE SE PASA AL LINK:');
+    console.log(JSON.stringify(state, null, 2));
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    return state;
   };
 
   return (

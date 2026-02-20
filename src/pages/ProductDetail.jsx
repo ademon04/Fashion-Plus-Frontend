@@ -460,15 +460,7 @@ const handleBackToProducts = () => {
   return (
     <>
       <div className="product-detail-container">
-  {/* Botón cerrar */}
-  <button 
-    onClick={() => navigate(-1)}
-    className="close-button"
-    title="Cerrar"
-    aria-label="Cerrar galería"
-  >
-    ✕
-  </button>
+
 
         {/* Carrusel de imágenes */}
         <div className="product-image-section">

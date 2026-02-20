@@ -1,55 +1,103 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ProductGrid from '../components/Product/ProductGrid';
-import ProductFilters from '../components/Product/ProductFilters';
+import ProductFilters, { getSavedFilters } from '../components/Product/ProductFilters';
 import { productService } from '../services/products';
+
+const EMPTY_FILTERS = {
+  category: '',
+  subcategory: '',
+  minPrice: '',
+  maxPrice: '',
+  search: '',
+  onSale: false
+};
 
 const Products = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  // Ref para trackear si es la primera carga
   const isFirstLoadRef = useRef(true);
-  
-  // ACTUALIZA los filtros para incluir subcategory y onSale
-  const [filters, setFilters] = useState({
-    category: '',
-    subcategory: '',
-    minPrice: '',
-    maxPrice: '',
-    search: '',
-    onSale: false
+
+  // 🔥 Inicializar filtros desde URL o localStorage
+  const [filters, setFilters] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    const fromCarousel = sessionStorage.getItem('from_carousel') === 'true';
+    
+    // Si viene del carrusel con params
+    if (fromCarousel && params.toString()) {
+      console.log('📍 Restaurando filtros desde URL (carrusel)');
+      return {
+        category: params.get('category') || '',
+        subcategory: params.get('subcategory') || '',
+        minPrice: params.get('minPrice') || '',
+        maxPrice: params.get('maxPrice') || '',
+        search: params.get('search') || '',
+        onSale: params.get('onSale') === 'true'
+      };
+    }
+    
+    // Si viene de location.state (navegación normal)
+    if (location.state?.category || location.state?.subcategory) {
+      console.log('📍 Restaurando filtros desde location.state');
+      return {
+        ...EMPTY_FILTERS,
+        category: location.state.category || '',
+        subcategory: location.state.subcategory || ''
+      };
+    }
+    
+    // Intentar restaurar desde localStorage
+    const saved = getSavedFilters();
+    if (saved) {
+      console.log('📍 Restaurando filtros desde localStorage');
+      return saved;
+    }
+    
+    return EMPTY_FILTERS;
   });
 
+  // 🔥 Sincronizar con URL cuando cambie
   useEffect(() => {
-    if (location.state?.scrollPosition && !isFirstLoadRef.current) {
+    if (isFirstLoadRef.current) {
+      isFirstLoadRef.current = false;
+      return;
+    }
+
+    const params = new URLSearchParams(location.search);
+    const fromCarousel = sessionStorage.getItem('from_carousel') === 'true';
+
+    if (fromCarousel && params.toString()) {
+      console.log('📍 Actualizando filtros desde URL');
+      sessionStorage.removeItem('from_carousel');
       
-      // Usar setTimeout para asegurar que el DOM esté listo
+      setFilters({
+        category: params.get('category') || '',
+        subcategory: params.get('subcategory') || '',
+        minPrice: params.get('minPrice') || '',
+        maxPrice: params.get('maxPrice') || '',
+        search: params.get('search') || '',
+        onSale: params.get('onSale') === 'true'
+      });
+    }
+
+    // Restaurar scroll si viene de ProductDetail
+    if (location.state?.scrollPosition) {
       setTimeout(() => {
         window.scrollTo(0, location.state.scrollPosition);
-      }, 0);
+        console.log('📍 Scroll restaurado a:', location.state.scrollPosition);
+      }, 100);
     }
-    
-    // Si vienes con filtros desde ProductDetail, aplicarlos
-    if (location.state?.category || location.state?.subcategory) {
-      setFilters(prev => ({
-        ...prev,
-        category: location.state.category || prev.category,
-        subcategory: location.state.subcategory || prev.subcategory
-      }));
-    }
-    
-    // Marcar que ya no es la primera carga
-    isFirstLoadRef.current = false;
-  }, [location.state]);
+  }, [location.search, location.state]);
 
   useEffect(() => {
     loadProducts();
   }, []);
 
   useEffect(() => {
+    if (products.length === 0) return;
     applyLocalFilters();
   }, [filters, products]);
 
@@ -57,20 +105,13 @@ const Products = () => {
     try {
       setLoading(true);
       console.log('🔄 Cargando todos los productos...');
-      
+
       const productsData = await productService.getProducts();
-      console.log('DEBUG INTERNO - Datos de productService:', {
-        length: productsData.length,
-        primerProducto: productsData[0] ? {
-          name: productsData[0].name,
-          images: productsData[0].images,
-          imageType: typeof productsData[0].images?.[0]
-        } : 'No hay productos'
-      });
-      
+      console.log('✅ Productos cargados:', productsData.length);
+
       setProducts(productsData);
       setFilteredProducts(productsData);
-      
+
     } catch (error) {
       console.error('❌ Error loading products:', error);
     } finally {
@@ -78,37 +119,44 @@ const Products = () => {
     }
   };
 
-  //  FUNCIÓN ACTUALIZADA PARA APLICAR FILTROS EN EL FRONTEND
   const applyLocalFilters = () => {
     if (products.length === 0) return;
 
-    let result = [...products];
+    const hasActiveFilters =
+      filters.category ||
+      filters.subcategory ||
+      filters.minPrice ||
+      filters.maxPrice ||
+      filters.search ||
+      filters.onSale;
 
+    if (!hasActiveFilters) {
+      setFilteredProducts(products);
+      console.log('✅ Sin filtros activos - mostrando todos:', products.length);
+      return;
+    }
+
+    let result = [...products];
     console.log('🔍 Aplicando filtros:', filters);
 
-    // Filtro por categoría 
     if (filters.category) {
       const categoryMap = {
         'hombre': 'hombre',
-        'mujer': 'mujer', 
-        'ninos': 'niños'  
+        'mujer': 'mujer',
+        'ninos': 'niños'
       };
-      
       const backendCategory = categoryMap[filters.category] || filters.category;
-      
-      result = result.filter(product => 
+      result = result.filter(product =>
         product.category?.toLowerCase() === backendCategory.toLowerCase()
       );
     }
 
-    // NUEVO: Filtro por subcategoría
     if (filters.subcategory) {
-      result = result.filter(product => 
+      result = result.filter(product =>
         product.subcategory?.toLowerCase() === filters.subcategory.toLowerCase()
       );
     }
 
-    // Filtro por búsqueda
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase().trim();
       result = result.filter(product =>
@@ -119,38 +167,30 @@ const Products = () => {
       );
     }
 
-    // Filtro por precio mínimo
     if (filters.minPrice) {
-      const minPrice = Number(filters.minPrice);
-      result = result.filter(product => 
-        product.price >= minPrice
-      );
+      result = result.filter(product => product.price >= Number(filters.minPrice));
     }
 
-    // Filtro por precio máximo
     if (filters.maxPrice) {
-      const maxPrice = Number(filters.maxPrice);
-      result = result.filter(product => 
-        product.price <= maxPrice
-      );
-      console.log('🔍 Filtrado por precio máximo:', maxPrice, 'Resultados:', result.length);
+      result = result.filter(product => product.price <= Number(filters.maxPrice));
     }
 
-    // NUEVO: Filtro por ofertas (onSale)
     if (filters.onSale) {
-      result = result.filter(product => 
-        product.onSale === true
-      );
+      result = result.filter(product => product.onSale === true);
     }
 
     setFilteredProducts(result);
     console.log('✅ Filtros aplicados - Total:', result.length);
   };
 
-  // MANEJADOR PARA CAMBIOS DE FILTROS (se mantiene igual)
   const handleFilterChange = (newFilters) => {
-    console.log('🔄 Filtros cambiados:', newFilters);
+    console.log('🔄 Filtros cambiados por usuario:', newFilters);
     setFilters(newFilters);
+    
+    // 🔥 Limpiar params de URL cuando el usuario cambia filtros manualmente
+    if (location.search) {
+      navigate('/productos', { replace: true });
+    }
   };
 
   if (loading) {
@@ -164,22 +204,23 @@ const Products = () => {
   return (
     <div className="products-page">
       <div className="products-layout">
-        {/* Sidebar de Filtros - Este ahora enviará los nuevos filtros */}
         <aside className="filters-sidebar-wrapper">
-          <ProductFilters onFilterChange={handleFilterChange} />
+          <ProductFilters 
+            onFilterChange={handleFilterChange}
+            initialFilters={filters} 
+          />
         </aside>
 
-        {/* Grid de Productos */}
         <main className="products-main">
           <div className="products-info">
             <h2 className="collection-title">THE COMPLETE COLLECTION</h2>
-        
             <p>
-              {filteredProducts.length === products.length 
+              {filteredProducts.length === products.length
                 ? `Showing our ${products.length} products`
                 : `Mostrando ${filteredProducts.length} de ${products.length} productos`
               }
-              {filters.subcategory && ` - Subcategoría: ${filters.subcategory}`}
+              {filters.category && ` - ${filters.category.charAt(0).toUpperCase() + filters.category.slice(1)}`}
+              {filters.subcategory && ` > ${filters.subcategory}`}
               {filters.onSale && ' - En oferta'}
             </p>
           </div>

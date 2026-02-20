@@ -1,13 +1,17 @@
-// src/components/Product/ProductImageCarousel.jsx
 import React, { useState, useCallback, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { getSavedFilters } from './ProductFilters';
 import '../../styles/ProductImageCarousel.css';
 
-const ProductImageCarousel = ({ 
-  images, 
-  productName, 
+const ProductImageCarousel = ({
+  images,
+  productName,
   onSale = false,
   onImageClick
 }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
   const [isZooming, setIsZooming] = useState(false);
@@ -15,18 +19,69 @@ const ProductImageCarousel = ({
   const imageRef = useRef(null);
   const containerRef = useRef(null);
 
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('🖼️ CARRUSEL MONTADO');
+  console.log('📍 location.state:', location.state);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+  const handleClose = () => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('❌ CERRANDO CARRUSEL');
+    console.log('📍 location.state completo:', JSON.stringify(location.state, null, 2));
+    
+    const from = location.state?.from || 'home';
+    console.log('🔙 Página de origen detectada:', from);
+    
+    if (from === 'productos' || from === 'products') {
+      console.log('✅ Viene de PRODUCTOS - Verificando filtros...');
+      
+      const savedFilters = getSavedFilters();
+      console.log('💾 Filtros guardados:', JSON.stringify(savedFilters, null, 2));
+      
+      if (savedFilters) {
+        console.log('✅ HAY FILTROS - Construyendo URL con params...');
+        
+        const params = new URLSearchParams();
+        if (savedFilters.category)    params.set('category', savedFilters.category);
+        if (savedFilters.subcategory) params.set('subcategory', savedFilters.subcategory);
+        if (savedFilters.minPrice)    params.set('minPrice', savedFilters.minPrice);
+        if (savedFilters.maxPrice)    params.set('maxPrice', savedFilters.maxPrice);
+        if (savedFilters.search)      params.set('search', savedFilters.search);
+        if (savedFilters.onSale)      params.set('onSale', 'true');
+
+        const query = params.toString();
+        console.log('🔗 Query string:', query);
+        
+        sessionStorage.setItem('from_carousel', 'true');
+        console.log('✅ Marcado from_carousel en sessionStorage');
+        
+        const finalUrl = query ? `/productos?${query}` : '/productos';
+        console.log('🎯 Navegando a:', finalUrl);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
+        navigate(finalUrl);
+      } else {
+        console.log('⚠️ NO HAY FILTROS - Volviendo a /productos limpio');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        navigate('/productos');
+      }
+    } else {
+      console.log('🏠 NO viene de productos - Volviendo a:', from);
+      const targetUrl = from === 'home' ? '/' : `/${from}`;
+      console.log('🎯 Navegando a:', targetUrl);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      navigate(targetUrl);
+    }
+  };
+
   const nextSlide = useCallback(() => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === (images?.length || 1) - 1 ? 0 : prevIndex + 1
-    );
-    setZoomScale(1); // Reset zoom al cambiar imagen
+    setCurrentIndex(prev => (prev === (images?.length || 1) - 1 ? 0 : prev + 1));
+    setZoomScale(1);
   }, [images]);
 
   const prevSlide = useCallback(() => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? (images?.length || 1) - 1 : prevIndex - 1
-    );
-    setZoomScale(1); // Reset zoom al cambiar imagen
+    setCurrentIndex(prev => (prev === 0 ? (images?.length || 1) - 1 : prev - 1));
+    setZoomScale(1);
   }, [images]);
 
   const goToSlide = (index) => {
@@ -34,60 +89,40 @@ const ProductImageCarousel = ({
     setZoomScale(1);
   };
 
-  // Manejar hover para zoom
   const handleMouseMove = (e) => {
-    if (!imageRef.current || !containerRef.current || !isZooming) return;
-    
-    const container = containerRef.current;
-    const img = imageRef.current;
-    const rect = container.getBoundingClientRect();
-    
-    // Calcular posición del mouse relativa a la imagen
+    if (!containerRef.current || !isZooming) return;
+    const rect = containerRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
-    // Limitar los valores entre 0 y 100
     setZoomPosition({
       x: Math.max(0, Math.min(100, x)),
       y: Math.max(0, Math.min(100, y))
     });
   };
 
-  const handleMouseEnter = () => {
-    setIsZooming(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsZooming(false);
-  };
-
-  // Zoom in/out con rueda del mouse
   const handleWheel = (e) => {
     e.preventDefault();
     const delta = e.deltaY > 0 ? -0.1 : 0.1;
     setZoomScale(prev => Math.max(1, Math.min(3, prev + delta)));
   };
 
-  // Click para abrir lightbox
-  const handleImageClick = () => {
-    if (onImageClick) {
-      onImageClick(currentIndex);
-    }
-  };
-
-  // Toggle zoom con doble click
   const handleDoubleClick = () => {
-    setZoomScale(prev => prev === 1 ? 2 : 1);
+    setZoomScale(prev => (prev === 1 ? 2 : 1));
   };
 
   if (!images || images.length === 0) {
     return (
       <div className="carousel-container">
+        <button
+          className="carousel-close-btn"
+          onClick={handleClose}
+          aria-label="Volver"
+          title="Volver"
+        >
+          ✕
+        </button>
         <div className="main-image-placeholder">
-          <img 
-            src="/images/placeholder-product.jpg" 
-            alt="Producto sin imágenes" 
-          />
+          <img src="/images/placeholder-product.jpg" alt="Producto sin imágenes" />
         </div>
       </div>
     );
@@ -95,22 +130,30 @@ const ProductImageCarousel = ({
 
   return (
     <div className="carousel-container">
+      <button
+        className="carousel-close-btn"
+        onClick={handleClose}
+        aria-label="Volver"
+        title="Volver"
+      >
+        ✕
+      </button>
+
       <div className="carousel-wrapper">
         {onSale && <span className="sale-badge-carousel">OFERTA</span>}
-        
+
         {images.length > 1 && (
           <div className="image-counter">
             {currentIndex + 1} / {images.length}
           </div>
         )}
 
-        {/* Contenedor de imagen con zoom */}
-        <div 
+        <div
           className="image-zoom-container"
           ref={containerRef}
           onMouseMove={handleMouseMove}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          onMouseEnter={() => setIsZooming(true)}
+          onMouseLeave={() => setIsZooming(false)}
           onWheel={handleWheel}
         >
           <div className="slide active">
@@ -119,21 +162,18 @@ const ProductImageCarousel = ({
               src={images[currentIndex]}
               alt={`${productName} - Imagen ${currentIndex + 1}`}
               className={`carousel-image ${isZooming ? 'zooming' : ''}`}
-              onClick={handleImageClick}
+              onClick={() => onImageClick && onImageClick(currentIndex)}
               onDoubleClick={handleDoubleClick}
               style={{
                 cursor: isZooming ? 'zoom-out' : 'zoom-in',
                 transform: `scale(${zoomScale})`,
                 transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`
               }}
-              onError={(e) => {
-                e.target.src = '/images/placeholder-product.jpg';
-              }}
+              onError={(e) => { e.target.src = '/images/placeholder-product.jpg'; }}
             />
-            
-            {/* Lente de zoom (solo visible cuando isZooming) */}
+
             {isZooming && zoomScale > 1 && (
-              <div 
+              <div
                 className="zoom-lens"
                 style={{
                   left: `${zoomPosition.x}%`,
@@ -142,76 +182,46 @@ const ProductImageCarousel = ({
                 }}
               />
             )}
-            
-            {/* Overlay de controles de zoom */}
+
             <div className="zoom-controls-overlay">
               <div className="zoom-controls">
-                <button 
+                <button
                   className="zoom-btn zoom-in"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setZoomScale(prev => Math.min(3, prev + 0.5));
-                  }}
+                  onClick={(e) => { e.stopPropagation(); setZoomScale(p => Math.min(3, p + 0.5)); }}
                   title="Acercar"
-                >
-                  +
-                </button>
+                >+</button>
                 <span className="zoom-level">{Math.round(zoomScale * 100)}%</span>
-                <button 
+                <button
                   className="zoom-btn zoom-out"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setZoomScale(prev => Math.max(1, prev - 0.5));
-                  }}
+                  onClick={(e) => { e.stopPropagation(); setZoomScale(p => Math.max(1, p - 0.5)); }}
                   title="Alejar"
-                >
-                  −
-                </button>
-                <button 
+                >−</button>
+                <button
                   className="zoom-btn zoom-reset"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setZoomScale(1);
-                  }}
+                  onClick={(e) => { e.stopPropagation(); setZoomScale(1); }}
                   title="Restablecer zoom"
-                >
-                  ↺
-                </button>
+                >↺</button>
               </div>
-              
-              <div 
+
+              <div
                 className="zoom-hint"
-                onClick={handleImageClick}
+                onClick={() => onImageClick && onImageClick(currentIndex)}
                 title="Click para ver en pantalla completa"
               >
-                <span className="zoom-icon"></span>
+                <span className="zoom-icon">🔍</span>
                 <span className="zoom-text">Pantalla completa</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Botones de navegación */}
         {images.length > 1 && (
           <>
-            <button 
-              className="carousel-btn prev-btn" 
-              onClick={prevSlide}
-              aria-label="Imagen anterior"
-            >
-              ‹
-            </button>
-            <button 
-              className="carousel-btn next-btn" 
-              onClick={nextSlide}
-              aria-label="Siguiente imagen"
-            >
-              ›
-            </button>
+            <button className="carousel-btn prev-btn" onClick={prevSlide} aria-label="Imagen anterior">‹</button>
+            <button className="carousel-btn next-btn" onClick={nextSlide} aria-label="Siguiente imagen">›</button>
           </>
         )}
 
-        {/* Indicadores de puntos */}
         {images.length > 1 && (
           <div className="carousel-indicators">
             {images.map((_, index) => (
@@ -225,11 +235,10 @@ const ProductImageCarousel = ({
           </div>
         )}
 
-        {/* Thumbnails */}
         {images.length > 1 && (
           <div className="carousel-thumbnails">
             {images.map((image, index) => (
-              <div 
+              <div
                 key={index}
                 className={`thumbnail ${index === currentIndex ? 'active' : ''}`}
                 onClick={() => goToSlide(index)}
@@ -239,9 +248,7 @@ const ProductImageCarousel = ({
                 <img
                   src={image}
                   alt={`Miniatura ${index + 1}`}
-                  onError={(e) => {
-                    e.target.src = '/images/placeholder-product.jpg';
-                  }}
+                  onError={(e) => { e.target.src = '/images/placeholder-product.jpg'; }}
                 />
               </div>
             ))}
@@ -253,7 +260,3 @@ const ProductImageCarousel = ({
 };
 
 export default ProductImageCarousel;
-
-
-
-

@@ -59,14 +59,7 @@
   .form-row {
     grid-template-columns: 1fr;
   }
-  
-  .close-button {
-    top: 10px;
-    right: 15px;
-    width: 28px;
-    height: 28px;
-    font-size: 18px;
-  }
+
   
   /* Para escritorio - sidebar fijo */
   .filters-sidebar {
