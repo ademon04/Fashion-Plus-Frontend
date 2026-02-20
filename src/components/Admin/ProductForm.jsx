@@ -3,58 +3,58 @@ import React, { useState, useEffect } from 'react';
 const ProductForm = ({ product, onSubmit, onCancel }) => {
   // Definir tallas para ropa y para tenis
   const clothingSizes = [
-    { size: 'XS', stock: 0 },
-    { size: 'S', stock: 0 },
-    { size: 'M', stock: 0 },
-    { size: 'L', stock: 0 },
-    { size: 'XL', stock: 0 },
-    { size: 'XXL', stock: 0 },
-    { size: 'XXXL', stock: 0 },
+    { size: 'XS', stock: 0, available: true },
+    { size: 'S', stock: 0, available: true },
+    { size: 'M', stock: 0, available: true },
+    { size: 'L', stock: 0, available: true },
+    { size: 'XL', stock: 0, available: true },
+    { size: 'XXL', stock: 0, available: true },
+    { size: 'XXXL', stock: 0, available: true },
   ];
 
   // Tallas para tenis hombre/unisex
   const shoeSizesMen = [
-    { size: '25', stock: 0 },
-    { size: '25.5', stock: 0 },
-    { size: '26', stock: 0 },
-    { size: '26.5', stock: 0 },
-    { size: '27', stock: 0 },
-    { size: '27.5', stock: 0 },
-    { size: '28', stock: 0 },
-    { size: '28.5', stock: 0 },
-    { size: '29', stock: 0 },
-    { size: '29.5', stock: 0 },
-    { size: '30', stock: 0 },
-    { size: '30.5', stock: 0 },
-    { size: '31', stock: 0 },
-    { size: '31.5', stock: 0 },
-    { size: '32', stock: 0 }
+    { size: '25', stock: 0, available: true },
+    { size: '25.5', stock: 0, available: true },
+    { size: '26', stock: 0, available: true },
+    { size: '26.5', stock: 0, available: true },
+    { size: '27', stock: 0, available: true },
+    { size: '27.5', stock: 0, available: true },
+    { size: '28', stock: 0, available: true },
+    { size: '28.5', stock: 0, available: true },
+    { size: '29', stock: 0, available: true },
+    { size: '29.5', stock: 0, available: true },
+    { size: '30', stock: 0, available: true },
+    { size: '30.5', stock: 0, available: true },
+    { size: '31', stock: 0, available: true },
+    { size: '31.5', stock: 0, available: true },
+    { size: '32', stock: 0, available: true }
   ];
 
   // Tallas para tenis mujer (20-28)
   const shoeSizesWomen = [
-    { size: '20', stock: 0 },
-    { size: '20.5', stock: 0 },
-    { size: '21', stock: 0 },
-    { size: '21.5', stock: 0 },
-    { size: '22', stock: 0 },
-    { size: '22.5', stock: 0 },
-    { size: '23', stock: 0 },
-    { size: '23.5', stock: 0 },
-    { size: '24', stock: 0 },
-    { size: '24.5', stock: 0 },
-    { size: '25', stock: 0 },
-    { size: '25.5', stock: 0 },
-    { size: '26', stock: 0 },
-    { size: '26.5', stock: 0 },
-    { size: '27', stock: 0 },
-    { size: '27.5', stock: 0 },
-    { size: '28', stock: 0 }
+    { size: '20', stock: 0, available: true },
+    { size: '20.5', stock: 0, available: true },
+    { size: '21', stock: 0, available: true },
+    { size: '21.5', stock: 0, available: true },
+    { size: '22', stock: 0, available: true },
+    { size: '22.5', stock: 0, available: true },
+    { size: '23', stock: 0, available: true },
+    { size: '23.5', stock: 0, available: true },
+    { size: '24', stock: 0, available: true },
+    { size: '24.5', stock: 0, available: true },
+    { size: '25', stock: 0, available: true },
+    { size: '25.5', stock: 0, available: true },
+    { size: '26', stock: 0, available: true },
+    { size: '26.5', stock: 0, available: true },
+    { size: '27', stock: 0, available: true },
+    { size: '27.5', stock: 0, available: true },
+    { size: '28', stock: 0, available: true }
   ];
 
   // Cantidad simple para accesorios
   const accessoriesQuantity = [
-    { size: 'Unidad', stock: 0 }
+    { size: 'Unidad', stock: 0, available: true }
   ];
 
   const [formData, setFormData] = useState({
@@ -67,7 +67,7 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     images: [],
     sizes: clothingSizes,
     onSale: false,
-    featured: false
+    featured: false,
   });
 
   // Obtener las tallas correctas según categoría y subcategoría
@@ -109,10 +109,12 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
         images: product.images || [],
         sizes: product.sizes?.map(s => ({
           size: s.size,
-          stock: s.stock
+          stock: s.stock,
+          available: s.available // ← CORREGIDO: Incluir available
         })) || initialSizes,
         onSale: product.onSale || false,
-        featured: product.featured || false
+        featured: product.featured || false,
+        active: product.active !== undefined ? product.active : true // ← NUEVO: Campo active
       });
     }
   }, [product]);
@@ -138,9 +140,13 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     }));
   };
 
-  const handleSizeChange = (index, value) => {
+  const handleSizeChange = (index, field, value) => {
     const newSizes = [...formData.sizes];
-    newSizes[index].stock = parseInt(value) || 0;
+    if (field === 'stock') {
+      newSizes[index].stock = parseInt(value) || 0;
+    } else if (field === 'available') {
+      newSizes[index].available = value; // ← NUEVO: Manejar available
+    }
     setFormData(prev => ({ ...prev, sizes: newSizes }));
   };
 
@@ -161,7 +167,14 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
     fd.append("subcategory", String(formData.subcategory || "").trim());
     fd.append("onSale", String(formData.onSale));
     fd.append("featured", String(formData.featured));
-    fd.append("sizes", JSON.stringify(formData.sizes));
+    
+    // CORREGIDO: Enviar sizes completos con available
+    const sizesToSend = formData.sizes.map(s => ({
+      size: s.size,
+      stock: s.stock,
+      available: s.available
+    }));
+    fd.append("sizes", JSON.stringify(sizesToSend));
 
     formData.images.forEach(img => {
       if (img instanceof File) {
@@ -219,6 +232,9 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
             required
           />
         </div>
+
+    
+   
 
         <div className="form-group">
           <label>Descripción</label>
@@ -283,11 +299,11 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
               <option value="tenis">Tenis</option>
               <option value="zapatos">Zapatos</option>
               <option value="conjuntos">Conjuntos</option>
-              <option value="traje-de-baño"> Traje de baño</option>
               <option value="vestidos">Vestidos</option>
               <option value="bolsas">Bolsas</option>
+              <option value="ropa-niños">Ropa Niños</option> 
+              <option value="traje-de-baño">Traje de baño</option>
               <option value="accesorios">Accesorios</option>
-              <option value="ropa-niños">Ropa Niños</option>
             </select>
           </div>
         </div>
@@ -320,9 +336,18 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
                   type="number"
                   value={size.stock}
                   min="0"
-                  onChange={e => handleSizeChange(index, e.target.value)}
+                  onChange={e => handleSizeChange(index, 'stock', e.target.value)}
                   placeholder={getSizePlaceholder()}
                 />
+                {/* NUEVO: Checkbox para available */}
+                <label className="available-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={size.available}
+                    onChange={e => handleSizeChange(index, 'available', e.target.checked)}
+                  />
+                  Disponible
+                </label>
               </div>
             ))}
           </div>
@@ -349,7 +374,20 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
                 checked={formData.featured}
                 onChange={handleChange}
               />
-              ⭐ Producto Destacado (aparecerá en la página principal)
+              ⭐ Producto Destacado
+            </label>
+          </div>
+
+          {/* NUEVO: Checkbox para active */}
+          <div className="form-group checkbox-group">
+            <label>
+              <input
+                type="checkbox"
+                name="active"
+                checked={formData.active}
+                onChange={handleChange}
+              />
+              Producto Activo (visible en tienda)
             </label>
           </div>
         </div>

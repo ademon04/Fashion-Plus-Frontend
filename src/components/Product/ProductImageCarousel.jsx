@@ -19,27 +19,17 @@ const ProductImageCarousel = ({
   const imageRef = useRef(null);
   const containerRef = useRef(null);
 
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🖼️ CARRUSEL MONTADO');
-  console.log('📍 location.state:', location.state);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
   const handleClose = () => {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('❌ CERRANDO CARRUSEL');
-    console.log('📍 location.state completo:', JSON.stringify(location.state, null, 2));
+    
     
     const from = location.state?.from || 'home';
-    console.log('🔙 Página de origen detectada:', from);
     
     if (from === 'productos' || from === 'products') {
-      console.log('✅ Viene de PRODUCTOS - Verificando filtros...');
       
       const savedFilters = getSavedFilters();
-      console.log('💾 Filtros guardados:', JSON.stringify(savedFilters, null, 2));
       
       if (savedFilters) {
-        console.log('✅ HAY FILTROS - Construyendo URL con params...');
         
         const params = new URLSearchParams();
         if (savedFilters.category)    params.set('category', savedFilters.category);
@@ -50,26 +40,18 @@ const ProductImageCarousel = ({
         if (savedFilters.onSale)      params.set('onSale', 'true');
 
         const query = params.toString();
-        console.log('🔗 Query string:', query);
         
         sessionStorage.setItem('from_carousel', 'true');
-        console.log('✅ Marcado from_carousel en sessionStorage');
         
         const finalUrl = query ? `/productos?${query}` : '/productos';
-        console.log('🎯 Navegando a:', finalUrl);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
         navigate(finalUrl);
       } else {
-        console.log('⚠️ NO HAY FILTROS - Volviendo a /productos limpio');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         navigate('/productos');
       }
     } else {
       console.log('🏠 NO viene de productos - Volviendo a:', from);
       const targetUrl = from === 'home' ? '/' : `/${from}`;
-      console.log('🎯 Navegando a:', targetUrl);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       navigate(targetUrl);
     }
   };
