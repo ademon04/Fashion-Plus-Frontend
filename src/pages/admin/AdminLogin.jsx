@@ -13,6 +13,9 @@ const AdminLogin = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  console.log('🔵 AdminLogin renderizado'); 
+  console.log('🔵 login function:', login); 
+
   const handleChange = (e) => {
     setCredentials({
       ...credentials,
@@ -22,20 +25,33 @@ const AdminLogin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    console.log('═══════════════════════════════════'); 
+    console.log('🚀 FORMULARIO ENVIADO'); 
+    console.log('📧 Email:', credentials.email);
+    console.log('🔑 Password:', credentials.password ? '***' : 'VACÍO'); 
+    console.log('═══════════════════════════════════'); 
+    
     setLoading(true);
     setError('');
 
     try {
+      console.log('⏳ Llamando a login()...'); 
       const result = await login(credentials.email, credentials.password);
+      console.log('📥 Resultado de login():', result); 
       
       if (result.success) {
+        console.log('✅ Login exitoso, navegando a dashboard...');
         navigate('/admin/dashboard');
       } else {
-        setError(result.error);
+        console.log(' Login falló:', result.error); 
       }
     } catch (error) {
+      console.error(' ERROR CATCH:', error); 
+      console.error(' ERROR STACK:', error.stack); 
       setError('Error al iniciar sesión');
     } finally {
+      console.log(' Finalizando...');
       setLoading(false);
     }
   };

@@ -1,6 +1,6 @@
 import { api } from './api';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "https://fashion-plus-production.up.railway.app";
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 export const productService = {
   async getProducts(filters = {}) {
@@ -16,7 +16,7 @@ export const productService = {
       const response = await api.get(`/products?${params}`);
       
       
-      // 🔥 CORRECCIÓN DEFINITIVA: Extraer products correctamente
+      //  CORRECCIÓN DEFINITIVA: Extraer products correctamente
       let productsData = [];
       
       
