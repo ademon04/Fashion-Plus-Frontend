@@ -2722,79 +2722,213 @@
   border: 1px solid #f5c6cb;
 }
 
+/* ============================================= */
+/* FIX RESPONSIVE - FORMULARIO DE PRODUCTOS     */
+/* Reemplaza las secciones existentes de        */
+/* .product-form-container en components.css    */
+/* ============================================= */
+
+.product-form-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.product-form {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1.5rem;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Botón cerrar - siempre visible y funcional */
+.close-button {
+  position: sticky;
+  top: 0;
+  float: right;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #f0f0f0;
+  color: #333;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s;
+}
+
+.close-button:hover {
+  background: #e0e0e0;
+}
+
+/* Grid de campos - 2 columnas en desktop, 1 en móvil */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Tallas - más compactas en móvil */
+.sizes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 0.75rem;
+}
+
+.size-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+}
+
+.size-input-group label {
+  font-weight: 600;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.size-input-group input {
+  text-align: center;
+  padding: 0.4rem;
+  font-size: 0.9rem;
+}
+
+/* Checkboxes en columna en móvil */
+.form-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* Acciones del form */
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+  justify-content: flex-end;
+}
+
+/* ============================================= */
+/* TABLETS (max 768px)                          */
+/* ============================================= */
 @media (max-width: 768px) {
   .product-form-container {
+    align-items: flex-start;
+    padding: 0.5rem;
+  }
+
+  .product-form {
+    max-height: 95vh;
     padding: 1rem;
-    margin: 0.5rem;
-    max-width: 100%;
-    max-height: calc(100vh - 80px);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+    margin: auto 0;
   }
 
-  .form-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  .form-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
   }
 
-  .form-title {
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
+  .sizes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+    gap: 0.5rem;
   }
 
   .form-checkboxes {
     flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
-  }
-
-  .sizes-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 0.75rem;
   }
 
-  .size-input-group {
-    padding: 0.5rem;
-  }
-
   .form-actions {
-    flex-direction: column;
+    flex-direction: column-reverse;
   }
 
-  .btn-save,
-  .btn-cancel,
-  .btn-delete {
+  .form-actions .btn-primary,
+  .form-actions .btn-secondary {
     width: 100%;
     min-width: auto;
   }
 }
 
+/* ============================================= */
+/* MÓVILES (max 480px)                          */
+/* ============================================= */
 @media (max-width: 480px) {
   .product-form-container {
-    padding: 0.75rem;
+    padding: 0;
+    align-items: flex-end;
   }
 
+  .product-form {
+    border-radius: 16px 16px 0 0;
+    max-height: 92vh;
+    padding: 1rem 0.875rem;
+    /* Sheet que sube desde abajo en móvil */
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .sizes-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+  }
+
+  .size-input-group {
+    padding: 0.4rem;
+  }
+
+  .size-input-group label {
+    font-size: 0.78rem;
+  }
+
+  /* Inputs con font-size 16px para evitar zoom en iOS */
   .form-group input[type="text"],
   .form-group input[type="number"],
   .form-group textarea,
   .form-group select {
-    padding: 0.625rem;
-    font-size: 0.95rem;
+    font-size: 16px !important;
+    padding: 0.7rem 0.75rem;
   }
 
-  .sizes-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .image-preview-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .form-actions {
-    gap: 0.75rem;
+  .available-checkbox {
+    font-size: 0.7rem;
   }
 }
-
 /* ============================================= */
 /* VALIDACIÓN Y PLACEHOLDERS */
 /* ============================================= */

@@ -11,10 +11,7 @@ const ProductCard = ({ product, fromPage, category = "" }) => {
   const { addToCart } = useCart();
   const location = useLocation();
 
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔍 ProductCard RENDERIZADO');
-  console.log('📍 location.pathname:', location.pathname);
-  console.log('📍 fromPage prop:', fromPage);
+
 
   // 🔥 Detectar correctamente la página de origen
   const detectedFromPage = (() => {
@@ -43,8 +40,7 @@ const ProductCard = ({ product, fromPage, category = "" }) => {
     return 'productos';
   })();
   
-  console.log('🎯 RESULTADO FINAL - detectedFromPage:', detectedFromPage);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+ 
   
   useEffect(() => {
     const loadBestImage = async () => {
@@ -117,11 +113,7 @@ const ProductCard = ({ product, fromPage, category = "" }) => {
 
   const handleProductClick = () => {
     const scrollPosition = window.scrollY || document.documentElement.scrollTop;
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🖱️ CLICK EN PRODUCTO');
-    console.log('📍 Guardando scroll:', scrollPosition);
     sessionStorage.setItem('productsScrollPosition', scrollPosition.toString());
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   };
 
   const getLinkState = () => {
@@ -134,10 +126,7 @@ const ProductCard = ({ product, fromPage, category = "" }) => {
       scrollPosition: scrollPosition
     };
 
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📦 STATE QUE SE PASA AL LINK:');
-    console.log(JSON.stringify(state, null, 2));
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+ 
 
     return state;
   };
