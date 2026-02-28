@@ -7,7 +7,8 @@ const ProductImageCarousel = ({
   images,
   productName,
   onSale = false,
-  onImageClick
+  onImageClick,
+  onClose  
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,41 +21,39 @@ const ProductImageCarousel = ({
   const containerRef = useRef(null);
 
 
-  const handleClose = () => {
-    
-    
-    const from = location.state?.from || 'home';
-    
-    if (from === 'productos' || from === 'products') {
+const handleClose = () => {
+  // 🔥 Si viene onClose (desde modal de Home), usarlo
+  if (onClose) {
+    onClose();
+    return;
+  }
+  
+  // 🔥 Si no, usar la lógica normal de navegación (desde /productos)
+  const from = location.state?.from || 'home';
+  
+  if (from === 'productos' || from === 'products') {
+    const savedFilters = getSavedFilters();
+    if (savedFilters) {
+      const params = new URLSearchParams();
+      if (savedFilters.category) params.set('category', savedFilters.category);
+      if (savedFilters.subcategory) params.set('subcategory', savedFilters.subcategory);
+      if (savedFilters.minPrice) params.set('minPrice', savedFilters.minPrice);
+      if (savedFilters.maxPrice) params.set('maxPrice', savedFilters.maxPrice);
+      if (savedFilters.search) params.set('search', savedFilters.search);
+      if (savedFilters.onSale) params.set('onSale', 'true');
       
-      const savedFilters = getSavedFilters();
-      
-      if (savedFilters) {
-        
-        const params = new URLSearchParams();
-        if (savedFilters.category)    params.set('category', savedFilters.category);
-        if (savedFilters.subcategory) params.set('subcategory', savedFilters.subcategory);
-        if (savedFilters.minPrice)    params.set('minPrice', savedFilters.minPrice);
-        if (savedFilters.maxPrice)    params.set('maxPrice', savedFilters.maxPrice);
-        if (savedFilters.search)      params.set('search', savedFilters.search);
-        if (savedFilters.onSale)      params.set('onSale', 'true');
-
-        const query = params.toString();
-        
-        sessionStorage.setItem('from_carousel', 'true');
-        
-        const finalUrl = query ? `/productos?${query}` : '/productos';
-        
-        navigate(finalUrl);
-      } else {
-        navigate('/productos');
-      }
+      const query = params.toString();
+      sessionStorage.setItem('from_carousel', 'true');
+      const finalUrl = query ? `/productos?${query}` : '/productos';
+      navigate(finalUrl);
     } else {
-      console.log('🏠 NO viene de productos - Volviendo a:', from);
-      const targetUrl = from === 'home' ? '/' : `/${from}`;
-      navigate(targetUrl);
+      navigate('/productos');
     }
-  };
+  } else {
+    const targetUrl = from === 'home' ? '/' : `/${from}`;
+    navigate(targetUrl);
+  }
+};
 
   const nextSlide = useCallback(() => {
     setCurrentIndex(prev => (prev === (images?.length || 1) - 1 ? 0 : prev + 1));

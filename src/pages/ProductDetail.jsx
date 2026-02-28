@@ -580,14 +580,7 @@ const handleBackToProducts = () => {
               >
                 +
               </button>
-              <button 
-                className="lightbox-zoom-btn close-mobile"
-                onClick={closeLightbox}
-                title="Cerrar"
-                aria-label="Cerrar lightbox"
-              >
-                ✕
-              </button>
+             
             </div>
             
             {/* Imagen principal */}

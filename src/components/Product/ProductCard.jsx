@@ -13,10 +13,9 @@ const ProductCard = ({ product, fromPage, category = "" }) => {
 
 
 
-  // 🔥 Detectar correctamente la página de origen
+  //  Detectar correctamente la página de origen
   const detectedFromPage = (() => {
     if (fromPage) {
-      console.log('✅ Usando fromPage prop:', fromPage);
       return fromPage;
     }
     
@@ -24,19 +23,15 @@ const ProductCard = ({ product, fromPage, category = "" }) => {
     console.log('🔍 Detectando desde path:', path);
     
     if (path === '/') {
-      console.log('✅ Detectado: HOME');
       return 'home';
     }
     if (path === '/productos') {
-      console.log('✅ Detectado: PRODUCTOS');
       return 'productos';
     }
     if (path.startsWith('/about')) {
-      console.log('✅ Detectado: ABOUT');
       return 'about';
     }
     
-    console.log('⚠️ No detectado, usando default: productos');
     return 'productos';
   })();
   

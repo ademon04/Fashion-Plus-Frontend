@@ -289,13 +289,7 @@ const Home = () => {
                 <h3 className="modal-title">{selectedProduct.name}</h3>
                 <p className="modal-subtitle">Premium Collection</p>
               </div>
-              <button 
-                className="modal-close"
-                onClick={handleCloseGallery}
-                aria-label="Close gallery"
-              >
-                ⨯
-              </button>
+             
             </div>
             
             <div className="modal-content">
@@ -306,6 +300,8 @@ const Home = () => {
                   productName={selectedProduct.name}
                   onSale={selectedProduct.onSale}
                   onImageClick={() => {}}
+                  onClose={handleCloseGallery} 
+
                 />
               </div>
               

@@ -21,14 +21,13 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const isFirstLoadRef = useRef(true);
 
-  // 🔥 Inicializar filtros desde URL o localStorage
+  //  Inicializar filtros desde URL o localStorage
   const [filters, setFilters] = useState(() => {
     const params = new URLSearchParams(location.search);
     const fromCarousel = sessionStorage.getItem('from_carousel') === 'true';
     
     // Si viene del carrusel con params
     if (fromCarousel && params.toString()) {
-      console.log('📍 Restaurando filtros desde URL (carrusel)');
       return {
         category: params.get('category') || '',
         subcategory: params.get('subcategory') || '',
@@ -41,7 +40,6 @@ const Products = () => {
     
     // Si viene de location.state (navegación normal)
     if (location.state?.category || location.state?.subcategory) {
-      console.log('📍 Restaurando filtros desde location.state');
       return {
         ...EMPTY_FILTERS,
         category: location.state.category || '',
@@ -52,14 +50,13 @@ const Products = () => {
     // Intentar restaurar desde localStorage
     const saved = getSavedFilters();
     if (saved) {
-      console.log('📍 Restaurando filtros desde localStorage');
       return saved;
     }
     
     return EMPTY_FILTERS;
   });
 
-  // 🔥 Sincronizar con URL cuando cambie
+  //  Sincronizar con URL cuando cambie
   useEffect(() => {
     if (isFirstLoadRef.current) {
       isFirstLoadRef.current = false;
@@ -87,7 +84,6 @@ const Products = () => {
     if (location.state?.scrollPosition) {
       setTimeout(() => {
         window.scrollTo(0, location.state.scrollPosition);
-        console.log('📍 Scroll restaurado a:', location.state.scrollPosition);
       }, 100);
     }
   }, [location.search, location.state]);
@@ -132,12 +128,10 @@ const Products = () => {
 
     if (!hasActiveFilters) {
       setFilteredProducts(products);
-      console.log('✅ Sin filtros activos - mostrando todos:', products.length);
       return;
     }
 
     let result = [...products];
-    console.log('🔍 Aplicando filtros:', filters);
 
     if (filters.category) {
       const categoryMap = {
@@ -187,7 +181,7 @@ const Products = () => {
     console.log('🔄 Filtros cambiados por usuario:', newFilters);
     setFilters(newFilters);
     
-    // 🔥 Limpiar params de URL cuando el usuario cambia filtros manualmente
+    //  Limpiar params de URL cuando el usuario cambia filtros manualmente
     if (location.search) {
       navigate('/productos', { replace: true });
     }
