@@ -208,11 +208,7 @@ const Home = () => {
                             alt={product.name}
                             className="preview-image"
                           />
-                          {product.images.length > 1 && (
-                            <div className="gallery-indicator">
-                              <span className="indicator-count">{product.images.length}</span>
-                            </div>
-                          )}
+                          
                           <div className="image-overlay">
                             <span className="view-gallery">VIEW GALLERY</span>
                           </div>
